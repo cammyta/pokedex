@@ -1,0 +1,429 @@
+/* ==========================================================
+   OVERLAY ULTRA SUN / ULTRA MOON — estilo base
+   ========================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
+
+@font-face { font-family: "PoppinsLocal"; src: url("../assets/fonts/Poppins-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "PoppinsLocal"; src: url("../assets/fonts/Poppins-Medium.ttf"); font-weight: 500; }
+@font-face { font-family: "PoppinsLocal"; src: url("../assets/fonts/Poppins-Bold.ttf"); font-weight: 700; }
+
+@property --ang { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+
+:root {
+  --sun1: #ffc85c;  --sun2: #ff8a3d;  --sun3: #fff3cf;
+  --moon1: #a493ff; --moon2: #57c6ff; --moon3: #e9e4ff;
+  --rosa: #ff6fa8;
+  --ink: #0f0c29;
+  --ink2: #1c1648;
+  --glass: rgba(20, 15, 52, .74);
+  --glass2: rgba(32, 24, 78, .62);
+  --line: rgba(255, 255, 255, .14);
+  --txt: #fbf8ff;
+  --txt2: #c9c2ec;
+  --sol: 1;  /* 1 = dia, 0 = noite (o sky.js anima isso) */
+  --lua: 0;
+  --display: "Fredoka", "PoppinsLocal", "Poppins", sans-serif;
+  --body: "PoppinsLocal", "Poppins", "Segoe UI", sans-serif;
+  --anel: conic-gradient(from var(--ang),
+            var(--sun1), var(--sun2), var(--rosa), var(--moon1),
+            var(--moon2), var(--moon1), var(--rosa), var(--sun2), var(--sun1));
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent;
+  color: var(--txt); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+body.solo { width: 100vw; height: 100vh; }
+
+/* ---------- MOLDURA (borda sol e lua) ---------- */
+.moldura { position: absolute; border-radius: 26px; }
+.moldura::before, .moldura::after {
+  content: ""; position: absolute; inset: -5px; border-radius: 30px; padding: 5px;
+  background: var(--anel);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: girar 16s linear infinite; pointer-events: none;
+}
+.moldura::after { inset: -12px; padding: 12px; border-radius: 38px; filter: blur(14px); opacity: .55; }
+.moldura.vidro { background: var(--glass); backdrop-filter: blur(10px); }
+@keyframes girar { to { --ang: 360deg; } }
+
+/* Etiqueta sobre a moldura */
+.etiqueta {
+  position: absolute; top: -20px; left: 28px; z-index: 3;
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 18px 7px 10px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--ink2), var(--ink));
+  border: 1.5px solid rgba(255,255,255,.22);
+  box-shadow: 0 6px 22px rgba(10, 6, 40, .55);
+  font: 600 19px/1 var(--display); letter-spacing: .06em; text-transform: uppercase;
+}
+.etiqueta .mini-orb { width: 26px; height: 26px; }
+.etiqueta.direita { left: auto; right: 28px; }
+
+/* Cantinhos: sol num canto, lua no oposto */
+.canto { position: absolute; width: 46px; height: 46px; z-index: 3; pointer-events: none; }
+.canto.sol { right: -20px; top: -20px; }
+.canto.lua { left: -20px; bottom: -20px; }
+
+/* ---------- ORBE SOL & LUA (eclipse) ---------- */
+.orbe { position: relative; width: 120px; height: 120px; }
+.orbe .orbita { position: absolute; inset: 0; animation: orbitar 22s linear infinite; }
+.orbe .orbita.b { animation-delay: -11s; }
+.orbe .astro { position: absolute; left: 50%; top: 0; width: 46%; height: 46%; transform: translateX(-50%);
+  animation: contra 22s linear infinite; }
+.orbe .orbita.b .astro { animation-delay: -11s; }
+.orbe .halo { position: absolute; inset: 18%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.45), rgba(164,147,255,.12) 55%, transparent 70%);
+  filter: blur(6px); animation: pulsar 5s ease-in-out infinite; }
+.orbe .aro { position: absolute; inset: 8%; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,.22);
+  animation: orbitar 60s linear infinite reverse; }
+@keyframes orbitar { to { transform: rotate(360deg); } }
+@keyframes contra { to { transform: translateX(-50%) rotate(-360deg); } }
+@keyframes pulsar { 50% { transform: scale(1.15); opacity: .7; } }
+
+/* Sol */
+.sol-ico { position: relative; width: 100%; height: 100%; }
+.sol-ico::before { content: ""; position: absolute; inset: -22%;
+  background: repeating-conic-gradient(from 0deg, var(--sun1) 0 10deg, transparent 10deg 30deg);
+  -webkit-mask: radial-gradient(circle, transparent 40%, #000 41%, #000 60%, transparent 70%);
+  border-radius: 50%; animation: orbitar 18s linear infinite; opacity: .95; }
+.sol-ico::after { content: ""; position: absolute; inset: 8%; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffbe8, var(--sun1) 45%, var(--sun2));
+  box-shadow: 0 0 18px 4px rgba(255, 180, 70, .75), 0 0 46px 10px rgba(255, 138, 61, .35); }
+
+/* Lua */
+.lua-ico { position: relative; width: 100%; height: 100%; }
+.lua-ico::before { content: ""; position: absolute; inset: 6%; border-radius: 50%;
+  background: radial-gradient(circle at 60% 35%, #ffffff, var(--moon3) 30%, var(--moon1) 75%, #6e5bdc);
+  box-shadow: 0 0 18px 4px rgba(164, 147, 255, .8), 0 0 46px 10px rgba(87, 198, 255, .3); }
+.lua-ico::after { content: ""; position: absolute; inset: 6%; border-radius: 50%;
+  background: radial-gradient(circle at 18% 30%, rgba(40,26,110,.95) 0 34%, transparent 35%),
+              radial-gradient(circle at 62% 68%, rgba(110,91,220,.35) 0 9%, transparent 10%),
+              radial-gradient(circle at 74% 42%, rgba(110,91,220,.3) 0 6%, transparent 7%);
+  mix-blend-mode: multiply; }
+
+/* ---------- CÉU (camadas de dia e noite) ---------- */
+.ceu { position: absolute; inset: 0; pointer-events: none; }
+.ceu .dia, .ceu .noite { position: absolute; inset: 0; transition: opacity 1.2s linear; }
+.ceu .dia { opacity: var(--sol);
+  background: radial-gradient(1200px 700px at 85% -10%, rgba(255, 190, 90, .32), transparent 60%),
+              radial-gradient(900px 600px at 0% 110%, rgba(255, 111, 168, .18), transparent 60%); }
+.ceu .noite { opacity: var(--lua);
+  background: radial-gradient(1200px 700px at 10% -10%, rgba(120, 100, 255, .35), transparent 60%),
+              radial-gradient(900px 600px at 100% 110%, rgba(87, 198, 255, .18), transparent 60%); }
+canvas.estrelas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ---------- CHAT (duelo Sol x Lua) ---------- */
+.chat { position: absolute; display: flex; flex-direction: column; }
+.chat .duelo { position: relative; flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  gap: 6px 10px; padding: 20px 20px 16px; border-radius: 24px 24px 0 0; overflow: hidden;
+  background: linear-gradient(90deg, rgba(255,160,70,.28), rgba(255,111,168,.12) 50%, rgba(140,120,255,.32)); }
+.duelo .lado { display: flex; align-items: center; gap: 12px; transition: transform .6s cubic-bezier(.3,1.5,.5,1); }
+.duelo .lado.lua { justify-content: flex-end; text-align: right; }
+.duelo .emblema { position: relative; width: 62px; height: 62px; flex: none; transition: transform .6s cubic-bezier(.3,1.5,.5,1), filter .6s; }
+.duelo .emblema .lua-ico { transform: scale(.92); }
+.duelo .info { display: flex; flex-direction: column; gap: 3px; }
+.duelo .rot { font: 600 13px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--txt2); }
+.duelo .sol .rot { color: var(--sun3); } .duelo .lua .rot { color: var(--moon3); }
+.duelo .info b { font: 700 38px/1 var(--display); font-variant-numeric: tabular-nums; }
+.duelo .sol .info b { color: var(--sun1); text-shadow: 0 0 18px rgba(255,180,70,.6); }
+.duelo .lua .info b { color: var(--moon3); text-shadow: 0 0 18px rgba(164,147,255,.7); }
+.duelo .vs { font: 700 18px/1 var(--display); letter-spacing: .1em; color: rgba(255,255,255,.55);
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
+  background: rgba(10, 6, 40, .55); border: 1.5px solid rgba(255,255,255,.2); }
+.duelo .cabo { grid-column: 1 / -1; position: relative; height: 12px; border-radius: 99px; margin-top: 6px;
+  background: linear-gradient(90deg, var(--moon1), var(--moon2)); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.2); }
+.duelo .cabo .s { position: absolute; inset: 0 auto 0 0; width: 50%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--sun2), var(--sun1)); transition: width .9s cubic-bezier(.3,1.4,.5,1); }
+.duelo .cabo .no { position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 30%, rgba(255,255,255,.2) 70%); box-shadow: 0 0 18px 6px rgba(255,255,255,.7);
+  transition: left .9s cubic-bezier(.3,1.4,.5,1); }
+.duelo .dica { grid-column: 1 / -1; text-align: center; font: 500 13px/1.3 var(--body); color: var(--txt2); }
+.duelo .dica b { color: #fff; }
+.chat.lider-sol .lado.sol .emblema, .chat.lider-lua .lado.lua .emblema { transform: scale(1.18); filter: brightness(1.15) drop-shadow(0 0 14px rgba(255,255,255,.5)); }
+.chat.lider-sol .lado.lua, .chat.lider-lua .lado.sol { opacity: .78; }
+.lado.ponto .emblema { animation: ponto .7s cubic-bezier(.3,1.6,.5,1); }
+@keyframes ponto { 40% { transform: scale(1.35) rotate(12deg); } }
+
+.chat .lista { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end;
+  gap: 10px; padding: 10px 14px 16px; overflow: hidden; -webkit-mask: linear-gradient(transparent, #000 80px); }
+
+.msg { position: relative; display: flex; gap: 12px; align-items: center; padding: 10px 14px 10px 10px; overflow: hidden;
+  border-radius: 20px; background: rgba(36, 28, 84, .7); border: 1.5px solid rgba(255,255,255,.12);
+  animation: entrar .55s cubic-bezier(.2,1.3,.4,1) both; flex: none; }
+.msg.sai { animation: sair .5s ease-in forwards; }
+@keyframes entrar { from { transform: translateX(40px) scale(.92); opacity: 0; } }
+@keyframes sair { to { transform: translateX(-30px); opacity: 0; } }
+.msg.sol { background: linear-gradient(110deg, rgba(255, 150, 60, .42), rgba(255,111,168,.16) 45%, rgba(36, 22, 70, .82) 75%);
+  border-color: rgba(255, 200, 92, .6); box-shadow: 0 0 22px rgba(255, 160, 70, .18); }
+.msg.lua { background: linear-gradient(110deg, rgba(130, 110, 255, .48), rgba(87,198,255,.14) 45%, rgba(22, 18, 66, .84) 75%);
+  border-color: rgba(164, 147, 255, .65); box-shadow: 0 0 22px rgba(140, 120, 255, .2); }
+.msg.dono { box-shadow: 0 0 0 2px rgba(255,255,255,.45), 0 0 26px rgba(255, 220, 160, .3); }
+/* marca d'água: sol girando ou lua crescente */
+.msg .marca { position: absolute; right: -34px; top: 50%; width: 120px; height: 120px; margin-top: -60px; opacity: .22; pointer-events: none; }
+.msg.sol .marca { background: repeating-conic-gradient(var(--sun1) 0 9deg, transparent 9deg 24deg);
+  -webkit-mask: radial-gradient(circle, transparent 28%, #000 29%, #000 48%, transparent 50%); animation: orbitar 24s linear infinite; }
+.msg.sol .marca::after { content: ""; position: absolute; inset: 34%; border-radius: 50%; background: var(--sun1); }
+.msg.lua .marca { border-radius: 50%; box-shadow: inset -22px 10px 0 0 var(--moon3); transform: rotate(-20deg); opacity: .3; }
+.msg .av { position: relative; flex: none; width: 84px; height: 84px; border-radius: 22px; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(circle at 50% 60%, rgba(255,255,255,.16), rgba(255,255,255,.04)); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14); }
+.msg.sol .av { box-shadow: inset 0 0 0 2.5px var(--sun1), 0 0 16px rgba(255, 190, 80, .45); }
+.msg.lua .av { box-shadow: inset 0 0 0 2.5px var(--moon1), 0 0 16px rgba(164, 147, 255, .5); }
+.msg .av img.pmd { width: 80px; height: 80px; image-rendering: pixelated; border-radius: 18px; }
+.msg .av img.home { width: 92px; height: 92px; object-fit: contain; }
+.msg .corpo { position: relative; min-width: 0; flex: 1; }
+.msg .quem { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; flex-wrap: wrap; }
+.msg .nome { font: 700 19px/1.1 var(--display); color: #fff; }
+.msg.sol .nome { color: var(--sun3); } .msg.lua .nome { color: var(--moon3); }
+.chip { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 99px; font: 700 11px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+.chip.sol { background: linear-gradient(90deg, var(--sun1), var(--sun2)); }
+.chip.lua { background: linear-gradient(90deg, var(--moon3), var(--moon1)); }
+.badge { display: inline-grid; place-items: center; height: 20px; padding: 0 7px; border-radius: 7px;
+  font: 700 10.5px/1 var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--ink); }
+.badge.b-dono { background: linear-gradient(90deg, #fff, var(--sun3)); }
+.badge.b-mod { background: #7cf3c0; } .badge.b-vip { background: #ff9ad5; } .badge.b-sub { background: rgba(255,255,255,.75); }
+.msg .texto { font: 500 18px/1.38 var(--body); color: #f6f3ff; overflow-wrap: anywhere; }
+.msg .texto img.emote { height: 28px; vertical-align: middle; margin: -4px 1px 0; }
+.msg.so-emote .texto img.emote { height: 48px; }
+
+.aviso { align-self: center; display: flex; align-items: center; gap: 10px; padding: 6px 18px 6px 6px; border-radius: 99px; flex: none;
+  font: 600 15px/1.2 var(--display); letter-spacing: .02em; animation: entrar .6s cubic-bezier(.2,1.4,.4,1) both;
+  background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.22); }
+.aviso .ico { position: relative; width: 30px; height: 30px; flex: none; }
+.aviso .ret { width: 40px; height: 40px; border-radius: 50%; image-rendering: pixelated; object-fit: cover; background: rgba(255,255,255,.15); flex: none; }
+.aviso.sol { background: linear-gradient(90deg, rgba(255,160,70,.55), rgba(255,111,168,.3)); border-color: rgba(255,200,92,.6); }
+.aviso.lua { background: linear-gradient(90deg, rgba(140,120,255,.6), rgba(87,198,255,.3)); border-color: rgba(164,147,255,.6); }
+
+/* ---------- PARTY (retratos) ---------- */
+.party { position: absolute; display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+.party.grade2 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+.slot { position: relative; border-radius: 22px; min-height: 0;
+  background: linear-gradient(160deg, rgba(48, 36, 110, .82), rgba(18, 14, 46, .86));
+  border: 1.5px solid rgba(255,255,255,.14); box-shadow: 0 10px 26px rgba(8, 4, 30, .45); }
+.slot .num { position: absolute; left: 11px; top: 9px; font: 700 14px/1 var(--display); color: rgba(255,255,255,.4); z-index: 3; }
+.slot .bola { position: absolute; left: 50%; top: 44%; width: 58px; height: 58px; transform: translate(-50%, -50%);
+  border-radius: 50%; border: 3px solid rgba(255,255,255,.12);
+  background: linear-gradient(transparent 46%, rgba(255,255,255,.12) 46% 54%, transparent 54%); transition: opacity .4s; }
+.slot .bola::after { content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px;
+  border-radius: 50%; border: 3px solid rgba(255,255,255,.14); background: var(--ink); }
+.slot .palco { position: absolute; inset: 8px 8px 36px; display: grid; place-items: center; }
+.slot .moldura-ret { position: absolute; top: 0; left: 50%; transform: translateX(-50%); height: 100%; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 18px; overflow: hidden;
+  box-shadow: 0 0 0 2.5px rgba(255,255,255,.75), 0 6px 18px rgba(0,0,0,.4); }
+.slot .moldura-ret img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.slot .moldura-ret img.pmd { image-rendering: pixelated; }
+.slot .moldura-ret img.home { object-fit: contain; background: radial-gradient(circle, rgba(255,255,255,.18), transparent 70%); }
+.slot .nome { position: absolute; left: 8px; right: 8px; bottom: 8px; height: 22px; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px;
+  border-radius: 99px; background: rgba(255,255,255,.08); font: 600 14px/1 var(--display); letter-spacing: .03em;
+  white-space: nowrap; overflow: hidden; color: var(--txt2); }
+.slot.cheio .bola { opacity: 0; }
+.slot.cheio { border-color: rgba(255, 210, 140, .45);
+  background: radial-gradient(circle at 50% 45%, rgba(255, 200, 92, calc(.32 * var(--sol) + .05)), rgba(164,147,255, calc(.34 * var(--lua) + .05)) 50%, transparent 75%),
+              linear-gradient(160deg, rgba(60, 44, 130, .9), rgba(20, 15, 50, .92)); }
+.slot.cheio .nome { background: linear-gradient(90deg, rgba(255,200,92,.32), rgba(164,147,255,.32)); color: #fff; }
+.slot.shiny .nome::before { content: "✦"; color: #ffe27a; flex: none; }
+.slot.shiny .moldura-ret { box-shadow: 0 0 0 2.5px #ffe27a, 0 0 18px rgba(255, 226, 122, .6); }
+.slot.entra .palco { animation: pokebola .9s cubic-bezier(.2,1.5,.4,1) both; }
+.slot.entra::after { content: ""; position: absolute; inset: 0; border-radius: 22px; background: radial-gradient(circle, #fff, transparent 70%);
+  animation: flash .8s ease-out forwards; pointer-events: none; }
+@keyframes pokebola { 0% { transform: scale(0); filter: brightness(8); } 60% { filter: brightness(1.6); } 100% { transform: scale(1); filter: none; } }
+@keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+.slot .moldura-ret.reage { animation: reage .5s ease; }
+@keyframes reage { 40% { transform: translateX(-50%) scale(1.08) rotate(-3deg); } }
+
+/* ---------- LETREIRO ---------- */
+.letreiro { position: absolute; display: flex; align-items: center; gap: 16px; padding: 0 22px; overflow: hidden;
+  font: 600 20px/1 var(--display); letter-spacing: .02em; }
+.letreiro .mini-orb { width: 30px; height: 30px; flex: none; }
+.letreiro .frase { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; animation: frase .7s cubic-bezier(.2,1.3,.4,1) both; white-space: nowrap; }
+@keyframes frase { from { transform: translateY(26px); opacity: 0; } }
+
+/* ---------- utilitários ---------- */
+.mini-orb { position: relative; display: inline-block; }
+.flutua { animation: flutua 5s ease-in-out infinite; }
+@keyframes flutua { 50% { transform: translateY(-14px); } }
+.sprite { image-rendering: pixelated; }
+.grad-txt { background: linear-gradient(90deg, var(--sun1), var(--sun3) 30%, var(--moon3) 65%, var(--moon1));
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---------- REDES ---------- */
+.rede { display: flex; align-items: center; gap: 12px; font: 600 20px/1 var(--display); letter-spacing: .02em; white-space: nowrap; }
+.rede-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; flex: none;
+  background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.25), 0 4px 14px rgba(0,0,0,.35); }
+.rede-ico img { width: 30px; height: 30px; object-fit: contain; }
+
+/* ---------- SUB: estrelinhas suaves no fundo da mensagem ---------- */
+.msg.sub::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .8;
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 30%, #fff 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 38% 78%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 64% 22%, #fff7d6 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 82% 64%, #fff 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 92% 18%, #e9e4ff 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 52% 52%, #fff 50%, transparent 51%),
+    radial-gradient(1.8px 1.8px at 26% 88%, #fff7d6 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 73% 40%, #fff 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 6% 70%, #e9e4ff 50%, transparent 51%);
+  animation: brilhinho 4s ease-in-out infinite alternate; }
+.msg.sub::after { content: "✦"; position: absolute; right: 16px; bottom: 6px; font-size: 13px; color: #fff3b0; opacity: .7;
+  animation: brilhinho 2.6s ease-in-out infinite alternate; }
+@keyframes brilhinho { from { opacity: .3; } to { opacity: .9; } }
+.msg.sub .marca { z-index: 0; }
+
+/* ---------- LUA do chat com movimento leve ---------- */
+.duelo .lado.lua .emblema .lua-ico { animation: balanco 6s ease-in-out infinite; }
+@keyframes balanco { 0%, 100% { transform: scale(.92) rotate(-8deg) translateY(0); } 50% { transform: scale(.92) rotate(8deg) translateY(-4px); } }
+
+/* ---------- EMBLEMAS OFICIAIS SOL & LUA (telas de espera) ---------- */
+.par-logos { position: relative; width: 220px; height: 220px; }
+.par-logos .halo-l { position: absolute; inset: 22%; border-radius: 50%; filter: blur(22px);
+  background: radial-gradient(circle, rgba(255,255,255,.55), rgba(255,170,80,.25) 45%, rgba(110,170,255,.2) 65%, transparent 72%);
+  animation: pulsar 5s ease-in-out infinite; }
+.par-logos .orb-l { position: absolute; inset: 0; animation: orbitar 36s linear infinite; }
+.par-logos .orb-l.b { animation-delay: -18s; }
+.par-logos .astro-l { position: absolute; left: 50%; top: 0; width: 54%; height: 54%; transform: translateX(-50%); animation: contra 36s linear infinite; }
+.par-logos .orb-l.b .astro-l { animation-delay: -18s; }
+.par-logos img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.par-logos .logo-sol { animation: girar-sol 30s linear infinite, brilho-sol 3.6s ease-in-out infinite; }
+.par-logos .logo-lua { width: 82%; height: 82%; margin: 9%; animation: balanco-lua 7s ease-in-out infinite, brilho-lua 4.2s ease-in-out infinite; }
+@keyframes girar-sol { to { transform: rotate(360deg); } }
+@keyframes balanco-lua { 0%, 100% { transform: rotate(-10deg) translateY(0); } 50% { transform: rotate(10deg) translateY(-5%); } }
+@keyframes brilho-sol { 0%, 100% { filter: drop-shadow(0 0 8px rgba(255,190,70,.85)) drop-shadow(0 0 22px rgba(255,140,40,.45)); }
+  50% { filter: drop-shadow(0 0 14px rgba(255,220,120,1)) drop-shadow(0 0 40px rgba(255,150,50,.75)); } }
+@keyframes brilho-lua { 0%, 100% { filter: drop-shadow(0 0 8px rgba(120,200,255,.8)) drop-shadow(0 0 22px rgba(90,150,255,.4)); }
+  50% { filter: drop-shadow(0 0 14px rgba(170,225,255,1)) drop-shadow(0 0 40px rgba(110,160,255,.7)); } }
+/* faíscas em volta */
+.par-logos::before, .par-logos::after { content: "✦"; position: absolute; color: #fff; font-size: 16px; text-shadow: 0 0 10px #fff; animation: faisca 3s ease-in-out infinite; }
+.par-logos::before { left: 6%; top: 12%; } .par-logos::after { right: 4%; bottom: 10%; animation-delay: -1.5s; font-size: 12px; }
+@keyframes faisca { 0%, 100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(90deg); } }
+.par-logos.pequeno::before, .par-logos.pequeno::after { display: none; }
+
+/* ---------- POKÉBOLAS (encaixe próprio) ---------- */
+.encaixe { position: absolute; display: grid; place-items: center; border-radius: 50%; z-index: 6;
+  background: radial-gradient(circle at 50% 38%, #3c2f80, #150f36 70%);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.28), 0 0 0 6px rgba(15,12,41,.9), 0 6px 14px rgba(0,0,0,.5), inset 0 3px 8px rgba(0,0,0,.65); }
+.encaixe img { image-rendering: pixelated; filter: drop-shadow(0 2px 2px rgba(0,0,0,.55)); }
+.encaixe:empty::after { content: ""; width: 40%; height: 40%; border-radius: 50%; border: 2px dashed rgba(255,255,255,.18); }
+
+/* party: encaixe no canto de baixo, colado na plaquinha do nome */
+.slot .encaixe { left: -8px; bottom: -8px; width: 62px; height: 62px; }
+.slot .encaixe img { width: 54px; height: 54px; }
+.slot .nome { left: 58px; }
+.slot.entra .encaixe img { animation: bola-cai .9s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes bola-cai { 0% { transform: translateY(-40px) scale(1.4) rotate(-40deg); opacity: 0; } 50% { opacity: 1; } 70% { transform: rotate(16deg); } 85% { transform: rotate(-9deg); } }
+.party.grade2 .slot .encaixe { width: 54px; height: 54px; } .party.grade2 .slot .encaixe img { width: 45px; height: 45px; }
+.party.grade2 .slot .nome { left: 50px; }
+
+/* chat: encaixe preso no canto do retrato, sem cobrir o rosto */
+.msg .av-caixa { position: relative; flex: none; }
+.msg .av-caixa .encaixe { left: -7px; bottom: -7px; width: 34px; height: 34px; }
+.msg .av-caixa .encaixe img { width: 26px; height: 26px; }
+.msg .av-caixa .encaixe.especial { box-shadow: 0 0 0 3px #ffe9a0, 0 0 0 6px rgba(15,12,41,.9), 0 0 18px rgba(255,220,120,.75), inset 0 3px 8px rgba(0,0,0,.65); }
+.msg .av-caixa .encaixe.especial img { animation: balanca-bola 3s ease-in-out infinite; }
+@keyframes balanca-bola { 0%, 78%, 100% { transform: rotate(0); } 84% { transform: rotate(-18deg); } 90% { transform: rotate(14deg); } 95% { transform: rotate(-6deg); } }
+.msg { padding-bottom: 12px; padding-left: 14px; }
+.aviso .ret.bola { width: 36px; height: 36px; border-radius: 0; background: none; image-rendering: pixelated; object-fit: contain; }
+
+/* ---------- SHINY: borda brilhante que gira, reflexo e estrelinhas ---------- */
+.slot.shiny { border-color: transparent; box-shadow: 0 0 26px rgba(255, 226, 140, .55), 0 10px 26px rgba(8,4,30,.45); animation: aura-shiny 2.6s ease-in-out infinite; }
+@keyframes aura-shiny { 50% { box-shadow: 0 0 42px rgba(255, 236, 170, .9), 0 0 80px rgba(200, 170, 255, .35), 0 10px 26px rgba(8,4,30,.45); } }
+.slot.shiny::before { content: ""; position: absolute; inset: -3px; border-radius: 25px; padding: 3px; z-index: 4; pointer-events: none;
+  background: conic-gradient(from var(--ang), #fff7cc, #ffd36a, #ffffff, #ffb3e6, #b9a8ff, #9be7ff, #ffffff, #ffd36a, #fff7cc);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: girar 3.5s linear infinite; }
+.slot.shiny .moldura-ret { box-shadow: 0 0 0 3px #fff3b0, 0 0 20px rgba(255, 230, 140, .8); }
+.slot.shiny .moldura-ret::after { content: ""; position: absolute; inset: -60%; pointer-events: none;
+  background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,.85) 50%, transparent 58%); animation: reflexo 3.2s ease-in-out infinite; }
+@keyframes reflexo { 0% { transform: translateX(-70%); } 55%, 100% { transform: translateX(70%); } }
+.slot.shiny .nome { background: linear-gradient(90deg, #ffd36a, #fff3b0, #ffb3e6, #b9a8ff); color: var(--ink); }
+.slot.shiny .nome::before { color: var(--ink); }
+.slot.shiny .encaixe { box-shadow: 0 0 0 3px #ffe9a0, 0 0 0 6px rgba(15,12,41,.9), 0 0 18px rgba(255,220,120,.8), inset 0 3px 8px rgba(0,0,0,.65); }
+.faisca { position: absolute; z-index: 7; color: #fffbe0; text-shadow: 0 0 8px #fff, 0 0 16px #ffd36a; pointer-events: none; animation: faisca-shiny 2.2s ease-in-out infinite; }
+.faisca.f1 { left: 10%; top: 8%; font-size: 20px; } .faisca.f2 { right: 8%; top: 28%; font-size: 14px; animation-delay: -.7s; }
+.faisca.f3 { left: 22%; top: 58%; font-size: 12px; animation-delay: -1.3s; } .faisca.f4 { right: 18%; top: 6%; font-size: 16px; animation-delay: -1.8s; }
+@keyframes faisca-shiny { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 45% { opacity: 1; transform: scale(1.15) rotate(70deg); } 70% { opacity: .6; transform: scale(.8) rotate(110deg); } }
+
+/* ---------- FITAS (ribbons) ---------- */
+.fita-aba { position: absolute; top: 0; right: 18px; width: 52px; height: 70px; z-index: 3;
+  background: linear-gradient(180deg, #fff3c4, #ffd36a 40%, #b9a8ff);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+.fita-aba::before { content: ""; position: absolute; inset: 0 3px 4px; background: linear-gradient(180deg, #2a2063, #171038);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%); }
+.fita-aba img { position: absolute; left: 50%; top: 7px; width: 40px; height: 40px; transform: translateX(-50%); object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); animation: fita-balanca 5s ease-in-out infinite; transform-origin: 50% 0; }
+@keyframes fita-balanca { 0%, 100% { transform: translateX(-50%) rotate(-4deg); } 50% { transform: translateX(-50%) rotate(4deg); } }
+.msg.com-fita .corpo { padding-right: 62px; }
+.msg.com-fita .marca { right: 40px; opacity: .12; }
+
+/* amizade dentro da mensagem */
+.amizade { display: flex; align-items: center; gap: 2px; margin: -1px 0 3px; font: 600 13px/1 var(--display); color: #ff8fc7; letter-spacing: .04em; }
+.amizade i { font-style: normal; color: rgba(255,255,255,.2); }
+.amizade span { margin-left: 7px; color: var(--txt2); font-weight: 500; }
+.amizade.nv5 { color: #ff6fae; text-shadow: 0 0 8px rgba(255,111,174,.7); }
+.amizade.nv5 span { color: #ffd0e6; }
+
+/* avisos de fita / amizade */
+.aviso .fita-ico { width: 40px; height: 40px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.aviso .fita-ico.apagada { filter: grayscale(1) brightness(.6); }
+.aviso.fita-nova { background: linear-gradient(90deg, rgba(255,211,106,.5), rgba(185,168,255,.4)); border-color: rgba(255,233,160,.8);
+  box-shadow: 0 0 22px rgba(255,220,130,.35); }
+.aviso.fita-nova .fita-ico { animation: fita-ganha 1s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes fita-ganha { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.25) rotate(8deg); } }
+.aviso.amizade-nova { background: linear-gradient(90deg, rgba(255,111,174,.5), rgba(255,170,210,.25)); border-color: rgba(255,170,210,.7); padding-left: 14px; }
+.aviso .coracoes { color: #ff6fae; font-size: 16px; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255,111,174,.8); }
+
+/* painel !minhasfitas */
+.painel-fitas { flex: none; align-self: stretch; padding: 12px 14px; border-radius: 18px; animation: entrar .6s cubic-bezier(.2,1.3,.4,1) both;
+  background: linear-gradient(135deg, rgba(255,211,106,.22), rgba(36,26,90,.9) 40%); border: 1.5px solid rgba(255,233,160,.55); }
+.painel-fitas .pf-cab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font: 700 17px/1 var(--display); }
+.painel-fitas .pf-cab span { font: 600 13px/1 var(--display); color: var(--sun3); }
+.painel-fitas .pf-grade { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
+.painel-fitas .pf-grade img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+.painel-fitas .pf-grade img.falta { filter: grayscale(1) brightness(.35); opacity: .5; }
+.selo-fita { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 9px 0 3px; border-radius: 99px;
+  background: linear-gradient(90deg, rgba(255,211,106,.35), rgba(185,168,255,.3)); border: 1px solid rgba(255,233,160,.6);
+  font: 600 11px/1 var(--display); color: #fff3c4; animation: entrar .6s cubic-bezier(.2,1.4,.4,1) both; }
+.selo-fita img { width: 18px; height: 18px; object-fit: contain; }
+
+/* ---------- LOGOS OFICIAIS NO CHAT ---------- */
+.duelo .emblema img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.duelo .emblema .logo-sol { animation: girar-sol 40s linear infinite, brilho-sol 3.6s ease-in-out infinite; }
+.duelo .emblema .logo-lua { transform: scale(.88); animation: balanco-lua-chat 6s ease-in-out infinite, brilho-lua 4.2s ease-in-out infinite; }
+@keyframes balanco-lua-chat { 0%, 100% { transform: scale(.88) rotate(-9deg) translateY(0); } 50% { transform: scale(.88) rotate(9deg) translateY(-4px); } }
+/* marca d'água dentro do cartão: o logo da equipe, grande e clarinho */
+.msg.sol .marca, .msg.lua .marca { background: none; -webkit-mask: none; box-shadow: none; border-radius: 0; transform: none;
+  right: -30px; width: 130px; height: 130px; margin-top: -65px; opacity: .16; }
+.msg.sol .marca { background: url(../assets/logo-sol.png) center/contain no-repeat; animation: orbitar 50s linear infinite; }
+.msg.sol .marca::after { display: none; }
+.msg.lua .marca { background: url(../assets/logo-lua.png) center/contain no-repeat; opacity: .2; animation: balanco-marca 7s ease-in-out infinite; }
+@keyframes balanco-marca { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(8deg) translateY(-4px); } }
+.msg.com-fita .marca { right: 30px; opacity: .1; }
+
+/* ---------- BRILHO METALIZADO NAS FITAS ---------- */
+.metal { position: relative; display: inline-block; }
+.metal i { position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask-size: contain; mask-size: contain; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.0) 38%, rgba(255,255,255,.85) 47%, rgba(255,250,220,.95) 50%, rgba(255,255,255,.0) 60%, transparent 70%);
+  background-size: 300% 100%; animation: laminado 4.5s ease-in-out infinite; mix-blend-mode: screen; }
+@keyframes laminado { 0% { background-position: 120% 0; } 55%, 100% { background-position: -40% 0; } }
+.fita-aba .metal { position: absolute; left: 50%; top: 7px; width: 40px; height: 40px; transform: translateX(-50%); animation: fita-balanca 5s ease-in-out infinite; transform-origin: 50% 0; }
+.fita-aba .metal img { position: static; width: 100%; height: 100%; transform: none; animation: none; }
+.aviso .metal { width: 40px; height: 40px; flex: none; } .aviso .metal img { width: 100%; height: 100%; }
+.aviso.fita-nova .metal { animation: fita-ganha 1s cubic-bezier(.3,1.6,.5,1) both; } .aviso.fita-nova .metal img { animation: none; }
+
+/* ---- Pokémon selvagens: avisos no chat ---- */
+.aviso.selvagem { border: 1px solid rgba(111, 220, 124, .55); box-shadow: 0 0 16px rgba(111, 220, 124, .25); }
+.aviso.selvagem.lendario { border-color: rgba(255, 200, 92, .8); box-shadow: 0 0 22px rgba(255, 200, 92, .45); }
+.aviso.shiny { border-color: rgba(255, 246, 194, .8); box-shadow: 0 0 20px rgba(255, 210, 240, .45); }
+.aviso.captura { background: linear-gradient(90deg, rgba(87, 198, 255, .28), rgba(255, 200, 92, .28)); border: 1px solid rgba(255, 200, 92, .6); }
+.aviso .mini-bola { width: 18px; height: 18px; vertical-align: -4px; margin-right: 3px; image-rendering: auto; }
+.aviso.meutime { flex-wrap: wrap; }
+.aviso .time-6 { display: flex; gap: 4px; margin-left: 6px; }
+.aviso .time-6 .mini { width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,.12); object-fit: contain; }
+.aviso .time-6 .mini.sh { box-shadow: 0 0 0 2px rgba(255,246,194,.8), 0 0 10px rgba(255,210,240,.6); }
+
+/* parceiro ainda não escolhido: ovo balançando */
+img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50% 85%; animation: ovo-balanca 3.2s ease-in-out infinite; }
+@keyframes ovo-balanca { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-9deg); } 82% { transform: rotate(8deg); } 88% { transform: rotate(-5deg); } 94% { transform: rotate(3deg); } }
+.msg .av img.ovo { width: 58px; height: 58px; }
+.aviso img.ovo { width: 34px; height: 34px; }
