@@ -1,0 +1,2 @@
+# pokedex
+Pokedex do canal
