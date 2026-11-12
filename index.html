@@ -23,7 +23,27 @@
   h1 span { background: linear-gradient(90deg, var(--sun1), var(--rosa), var(--moon2)); -webkit-background-clip: text; color: transparent; }
   h2 { font: 600 22px "Fredoka", sans-serif; margin: 30px 0 12px; }
   .sub { color: var(--txt2); }
-  .busca { margin-top: 18px; display: flex; gap: 8px; }
+  .busca { margin-top: 14px; display: flex; gap: 8px; }
+  .topo { margin-top: 18px; display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; border-radius: 18px; background: rgba(0,0,0,.25); border: 1px solid var(--borda); }
+  .topo a { flex: 1; min-width: max-content; text-align: center; padding: 10px 14px; border-radius: 13px; color: var(--txt2); text-decoration: none;
+    font: 600 15px "Fredoka", "Poppins", sans-serif; }
+  .topo a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .topo a.on { background: linear-gradient(90deg, rgba(255,200,92,.25), rgba(164,147,255,.25)); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+  .grupo-fitas { margin-top: 22px; }
+  .grupo-fitas h3 { font: 600 18px "Fredoka", "Poppins", sans-serif; margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; }
+  .grupo-fitas h3 small { color: var(--txt2); font: 400 13px "Poppins"; }
+  .secao { margin-top: 18px; }
+  .secao p { margin: 6px 0; }
+  .tabela { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+  .tabela td, .tabela th { padding: 8px 10px; border-top: 1px solid var(--borda); text-align: left; vertical-align: top; }
+  .tabela th { color: var(--txt2); font-weight: 500; }
+  .tabela code { color: var(--sun1); font: 600 14px "Fredoka", "Poppins", sans-serif; white-space: nowrap; }
+  .tabela img { width: 26px; height: 26px; vertical-align: middle; margin-right: 6px; object-fit: contain; }
+  .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+  .passos div { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 12px; font-size: 14px; }
+  .passos code, .sub code, .tabela td code { color: var(--sun1); font: 600 14px "Fredoka", "Poppins", sans-serif; }
+  .passos a, .sub a { color: var(--moon2); }
+  .passos b { display: block; font: 600 26px "Fredoka", "Poppins", sans-serif; color: var(--sun1); }
   .busca input { flex: 1; min-width: 0; font: 500 16px "Poppins", sans-serif; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda);
     border-radius: 999px; padding: 12px 18px; outline: none; }
   .busca input:focus { border-color: var(--moon1); }
@@ -147,6 +167,14 @@
     </div>
   </header>
 
+  <nav class="topo" id="topo">
+    <a href="?p=inicio" data-p="inicio">🏠 Início</a>
+    <a href="?p=fitas" data-p="fitas">🎀 Fitas</a>
+    <a href="?p=jogar" data-p="jogar">📖 Como jogar</a>
+    <a href="?p=fotos" data-p="fotos">🧢 Fotos de treinador</a>
+    <a href="?p=perfil" data-p="perfil" id="nav-perfil">⭐ Meu perfil</a>
+  </nav>
+
   <form class="busca" id="busca">
     <input id="q" list="nomes" placeholder="Seu nome na Twitch" autocomplete="off">
     <datalist id="nomes"></datalist>
@@ -219,12 +247,105 @@
       lend: ks.filter((k) => LEND.has(+k)).length, fitas: (u.f || []).length, amigos: (u.am || []).filter((a) => a[1] >= 5).length };
   }
 
+  const EU = "pokedex_eu";
+  const lembrar = (l) => { try { localStorage.setItem(EU, l); } catch (e) {} };
+  const lembrado = () => { try { return localStorage.getItem(EU) || ""; } catch (e) { return ""; } };
+  function marcar(pag) {
+    document.querySelectorAll("#topo a").forEach((a) => a.classList.toggle("on", a.dataset.p === pag));
+    document.getElementById("busca").style.display = pag === "inicio" || pag === "perfil" ? "" : "none";
+  }
+  function ir(url) { history.pushState(null, "", url); rota(); window.scrollTo(0, 0); }
+  document.getElementById("topo").onclick = (e) => {
+    const a = e.target.closest("a"); if (!a || !D) return; e.preventDefault();
+    if (a.dataset.p === "perfil") { const l = achar(lembrado()); return ir(l ? "?u=" + encodeURIComponent(l) : "?p=perfil"); }
+    ir("?p=" + a.dataset.p);
+  };
+  window.addEventListener("popstate", () => D && rota());
+
   function rota() {
     const p = new URLSearchParams(location.search);
     const u = p.get("u") || location.hash.slice(1);
+    const pag = p.get("p") || (u ? "perfil" : "inicio");
+    if (["dex", "fitas", "amigos", "mochila"].includes(p.get("aba"))) aba = p.get("aba");
     const login = achar(u);
     if (u) document.getElementById("q").value = (login && D.t[login].n) || u;
-    login ? perfil(login) : inicio(u);
+    if (login) lembrar(login);
+    if (pag === "fitas" || (!login && p.get("aba") === "fitas")) { marcar("fitas"); return paginaFitas(login); }
+    if (pag === "jogar") { marcar("jogar"); return paginaJogar(); }
+    if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
+    if (login) { marcar("perfil"); return perfil(login); }
+    if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada 5 minutos durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
+    marcar("inicio"); inicio(u);
+  }
+
+  function paginaFitas(login) {
+    const F = window.FITAS || [], u = login ? D.t[login] : null, tem = new Set((u && u.f) || []);
+    const grupos = [...new Set(F.map((f) => f.grupo))];
+    app.innerHTML = `<h2>Fitas</h2><p class="sub">Fitas são conquistas que você ganha participando da live. A fita escolhida (<b>!fita nome</b>) aparece pendurada nas suas mensagens.
+      ${u ? `<br><b>${esc(u.n)}</b>: ${tem.size} de ${F.length} fitas.` : `<br>Digite seu nome no Início para ver quais você já tem.`}</p>` +
+      grupos.map((g) => { const fs = F.filter((f) => f.grupo === g), n = fs.filter((f) => tem.has(f.id)).length;
+        return `<div class="grupo-fitas"><h3>${esc(g)} ${u ? `<small>${n}/${fs.length}</small>` : ""}</h3><div class="fitas">` +
+          fs.map((f) => `<div class="fita ${u && !tem.has(f.id) ? "falta" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
+            <div><b>${esc(f.nome)}${u && tem.has(f.id) ? " ✓" : ""}</b><small>${esc(f.como)}</small></div></div>`).join("") + `</div></div>`; }).join("");
+  }
+
+  function paginaJogar() {
+    const linha = (c, d) => `<tr><td><code>${esc(c)}</code></td><td>${d}</td></tr>`;
+    const bola = (id, nome, f) => `<tr><td><img src="assets/bolas/${id}-ball.png" alt="">${nome}</td><td>${f}</td></tr>`;
+    app.innerHTML = `
+      <h2>Pokémon selvagens</h2>
+      <div class="passos">
+        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada 10 a 20 minutos.</div>
+        <div><b>2</b>Quando o Pokémon sair, digite <code>!capturar</code> no chat em até 10 segundos.</div>
+        <div><b>3</b>Cada um joga a própria Pokébola e tem a sua chance. Vários podem capturar o mesmo!</div>
+        <div><b>4</b>Cada captura vale +1 ponto para a sua equipe (Sol ou Lua). 2% de chance de lendário e 2% de shiny.</div>
+      </div>
+      <p class="sub secao">Também dá para chamar um selvagem com a recompensa <b>Chamar Pokémon selvagem</b> nos pontos do canal.</p>
+
+      <h2>Pokébolas</h2>
+      <table class="tabela"><tr><th>Bola</th><th>Como funciona</th></tr>
+        ${bola("poke", "Poké Ball", "Todo mundo tem, infinita. Chance normal")}
+        ${bola("great", "Great Ball", "1,5× a chance. Compre nos pontos do canal")}
+        ${bola("ultra", "Ultra Ball", "2× a chance. Compre nos pontos do canal")}
+        ${bola("quick", "Quick Ball", "5× a chance. Compre nos pontos do canal")}
+        ${bola("master", "Master Ball", "Nunca falha. Compre nos pontos do canal")}
+      </table>
+      <p class="sub secao">A bola comprada já fica equipada e gasta 1 por arremesso; quando acaba, volta para a Poké Ball. <code>!bola ultra</code> equipa, <code>!mochila</code> mostra quantas você tem. Bolas visuais (Love, Dusk, Moon…) são para subs e capturam como Poké Ball.</p>
+
+      <h2>Seu parceiro e evolução</h2>
+      <table class="tabela">
+        ${linha("!pokemon rowlet", "Pokémon que aparece ao lado do seu nome no chat. Todo mundo começa com os iniciais (gerações 1 a 7), Pikachu e Eevee; os outros você libera capturando. Shiny só se capturou o shiny: <code>!pokemon rowlet shiny</code>")}
+        ${linha("Evoluir meu Pokémon", "Recompensa de pontos do canal: evolui o seu parceiro com animação na live. No texto do resgate, escreva qual evolução quer (ex: Eevee → vaporeon)")}
+        ${linha("!caixa", "Quantos Pokémon você já capturou")}
+      </table>
+
+      <h2>Chat da live</h2>
+      <table class="tabela">
+        ${linha("!sol / !lua", "Entra na Equipe Sol ou Lua. Suas mensagens e capturas dão pontos para a equipe; quem vence ganha fita")}
+        ${linha("!fita esforço", "Escolhe qual fita aparece pendurada nas suas mensagens")}
+        ${linha("!minhasfitas", "Mostra suas fitas na live")}
+        ${linha("Responder / @nome", "Responder alguém aumenta a amizade entre vocês. No nível máximo viram Melhores Amigos")}
+        ${linha("!pokedex", "Link desta página com o seu perfil")}
+      </table>
+
+      <h2>Monte seu perfil</h2>
+      <table class="tabela">
+        ${linha("!foto cynthia", "Foto de treinador (veja a aba Fotos de treinador)")}
+        ${linha("!genero menino", "Gênero: menino, menina ou naobinario")}
+        ${linha("!regiao alola", "Região: " + esc((window.USUM_REGIOES || []).join(", ")))}
+        ${linha("!favorito pikachu", "Pokémon favorito (qualquer um)")}
+        ${linha("!setgame ultra sun", "Jogo que você está jogando agora. Cada jogo guarda o próprio time")}
+        ${linha("!meutime rowlet pikachu eevee", "Time do jogo atual (até 6). Sem jogo (<code>!setgame live</code>) vale só Pokémon capturado na live")}
+        ${linha("!jogofav emerald", "Jogo favorito (aparece com a capa)")}
+        ${linha("!fc SW-1234-5678-9012", "Friend code do Switch, para a galera te adicionar")}
+        ${linha("!perfil", "Resumo do seu perfil no chat")}
+      </table>`;
+  }
+
+  function paginaFotos() {
+    app.innerHTML = `<h2>Fotos de treinador</h2><p class="sub">Escolha a sua e digite o comando no chat da live.</p>
+      <div class="avatares" style="margin-top:14px">${(window.USUM_TREINADORES || []).map((t) =>
+        `<div><img src="assets/treinadores/${t.id}.png" alt="" loading="lazy"><code>!foto ${esc(t.id)}</code><br>${esc(t.nome)}</div>`).join("")}</div>`;
   }
 
   function inicio(naoAchou) {
@@ -236,7 +357,12 @@
         <div class="card"><b>Mais espécies capturadas</b><ol>${top("esp")}</ol></div>
         <div class="card"><b>Caçadores de shiny ✦</b><ol>${top("shiny")}</ol></div>
         <div class="card"><b>Mais fitas</b><ol>${top("fitas")}</ol></div>
-      </div>` + guia();
+      </div>
+      <div class="passos" style="margin-top:22px">
+        <div><b>🎀</b><a href="?p=fitas">Veja todas as fitas</a> e como ganhar cada uma</div>
+        <div><b>📖</b><a href="?p=jogar">Como jogar</a>: capturar Pokémon, Pokébolas e comandos</div>
+        <div><b>🧢</b><a href="?p=fotos">Escolha sua foto</a> de treinador</div>
+      </div>`;
   }
   function guia() {
     const cmds = [["!foto cynthia", "foto de treinador (veja abaixo)"], ["!genero menino / menina / naobinario", "gênero"],
@@ -251,7 +377,8 @@
 
   function perfil(login) {
     const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1] } : null;
-    history.replaceState(null, "", "?u=" + encodeURIComponent(login));
+    history.replaceState(null, "", "?u=" + encodeURIComponent(login) + (aba !== "dex" ? "&aba=" + aba : ""));
+    lembrar(login);
     app.innerHTML = `
       <section class="perfil ${u.t || ""}">
         <div class="foto">${u.av && TREIN(u.av) ? `<img class="treinador" src="assets/treinadores/${u.av}.png" alt="">` : ""}${parc ? `<img class="parceiro ${u.av ? "" : "so"}" src="${home(parc.num, parc.shiny)}" alt="">` : ""}</div>
@@ -372,8 +499,7 @@
   document.getElementById("busca").onsubmit = (e) => {
     e.preventDefault(); if (!D) return;
     const v = document.getElementById("q").value, l = achar(v);
-    history.replaceState(null, "", l ? "?u=" + encodeURIComponent(l) : location.pathname);
-    l ? perfil(l) : inicio(v);
+    if (l) { aba = "dex"; ir("?u=" + encodeURIComponent(l)); } else { marcar("inicio"); inicio(v); }
   };
   carregar();
 })();
