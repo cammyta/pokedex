@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokédex do Canal do Camaleão</title>
+<meta name="description" content="Veja os Pokémon que você capturou na live, suas fitas e amizades.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --sun1: #ffc85c; --sun2: #ff8a3d; --moon1: #a493ff; --moon2: #57c6ff; --rosa: #ff7ab8; --txt2: #c9c0ea;
+          --card: rgba(255,255,255,.06); --borda: rgba(255,255,255,.12); }
+  * { box-sizing: border-box; margin: 0; }
+  body { min-height: 100vh; color: #fbf8ff; font: 400 15px/1.5 "Poppins", sans-serif;
+    background: radial-gradient(circle at 10% -10%, #4a2a8a, transparent 50%), radial-gradient(circle at 100% 110%, #173f75, transparent 50%), #120a2a; background-attachment: fixed; }
+  a { color: var(--moon2); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 22px 16px 60px; }
+  header { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .orbs { display: flex; } .orbs i { width: 38px; height: 38px; border-radius: 50%; display: block; }
+  .orbs i:first-child { background: radial-gradient(circle at 35% 35%, #fff3cf, var(--sun1) 40%, var(--sun2)); box-shadow: 0 0 22px rgba(255,200,92,.6); }
+  .orbs i:last-child { margin-left: -10px; background: radial-gradient(circle at 35% 35%, #e9e4ff, var(--moon1) 45%, #3c2a8a); box-shadow: 0 0 22px rgba(164,147,255,.6); }
+  h1 { font: 700 clamp(26px, 5vw, 40px)/1.1 "Fredoka", sans-serif; }
+  h1 span { background: linear-gradient(90deg, var(--sun1), var(--rosa), var(--moon2)); -webkit-background-clip: text; color: transparent; }
+  h2 { font: 600 22px "Fredoka", sans-serif; margin: 30px 0 12px; }
+  .sub { color: var(--txt2); }
+  .busca { margin-top: 18px; display: flex; gap: 8px; }
+  .busca input { flex: 1; min-width: 0; font: 500 16px "Poppins", sans-serif; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda);
+    border-radius: 999px; padding: 12px 18px; outline: none; }
+  .busca input:focus { border-color: var(--moon1); }
+  button, .btn { font: 600 15px "Fredoka", sans-serif; color: #1a1033; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer;
+    background: linear-gradient(90deg, var(--sun1), var(--sun2)); }
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 20px; padding: 18px; }
+
+  /* perfil */
+  .perfil { margin-top: 22px; display: grid; grid-template-columns: 220px 1fr; gap: 22px; align-items: center; }
+  .perfil .foto { position: relative; aspect-ratio: 1; border-radius: 24px; display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(circle, rgba(255,255,255,.18), transparent 70%); }
+  .perfil.sol .foto { background: radial-gradient(circle, rgba(255,200,92,.35), transparent 70%); }
+  .perfil.lua .foto { background: radial-gradient(circle, rgba(164,147,255,.4), transparent 70%); }
+  .perfil .foto img { width: 92%; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); }
+  .perfil .nome { font: 700 34px/1.1 "Fredoka", sans-serif; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .time { font: 600 13px "Fredoka", sans-serif; letter-spacing: .08em; text-transform: uppercase; padding: 3px 12px; border-radius: 999px; }
+  .time.sol { background: linear-gradient(90deg, var(--sun1), var(--sun2)); color: #2a1300; }
+  .time.lua { background: linear-gradient(90deg, var(--moon1), var(--moon2)); color: #120a2a; }
+  .parc { margin-top: 4px; color: var(--txt2); }
+  .nums { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+  .num { background: rgba(0,0,0,.25); border-radius: 14px; padding: 10px 12px; }
+  .num b { display: block; font: 700 26px/1.1 "Fredoka", sans-serif; }
+  .num small { color: var(--txt2); font-size: 12px; }
+  .barra { height: 8px; border-radius: 9px; background: rgba(255,255,255,.1); margin-top: 6px; overflow: hidden; }
+  .barra i { display: block; height: 100%; background: linear-gradient(90deg, var(--moon2), var(--rosa), var(--sun1)); }
+
+  /* abas */
+  .abas { margin-top: 26px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--borda); }
+  .abas button { background: none; color: var(--txt2); border-radius: 12px 12px 0 0; padding: 10px 16px; }
+  .abas button.on { background: var(--card); color: #fff; box-shadow: inset 0 -3px 0 var(--sun1); }
+  .filtros { margin: 14px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .filtros label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--card); cursor: pointer; font-size: 14px; }
+  .filtros input[type=search] { flex: 1; min-width: 160px; font: 14px "Poppins"; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda); border-radius: 999px; padding: 7px 14px; }
+
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .pk { position: relative; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 8px 8px 10px; text-align: center; }
+  .pk img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+  .pk .n { font-size: 11px; color: var(--txt2); }
+  .pk b { display: block; font: 600 14px/1.2 "Fredoka", sans-serif; }
+  .pk .q { position: absolute; top: 6px; right: 8px; font: 600 12px "Fredoka", "Poppins", sans-serif; color: var(--txt2); }
+  .pk.shiny { border-color: rgba(255,246,194,.7); box-shadow: 0 0 16px rgba(255,210,240,.35); }
+  .pk.shiny::after { content: "✦"; position: absolute; top: 4px; left: 8px; color: #fff6c2; text-shadow: 0 0 8px #ffd2f0; }
+  .pk.lend { border-color: rgba(255,200,92,.6); }
+  .pk.falta img { filter: brightness(0) opacity(.22); image-rendering: pixelated; }
+  .pk.falta b { color: rgba(255,255,255,.35); }
+  .fitas { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .fita { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 10px 12px; }
+  .fita img { width: 46px; height: 46px; object-fit: contain; }
+  .fita b { font: 600 15px "Fredoka", "Poppins", sans-serif; display: block; }
+  .fita small { color: var(--txt2); font-size: 12px; line-height: 1.3; display: block; }
+  .fita.falta img { filter: grayscale(1) opacity(.3); }
+  .fita.falta b { color: rgba(255,255,255,.45); }
+  .fita.escolhida { border-color: var(--sun1); }
+  .lista { display: grid; gap: 8px; }
+  .item { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 10px 14px; }
+  .item img { width: 34px; height: 34px; object-fit: contain; }
+  .item .cor { color: #ff7ab8; letter-spacing: 1px; }
+  .item a { color: #fff; text-decoration: none; font-weight: 600; }
+  .rank { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .rank ol { padding-left: 22px; } .rank li { padding: 3px 0; } .rank li a { color: #fff; text-decoration: none; } .rank li span { color: var(--txt2); }
+  .vazio { color: var(--txt2); padding: 20px 0; }
+  footer { margin-top: 40px; color: var(--txt2); font-size: 13px; text-align: center; }
+  @media (max-width: 640px) { .perfil { grid-template-columns: 1fr; } .perfil .foto { max-width: 220px; margin: 0 auto; } .perfil .nome { justify-content: center; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="orbs"><i></i><i></i></div>
+    <div>
+      <h1>Pokédex do <span>Canal do Camaleão</span></h1>
+      <p class="sub">Os Pokémon que você capturou na live, suas fitas e amizades.</p>
+    </div>
+  </header>
+
+  <form class="busca" id="busca">
+    <input id="q" list="nomes" placeholder="Seu nome na Twitch" autocomplete="off">
+    <datalist id="nomes"></datalist>
+    <button>Ver</button>
+  </form>
+
+  <div id="app"><p class="vazio">Carregando…</p></div>
+  <footer id="rodape"></footer>
+</div>
+
+<script src="pokedex.js"></script>
+<script src="fitas-catalogo.js"></script>
+<script>
+(function () {
+  const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
+  const TOTAL = 807;
+  const LEND = new Set([144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,638,639,640,641,642,643,644,645,646,647,648,649,716,717,718,719,720,721,772,773,785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807]);
+  const BOLAS = { great: "Great Ball", ultra: "Ultra Ball", quick: "Quick Ball", master: "Master Ball" };
+  const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
+  const home = (n, s) => SPR + "other/home/" + (s ? "shiny/" : "") + n + ".png";
+  const mini = (n) => SPR + n + ".png";
+  const nome = (n) => (window.USUM_DEX || [])[n - 1] || "#" + n;
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const nivel = (n) => "♥".repeat(n) + "♡".repeat(5 - n);
+  const app = document.getElementById("app");
+  let D = null, aba = "dex", filtro = "cap", busca = "";
+
+  async function carregar() {
+    try {
+      const r = await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" });
+      const g = await r.json();
+      const f = g.files && g.files["dados.json"];
+      let txt = f && f.content;
+      if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
+      D = JSON.parse(txt || "{}");
+    } catch (e) { D = null; }
+    if (!D || !D.t) { app.innerHTML = `<p class="vazio">Ainda não tem dados publicados. Volte depois da próxima live!</p>`; return; }
+    document.getElementById("nomes").innerHTML = Object.values(D.t).map((u) => `<option value="${esc(u.n)}">`).join("");
+    document.getElementById("rodape").textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
+    rota();
+  }
+  function quando(iso) {
+    const m = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (m < 2) return "agora há pouco"; if (m < 60) return "há " + m + " min";
+    const h = Math.round(m / 60); if (h < 24) return "há " + h + " h";
+    return "em " + new Date(iso).toLocaleDateString("pt-BR");
+  }
+  function achar(q) {
+    q = (q || "").trim().toLowerCase().replace(/^@/, "");
+    if (!q) return null;
+    if (D.t[q]) return q;
+    return Object.keys(D.t).find((k) => (D.t[k].n || "").toLowerCase() === q) || null;
+  }
+  function stats(u) {
+    const c = u.c || {}, ks = Object.keys(c);
+    return { esp: ks.length, total: ks.reduce((a, k) => a + c[k][0], 0), shiny: ks.filter((k) => c[k][1]).length,
+      lend: ks.filter((k) => LEND.has(+k)).length, fitas: (u.f || []).length, amigos: (u.am || []).filter((a) => a[1] >= 5).length };
+  }
+
+  function rota() {
+    const p = new URLSearchParams(location.search);
+    const u = p.get("u") || location.hash.slice(1);
+    const login = achar(u);
+    if (u) document.getElementById("q").value = (login && D.t[login].n) || u;
+    login ? perfil(login) : inicio(u);
+  }
+
+  function inicio(naoAchou) {
+    const lista = Object.entries(D.t).map(([l, u]) => [l, u, stats(u)]);
+    const top = (k, n) => lista.filter((x) => x[2][k] > 0).sort((a, b) => b[2][k] - a[2][k]).slice(0, n || 10)
+      .map(([l, u, s]) => `<li><a href="?u=${encodeURIComponent(l)}">${esc(u.n || l)}</a> <span>· ${s[k]}</span></li>`).join("") || `<li><span>ninguém ainda</span></li>`;
+    app.innerHTML = (naoAchou ? `<p class="vazio">Não achei “${esc(naoAchou)}”. Já falou no chat e capturou algum Pokémon? Os dados sobem a cada 5 minutos.</p>` : "") +
+      `<h2>Ranking</h2><div class="rank">
+        <div class="card"><b>Mais espécies capturadas</b><ol>${top("esp")}</ol></div>
+        <div class="card"><b>Caçadores de shiny ✦</b><ol>${top("shiny")}</ol></div>
+        <div class="card"><b>Mais fitas</b><ol>${top("fitas")}</ol></div>
+      </div>`;
+  }
+
+  function perfil(login) {
+    const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1] } : null;
+    history.replaceState(null, "", "?u=" + encodeURIComponent(login));
+    app.innerHTML = `
+      <section class="perfil ${u.t || ""}">
+        <div class="foto">${parc ? `<img src="${home(parc.num, parc.shiny)}" alt="">` : ""}</div>
+        <div>
+          <div class="nome">${esc(u.n || login)} ${u.t ? `<span class="time ${u.t}">Equipe ${u.t === "sol" ? "Sol" : "Lua"}</span>` : ""}</div>
+          <div class="parc">${parc ? "Parceiro: <b>" + esc(nome(parc.num)) + "</b>" + (parc.shiny ? " ✦ shiny" : "") : "Sem parceiro ainda (use !pokemon no chat)"}</div>
+          <div class="nums">
+            <div class="num"><b>${s.esp}<small>/${TOTAL}</small></b><small>Espécies</small><div class="barra"><i style="width:${(s.esp / TOTAL * 100).toFixed(1)}%"></i></div></div>
+            <div class="num"><b>${s.total}</b><small>Capturas</small></div>
+            <div class="num"><b>${s.shiny}</b><small>Shiny ✦</small></div>
+            <div class="num"><b>${s.lend}</b><small>Lendários</small></div>
+            <div class="num"><b>${s.fitas}<small>/${(window.FITAS || []).length}</small></b><small>Fitas</small></div>
+            <div class="num"><b>${s.amigos}</b><small>Melhores amigos</small></div>
+          </div>
+        </div>
+      </section>
+      <nav class="abas">
+        <button data-a="dex">Pokédex</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button>
+      </nav>
+      <div id="conteudo"></div>`;
+    app.querySelectorAll(".abas button").forEach((b) => b.onclick = () => { aba = b.dataset.a; desenhar(login); });
+    desenhar(login);
+  }
+
+  function desenhar(login) {
+    const u = D.t[login], el = document.getElementById("conteudo");
+    app.querySelectorAll(".abas button").forEach((b) => b.classList.toggle("on", b.dataset.a === aba));
+    if (aba === "dex") {
+      el.innerHTML = `<div class="filtros">
+          <label><input type="radio" name="f" value="cap" ${filtro === "cap" ? "checked" : ""}> Capturados</label>
+          <label><input type="radio" name="f" value="todos" ${filtro === "todos" ? "checked" : ""}> Pokédex completa</label>
+          <label><input type="radio" name="f" value="shiny" ${filtro === "shiny" ? "checked" : ""}> Só shiny</label>
+          <input type="search" id="fb" placeholder="Procurar Pokémon" value="${esc(busca)}">
+        </div><div class="grade" id="grade"></div>`;
+      el.querySelectorAll("input[name=f]").forEach((r) => r.onchange = () => { filtro = r.value; grade(u); });
+      el.querySelector("#fb").oninput = (e) => { busca = e.target.value; grade(u); };
+      grade(u);
+    } else if (aba === "fitas") {
+      const tem = new Set(u.f || []);
+      el.innerHTML = `<p class="sub" style="margin:14px 0">${tem.size} de ${(window.FITAS || []).length} fitas</p><div class="fitas">` +
+        (window.FITAS || []).slice().sort((a, b) => tem.has(b.id) - tem.has(a.id)).map((f) =>
+          `<div class="fita ${tem.has(f.id) ? "" : "falta"} ${u.fe === f.id ? "escolhida" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
+            <div><b>${esc(f.nome)}${u.fe === f.id ? " ★" : ""}</b><small>${esc(f.como)}</small></div></div>`).join("") + `</div>`;
+    } else if (aba === "amigos") {
+      const am = (u.am || []).slice().sort((a, b) => b[1] - a[1]);
+      el.innerHTML = am.length ? `<div class="lista" style="margin-top:14px">` + am.map(([l, n]) => {
+        const o = D.t[l] || {}; const p = o.p ? `<img src="${mini(o.p[0])}" alt="">` : "";
+        return `<div class="item">${p}<a href="?u=${encodeURIComponent(l)}">${esc(o.n || l)}</a><span class="cor">${nivel(n)}</span>${n >= 5 ? "<span>Melhores amigos</span>" : ""}</div>`;
+      }).join("") + `</div>` : `<p class="vazio">Responda as pessoas no chat (botão responder ou @nome) para fazer amizades.</p>`;
+    } else {
+      const b = u.b || {}, it = Object.keys(BOLAS).filter((k) => b[k] > 0);
+      el.innerHTML = `<div class="lista" style="margin-top:14px">
+        <div class="item"><img src="assets/bolas/poke-ball.png" alt=""><span><b>Poké Ball</b> · infinitas (padrão)</span></div>` +
+        it.map((k) => `<div class="item"><img src="assets/bolas/${k}-ball.png" alt=""><span><b>${BOLAS[k]}</b> · ${b[k]}×${u.eq === k ? " · equipada" : ""}</span></div>`).join("") +
+        `</div><p class="sub" style="margin-top:12px">Compre Great, Ultra, Quick e Master Ball com pontos do canal. Equipe no chat com <b>!bola ultra</b>.</p>`;
+    }
+  }
+
+  function grade(u) {
+    const c = u.c || {}, q = busca.trim().toLowerCase();
+    let nums = filtro === "todos" ? Array.from({ length: TOTAL }, (_, i) => i + 1) : Object.keys(c).map(Number).sort((a, b) => a - b);
+    if (filtro === "shiny") nums = nums.filter((n) => c[n] && c[n][1]);
+    if (q) nums = nums.filter((n) => nome(n).toLowerCase().includes(q) || String(n) === q);
+    const g = document.getElementById("grade");
+    if (!nums.length) { g.innerHTML = `<p class="vazio">${filtro === "cap" && !q ? "Nenhum Pokémon capturado ainda. Fique de olho na grama durante a live e digite !capturar!" : "Nada por aqui."}</p>`; return; }
+    g.innerHTML = nums.map((n) => {
+      const e = c[n], tem = !!e, sh = tem && e[1] > 0;
+      const img = tem ? home(n, sh) : mini(n);
+      return `<div class="pk ${tem ? "" : "falta"} ${sh ? "shiny" : ""} ${LEND.has(n) && tem ? "lend" : ""}">
+        ${tem && e[0] > 1 ? `<span class="q">×${e[0]}</span>` : ""}
+        <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b></div>`;
+    }).join("");
+  }
+
+  document.getElementById("busca").onsubmit = (e) => {
+    e.preventDefault(); if (!D) return;
+    const v = document.getElementById("q").value, l = achar(v);
+    history.replaceState(null, "", l ? "?u=" + encodeURIComponent(l) : location.pathname);
+    l ? perfil(l) : inicio(v);
+  };
+  carregar();
+})();
+</script>
+</body>
+</html>
