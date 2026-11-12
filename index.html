@@ -30,6 +30,9 @@
   .topo a:hover { background: rgba(255,255,255,.06); color: #fff; }
   .topo a.on { background: linear-gradient(90deg, rgba(255,200,92,.25), rgba(164,147,255,.25)); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
   .grupo-fitas { margin-top: 22px; }
+  .fita.misterio img { filter: brightness(0) drop-shadow(0 0 6px rgba(170,120,255,.8)); opacity: .55; animation: fantasma 3s ease-in-out infinite; }
+  .fita.misterio small { font-style: italic; }
+  @keyframes fantasma { 50% { opacity: .25; transform: translateY(-3px); } }
   .grupo-fitas h3 { font: 600 18px "Fredoka", "Poppins", sans-serif; margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; }
   .grupo-fitas h3 small { color: var(--txt2); font: 400 13px "Poppins"; }
   .secao { margin-top: 18px; }
@@ -42,6 +45,55 @@
   .atalhos { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
   .atalhos a { background: var(--card); border: 1px solid var(--borda); border-radius: 999px; padding: 6px 12px; color: inherit; text-decoration: none; font-size: 14px; }
   .atalhos a:hover { border-color: var(--sun1); }
+  .bolas-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 12px; }
+  .bola-card { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 10px 12px; }
+  .bola-card img { width: 44px; height: 44px; object-fit: contain; image-rendering: pixelated; flex: none; }
+  .bola-card b { display: block; }
+  .bola-card small { display: block; opacity: .85; font-size: 13px; margin: 2px 0 6px; }
+  .tag-bola { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 999px; background: rgba(255,200,90,.16); color: var(--sun1); }
+  .tag-bola.gratis { background: rgba(120,220,140,.16); color: #8fe3a2; }
+  .tag-bola.sub { background: rgba(170,140,255,.18); color: var(--moon2); }
+  .tag-bola code { color: inherit; font-size: 11.5px; }
+  /* reputação */
+  .reputacao { display: flex; gap: 18px; align-items: flex-start; margin-top: 18px; padding: 16px 18px; border-radius: 18px; position: relative; overflow: hidden;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--c) 16%, transparent), var(--card)); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+  .reputacao::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.08) 50%, transparent 60%); background-size: 250% 100%; animation: rep-luz 5s linear infinite; }
+  .rep-ico { position: relative; display: inline-grid; place-items: center; width: 24px; height: 24px; vertical-align: middle; margin-right: 6px; }
+  .rep-ico img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; position: relative; z-index: 1;
+    filter: drop-shadow(0 0 4px var(--c)) drop-shadow(0 0 10px var(--c)); animation: rep-brilho 2.4s ease-in-out infinite; }
+  .rep-ico::before { content: ""; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--c) 55%, transparent), transparent 65%);
+    animation: rep-pulso 2.4s ease-in-out infinite; }
+  .rep-ico.grande { width: 84px; height: 84px; flex: none; margin: 0; }
+  .rep-ico.grande::after { content: ""; position: absolute; inset: -14%; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--c) 60%, transparent); animation: rep-gira 14s linear infinite; }
+  .rep-ico.mini { width: 26px; height: 26px; }
+  .rep-ico img.ovo-rep { image-rendering: pixelated; }
+  .rep-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
+  .rep-topo { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .rep-rot { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; opacity: .7; }
+  .rep-nome { font: 700 24px "Fredoka", "Poppins", sans-serif; color: var(--c); text-shadow: 0 0 14px color-mix(in srgb, var(--c) 60%, transparent); }
+  .rep-pts { margin-left: auto; font-weight: 700; opacity: .9; }
+  .rep-barra { height: 12px; border-radius: 8px; background: rgba(255,255,255,.08); margin: 8px 0 6px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .rep-barra i { display: block; height: 100%; border-radius: 8px; position: relative; overflow: hidden;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--c) 55%, #fff 0%), var(--c)); box-shadow: 0 0 12px var(--c); }
+  .rep-barra i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+    width: 40%; animation: rep-corre 2.2s ease-in-out infinite; }
+  .rep-info > small { opacity: .85; }
+  .rep-det { margin-top: 8px; }
+  .rep-det summary { cursor: pointer; font-size: 13px; opacity: .85; }
+  .rep-linhas { display: grid; gap: 4px; margin-top: 8px; }
+  .rep-linhas div { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .rep-linhas small { display: block; font-size: 12px; opacity: .65; }
+  .rep-linhas .mais { color: #8fe3a2; } .rep-linhas .menos { color: #ff7a7a; }
+  .rep-linhas b small { display: inline; }
+  @keyframes rep-brilho { 50% { filter: drop-shadow(0 0 7px var(--c)) drop-shadow(0 0 18px var(--c)); transform: scale(1.05); } }
+  @keyframes rep-pulso { 50% { opacity: .45; transform: scale(1.15); } }
+  @keyframes rep-gira { to { transform: rotate(360deg); } }
+  @keyframes rep-corre { from { transform: translateX(-120%); } to { transform: translateX(320%); } }
+  @keyframes rep-luz { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+  .niveis-rep { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin-top: 10px; }
+  .niveis-rep div { background: var(--card); border: 1px solid var(--borda); border-radius: 12px; padding: 8px 10px; font-size: 14px; }
+  .niveis-rep b { color: var(--c); }
   .faq { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; margin-top: 8px; }
   .faq summary { cursor: pointer; padding: 12px 14px; font-weight: 600; }
   .faq div { padding: 0 14px 12px; font-size: 14px; opacity: .9; }
@@ -93,6 +145,32 @@
   .pk .n { font-size: 11px; color: var(--txt2); }
   .pk b { display: block; font: 600 14px/1.2 "Fredoka", sans-serif; }
   .pk .q { position: absolute; top: 6px; right: 8px; font: 600 12px "Fredoka", "Poppins", sans-serif; color: var(--txt2); }
+  .pk.tem { cursor: pointer; transition: transform .15s; } .pk.tem:hover { transform: translateY(-3px); }
+  .pk .fz { display: inline-block; margin-top: 4px; font: 600 11.5px "Fredoka", "Poppins", sans-serif; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.08); }
+  .f-perf { --fc: #ff7ad9; } .f-inc { --fc: #ffd34d; } .f-oti { --fc: #8fe3a2; } .f-bom { --fc: #7fb8ff; } .f-raz { --fc: #c9c9d6; } .f-fra { --fc: #ff8f8f; }
+  .pk .fz { color: var(--fc); }
+  .pk .fz.f-perf { background: linear-gradient(90deg, rgba(255,122,217,.25), rgba(127,184,255,.25)); box-shadow: 0 0 10px rgba(255,122,217,.4); }
+  .ficha-fundo { position: fixed; inset: 0; z-index: 50; background: rgba(8,4,20,.7); backdrop-filter: blur(4px); display: grid; place-items: center; padding: 16px; }
+  .ficha { position: relative; width: min(520px, 100%); max-height: 88vh; overflow: auto; background: #1d1433; border: 1px solid var(--borda); border-radius: 20px; padding: 18px; }
+  .fechar-ficha { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.1); color: #fff; width: 32px; height: 32px; border-radius: 50%; }
+  .ficha-topo { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .ficha-topo img { width: 96px; height: 96px; object-fit: contain; }
+  .ficha-topo h3 { margin: 0; font: 700 24px "Fredoka", "Poppins", sans-serif; }
+  .ficha-topo span, .ficha-topo small { color: var(--txt2); font-size: 13px; }
+  .ind { background: var(--card); border: 1px solid var(--borda); border-left: 4px solid var(--fc); border-radius: 14px; padding: 10px 12px; margin-top: 8px; }
+  .ind.f-perf { box-shadow: 0 0 16px rgba(255,122,217,.35); }
+  .ind-cab { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .ind-cab .nota { color: var(--fc); font-weight: 600; } .ind-cab .pct { margin-left: auto; font: 700 18px "Fredoka", "Poppins", sans-serif; color: var(--fc); }
+  .ind-cab .sh { color: #ffe27a; font-size: 12px; }
+  .ivs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+  .ivs > div { display: grid; grid-template-columns: 74px 1fr 22px; gap: 6px; align-items: center; font-size: 12px; }
+  .ivs span { color: var(--txt2); } .ivs em { font-style: normal; text-align: right; font-weight: 600; }
+  .iv-barra { height: 6px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .iv-barra i { display: block; height: 100%; background: var(--fc); border-radius: 4px; }
+  .iv-barra i.max { background: linear-gradient(90deg, #ff7ad9, #7fb8ff); box-shadow: 0 0 6px #ff7ad9; }
+  .quando { display: block; margin-top: 6px; color: var(--txt2); font-size: 11.5px; }
+  .ficha-dica { margin-top: 12px; font-size: 13px; }
+  @media (max-width: 520px) { .ivs { grid-template-columns: 1fr; } }
   .pk.shiny { border-color: rgba(255,246,194,.7); box-shadow: 0 0 16px rgba(255,210,240,.35); }
   .pk.shiny::after { content: "✦"; position: absolute; top: 4px; left: 8px; color: #fff6c2; text-shadow: 0 0 8px #ffd2f0; }
   .pk.lend { border-color: rgba(255,200,92,.6); }
@@ -176,12 +254,26 @@
   .barra-twitch { position: relative; height: 128px; overflow: hidden; flex: none; background: #18181b; transition: height .25s; }
   .barra-twitch iframe { position: absolute; left: 0; bottom: 0; width: 100%; height: 640px; border: 0; }
   .chat-painel.barra-grande .barra-twitch { height: 420px; }
+  .chat-painel.digitando .barra-twitch { height: 46%; }
+  .chat-painel.digitando .barra-twitch iframe { top: 0; height: 100%; }
   .barra-twitch .crescer { position: absolute; top: 2px; right: 6px; z-index: 2; background: rgba(255,255,255,.14); color: #fff;
     padding: 0 10px; font-size: 11px; line-height: 18px; border-radius: 9px; }
   .chat-painel.modo-twitch .f-overlay { display: none; }
   .chat-painel.modo-twitch .barra-twitch { flex: 1; height: auto; }
   .chat-painel.modo-twitch .barra-twitch iframe { height: 100%; }
   .chat-painel.modo-twitch .crescer { display: none; }
+  /* caixa de escrever com login da Twitch */
+  .chat-painel.com-login.modo-overlay .barra-twitch { display: none; }
+  .chat-painel.com-login.modo-twitch .escrever { display: none; }
+  .escrever { padding: 10px; background: #18181b; border-top: 1px solid rgba(255,255,255,.08); display: grid; gap: 6px; }
+  .escrever .linha-tw { display: flex; gap: 6px; }
+  .escrever input { flex: 1; min-width: 0; background: #26262c; border: 1px solid #3a3a44; color: #fff; border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14px; }
+  .escrever input:focus { outline: none; border-color: #a970ff; }
+  .escrever button { background: #9147ff; color: #fff; border-radius: 8px; padding: 8px 14px; font-weight: 700; }
+  .escrever .entrar-tw { width: 100%; padding: 11px; }
+  .escrever small { font-size: 12px; opacity: .75; }
+  .escrever .quem-tw a { color: #bf94ff; }
+  .escrever .aviso-tw { color: #ffb3b3; opacity: 1; }
   .chat-abas { display: flex; gap: 6px; }
   .chat-abas button { opacity: .6; }
   .chat-abas button.on { opacity: 1; background: rgba(255,255,255,.25) !important; }
@@ -206,6 +298,7 @@
     <a href="?p=inicio" data-p="inicio">🏠 Início</a>
     <a href="?p=fitas" data-p="fitas">🎀 Fitas</a>
     <a href="?p=jogar" data-p="jogar">📖 Como jogar</a>
+    <a href="?p=bolas" data-p="bolas">⚪ Pokébolas</a>
     <a href="?p=fotos" data-p="fotos">🧢 Fotos de treinador</a>
     <a href="?p=perfil" data-p="perfil" id="nav-perfil">⭐ Meu perfil</a>
   </nav>
@@ -226,6 +319,16 @@
 <script>
 (function () {
   const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
+  // Login da Twitch para escrever no chat direto do site (app criado em dev.twitch.tv). Vazio = usa a barra da Twitch.
+  const TWITCH_CLIENT_ID = "qfe3wqgnadh2rwi3ve7vkun6woub75";
+  const TW = "pokedex_twitch";
+  (function voltaDoLogin() {   // a Twitch devolve o acesso no fim do endereço (#access_token=...)
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get("access_token")) {
+      try { localStorage.setItem(TW, JSON.stringify({ token: h.get("access_token") })); sessionStorage.setItem("pokedex_abrir_chat", "1"); } catch (e) {}
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  })();
   const TOTAL = 807;
   const LEND = new Set([144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,638,639,640,641,642,643,644,645,646,647,648,649,716,717,718,719,720,721,772,773,785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807]);
   const BOLAS = {}; (window.USUM_BOLAS_LOJA || []).forEach((b) => { if (b.id !== "poke") BOLAS[b.id] = b.nome; });
@@ -283,6 +386,67 @@
       lend: ks.filter((k) => LEND.has(+k)).length, fitas: (u.f || []).length, amigos: (u.am || []).filter((a) => a[1] >= 5).length };
   }
 
+  /* ---------- Reputação ---------- */
+  const NIVEIS_REP = [
+    { min: -1e9, nome: "Encrenqueiro", item: "black-sludge", cor: "#ff5f6d" },
+    { min: -50, nome: "Desconfiado", item: "smoke-ball", cor: "#ff9a6b" },
+    { min: 0, nome: "Neutro", item: "everstone", cor: "#cfd3dc" },
+    { min: 50, nome: "Conhecido", item: "moon-stone", cor: "#9fb8c9" },
+    { min: 150, nome: "Confiável", item: "thunder-stone", cor: "#ffd34d" },
+    { min: 300, nome: "Respeitado", item: "dawn-stone", cor: "#4fe3d0" },
+    { min: 500, nome: "Admirado", item: "shiny-stone", cor: "#fff27a" },
+    { min: 750, nome: "Lenda do Chat", item: "comet-shard", cor: "#7fb8ff" },
+    { min: 1000, nome: "Campeão", item: "rainbow-wing", cor: "#ff7ad9" }
+  ];
+  const DIA = 864e5;
+  function reputacao(u) {
+    const s = stats(u), am = u.am || [], agora = Date.now();
+    const partes = [
+      ["💬 Conversa no chat", Math.min(150, Math.round(6 * Math.sqrt(u.ms || 0))), (u.ms || 0) + ((u.ms || 0) === 1 ? " mensagem" : " mensagens"), 150],
+      ["🌿 Capturas", Math.min(150, Math.round(10 * Math.sqrt(s.total))), s.total + (s.total === 1 ? " captura" : " capturas"), 150],
+      ["🔁 Trocas", Math.min(120, Math.round(20 * Math.sqrt(u.tr || 0))), (u.tr || 0) + ((u.tr || 0) === 1 ? " troca" : " trocas"), 120],
+      ["🎀 Fitas", Math.min(150, 5 * s.fitas), s.fitas + (s.fitas === 1 ? " fita" : " fitas"), 150],
+      ["♥ Amizades", Math.min(300, am.reduce((t, a) => t + a[1] * 8, 0) + 20 * am.filter((a) => a[1] >= 5).length), am.length + (am.length === 1 ? " amizade, " : " amizades, ") + s.amigos + (s.amigos === 1 ? " melhor amigo" : " melhores amigos"), 300],
+      ["✦ Shinies", Math.min(300, 30 * s.shiny), s.shiny + (s.shiny === 1 ? " shiny" : " shinies"), 300]
+    ];
+    const positivo = partes.reduce((t, p) => t + p[1], 0);
+    const menos = [];
+    // sumiu do chat: perde aos poucos (começa depois de 10 dias, no máximo 35%)
+    if (u.ul) {
+      const dias = Math.floor((agora - u.ul) / DIA);
+      if (dias > 10) { const v = Math.round(positivo * Math.min(0.35, (dias - 10) * 0.01)); if (v) menos.push(["😴 Sumido há " + dias + " dias", v]); }
+    }
+    // timeout e ban: pesam menos com o tempo (metade a cada 30 dias)
+    let to = 0, bn = 0, pen = 0;
+    (u.pu || []).forEach(([ts, ban, dur]) => {
+      const peso = Math.pow(0.5, (agora - ts) / (30 * DIA));
+      if (ban) { bn++; pen += 250 * peso; } else { to++; pen += (30 + Math.min(60, (dur || 0) / 60)) * peso; }
+    });
+    if (pen >= 1) menos.push(["⛔ " + [to && to + (to > 1 ? " timeouts" : " timeout"), bn && bn + (bn > 1 ? " bans" : " ban")].filter(Boolean).join(" e "), Math.round(pen)]);
+    const pts = positivo - menos.reduce((t, m) => t + m[1], 0);
+    let i = 0; NIVEIS_REP.forEach((n, k) => { if (pts >= n.min) i = k; });
+    return { pts, nivel: NIVEIS_REP[i], prox: NIVEIS_REP[i + 1] || null, partes, menos };
+  }
+  const iconeRep = (n, cls) => `<span class="rep-ico ${cls || ""}" style="--c:${n.cor}"><img src="assets/rep/${n.item}.png" alt="" title="${esc(n.nome)}"></span>`;
+  function repHtml(u) {
+    const r = reputacao(u), n = r.nivel;
+    const ini = Math.max(n.min, -100), fim = r.prox ? r.prox.min : n.min + 1;
+    const pct = r.prox ? Math.max(3, Math.min(100, ((r.pts - ini) / (fim - ini)) * 100)) : 100;
+    return `<section class="reputacao" style="--c:${n.cor}">
+      ${iconeRep(n, "grande")}
+      <div class="rep-info">
+        <div class="rep-topo"><span class="rep-rot">Reputação</span><b class="rep-nome">${esc(n.nome)}</b><span class="rep-pts">${r.pts} pts</span></div>
+        <div class="rep-barra"><i style="width:${pct.toFixed(1)}%"></i></div>
+        <small>${r.prox ? `faltam <b>${r.prox.min - r.pts}</b> pontos para <b>${esc(r.prox.nome)}</b>` : "reputação máxima! ✦"}</small>
+        <details class="rep-det"><summary>Como está a sua reputação</summary>
+          <div class="rep-linhas">${r.partes.map(([t, v, d, mx]) => `<div><span>${t}<small>${esc(d)}</small></span><b class="mais">+${v}<small>/${mx}</small></b></div>`).join("")}
+          ${r.menos.map(([t, v]) => `<div><span>${esc(t)}</span><b class="menos">−${v}</b></div>`).join("")}</div>
+          <p class="sub"><a href="?p=jogar#j-reputacao">Como funciona a reputação</a></p>
+        </details>
+      </div>
+    </section>`;
+  }
+
   const EU = "pokedex_eu";
   const lembrar = (l) => { try { localStorage.setItem(EU, l); } catch (e) {} };
   const lembrado = () => { try { return localStorage.getItem(EU) || ""; } catch (e) { return ""; } };
@@ -309,6 +473,7 @@
     if (pag === "fitas" || (!login && p.get("aba") === "fitas")) { marcar("fitas"); return paginaFitas(login); }
     if (pag === "jogar") { marcar("jogar"); return paginaJogar(); }
     if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
+    if (pag === "bolas") { marcar("bolas"); return paginaBolas(); }
     if (login) { marcar("perfil"); return perfil(login); }
     if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada 5 minutos durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
     marcar("inicio"); inicio(u);
@@ -321,7 +486,7 @@
       ${u ? `<br><b>${esc(u.n)}</b>: ${tem.size} de ${F.length} fitas.` : `<br>Digite seu nome no Início para ver quais você já tem.`}</p>` +
       grupos.map((g) => { const fs = F.filter((f) => f.grupo === g), n = fs.filter((f) => tem.has(f.id)).length;
         return `<div class="grupo-fitas"><h3>${esc(g)} ${u ? `<small>${n}/${fs.length}</small>` : ""}</h3><div class="fitas">` +
-          fs.map((f) => `<div class="fita ${u && !tem.has(f.id) ? "falta" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
+          fs.map((f) => `<div class="fita ${u && !tem.has(f.id) ? "falta" : ""} ${f.misterio && !tem.has(f.id) ? "misterio" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
             <div><b>${esc(f.nome)}${u && tem.has(f.id) ? " ✓" : ""}</b><small>${esc(f.como)}</small></div></div>`).join("") + `</div></div>`; }).join("");
   }
 
@@ -340,8 +505,8 @@
       <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 5 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
       <div class="atalhos">
         <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a>
-        <a href="#j-equipes">☀️ Equipes</a><a href="#j-carinhas">😆 Carinhas</a><a href="#j-perfil">🪪 Perfil</a>
-        <a href="#j-site">💬 Chat no site</a><a href="#j-faq">❓ Dúvidas</a>
+        <a href="#j-status">💪 Força</a><a href="#j-trocas">🔁 Trocas</a><a href="#j-equipes">☀️ Equipes</a><a href="#j-carinhas">😆 Carinhas</a><a href="#j-perfil">🪪 Perfil</a>
+        <a href="#j-reputacao">🏅 Reputação</a><a href="#j-site">💬 Chat no site</a><a href="#j-faq">❓ Dúvidas</a>
       </div>
 
       <h2 id="j-selvagens">Pokémon selvagens</h2>
@@ -349,20 +514,21 @@
         <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>10 a 20 minutos</b>.</div>
         <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>10 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
         <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
-        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Lendários e shinies aparecem com 2% de chance cada.</div>
+        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Lendários aparecem com 2% de chance e shinies com 0,4%. Cada pessoa pode ter até 5 de cada Pokémon.</div>
       </div>
-      <p class="sub secao"><b>Quanto mais raro, mais difícil.</b> A chance segue a taxa de captura dos jogos: um Magikarp com Poké Ball sai na maioria das vezes, um Pikachu em mais ou menos metade, um inicial em cerca de 1 a cada 6 tentativas e um lendário raramente. Bolas melhores ajudam muito (veja abaixo).
+      <p class="sub secao"><b>Quanto mais raro, mais difícil.</b> A chance segue a taxa de captura dos jogos: um Magikarp com Poké Ball sai em cerca de 2 a cada 3 tentativas, um Pikachu em mais ou menos metade, um inicial em cerca de 1 a cada 8 e um lendário quase nunca (por isso existe a Master Ball). Bolas melhores ajudam muito (veja abaixo).
       Se o Pokémon escapar, não tem segunda tentativa naquele encontro: espere o próximo.</p>
       <p class="sub">Também dá para <b>chamar um selvagem</b> com a recompensa <b>Chamar Pokémon selvagem</b> nos pontos do canal. Os Pokémon que você captura ficam guardados para sempre na sua Pokédex desta página.</p>
 
       <h2 id="j-bolas">Pokébolas</h2>
+      <p class="sub">Lista completa, como comprar e as bolas de sub na página <a href="?p=bolas">⚪ Pokébolas</a>.</p>
       <p class="sub">Todo mundo tem <b>Poké Ball infinita</b>. As outras você compra nos <b>pontos do canal</b> (ícone ao lado do chat da Twitch), e cada uma tem um efeito. Escolher a bola certa para cada Pokémon é a estratégia!</p>
       <table class="tabela"><tr><th>Bola</th><th>Efeito</th></tr>
         ${(window.USUM_BOLAS_LOJA || []).map((b) => bola(b.id, esc(b.nome), esc(b.efeito))).join("")}
       </table>
       <table class="tabela" style="margin-top:12px">
         ${linha("Comprar", "Resgate a bola nos pontos do canal. Ela entra na sua mochila e <b>já fica equipada</b>")}
-        ${linha("!bola ultra", "Troca a bola equipada (só funciona com as que você tem na mochila). <code>!bola poke</code> volta para a Poké Ball e guarda as outras")}
+        ${linha("!ball ultra", "Troca a bola equipada (só funciona com as que você tem na mochila). <code>!ball poke</code> volta para a Poké Ball e guarda as outras")}
         ${linha("!mochila", "Mostra quantas bolas de cada tipo você tem")}
         ${linha("Gasto", "Cada <code>!capturar</code> gasta 1 bola equipada, acertando ou não (menos a Heal Ball, que não gasta se o Pokémon escapar). Quando acaba, você volta para a Poké Ball sozinho")}
       </table>
@@ -376,8 +542,32 @@
         ${linha("!pokemon vulpix alola", "Forma de Alola, para quem tem")}
         ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada. Se ele não evolui mais, o aviso aparece no chat e a streamer pode devolver os pontos")}
         ${linha("!caixa", "Resumo no chat de quantos Pokémon você já capturou")}
+        ${linha("!release magikarp", "Solta o seu Magikarp <b>mais fraco</b>. <code>!release magikarp 2</code> solta o #2 da lista (veja os números clicando nele na sua Pokédex) e <code>!release magikarp todos</code> solta todos. Se não sobrar nenhum e ele era o seu parceiro, você <b>perde a fotinha</b> e volta a ser um ovo. O chat pede confirmação: <code>!release sim</code> em até 1 minuto. Não tem volta")}
         ${linha("!pokedex", "Link desta página já aberta no seu perfil")}
       </table>
+
+      <h2 id="j-status">Status e força</h2>
+      <p class="sub">Cada Pokémon que você captura nasce com <b>6 status sorteados</b> (PS, Ataque, Defesa, Ataque Especial, Defesa Especial e Velocidade), de 0 a 31, como nos jogos. A <b>força</b> é a soma deles: 100% é um Pokémon <b>perfeito</b>, com tudo em 31. Dois Pikachu nunca são iguais, então vale capturar de novo para achar um melhor!</p>
+      <table class="tabela">
+        <tr><th>Força</th><th>Nota</th></tr>
+        <tr><td>100%</td><td>Perfeito ✦ (raríssimo)</td></tr><tr><td>90% a 99%</td><td>Incrível</td></tr><tr><td>75% a 89%</td><td>Ótimo</td></tr>
+        <tr><td>50% a 74%</td><td>Bom</td></tr><tr><td>25% a 49%</td><td>Razoável</td></tr><tr><td>abaixo de 25%</td><td>Fraco</td></tr>
+      </table>
+      <p class="sub secao">Na sua Pokédex aqui no site, cada Pokémon mostra a força do seu melhor; <b>clique nele</b> para ver todos os que você tem, numerados do mais forte (#1) para o mais fraco, com as barrinhas de cada status.
+      Use esses números no chat: <code>!release pikachu</code> solta o mais fraco, <code>!release pikachu 3</code> solta o #3 e <code>!release pikachu todos</code> solta todos. Na troca, <code>!trade @ana pikachu 1 por eevee</code> oferece o seu melhor Pikachu (sem número, vai o mais fraco).
+      Quem recebe numa troca ganha o Pokémon com os mesmos status, e quem evolui o parceiro leva os status do seu melhor.</p>
+
+      <h2 id="j-trocas">Trocas</h2>
+      <p class="sub">Troque Pokémon com outras pessoas do chat. Cada troca deixa vocês mais amigos: <b>+5 pontos de amizade</b> (responder alguém vale só 1).</p>
+      <table class="tabela">
+        ${linha("!trade @ana pikachu por eevee", "Oferece o seu Pikachu pelo Eevee da Ana. Para oferecer um shiny: <code>!trade @ana pikachu shiny por eevee</code>")}
+        ${linha("!trade @ana pikachu", "Oferece o Pikachu e deixa a Ana escolher o que dar em troca")}
+        ${linha("!trade aceitar", "Quem recebeu a proposta aceita (se a pessoa deixou você escolher: <code>!trade aceitar eevee</code>)")}
+        ${linha("!trade recusar", "Recusa a proposta")}
+        ${linha("!trade cancelar", "Cancela a proposta que você fez")}
+      </table>
+      <p class="sub secao">A proposta vale por <b>2 minutos</b>. Cada um precisa ter o Pokémon na Pokédex; troca 1 de cada lado. Se você trocar o último da espécie que era o seu parceiro, a fotinha volta a ser ovo.
+      <b>Evolução por troca:</b> Kadabra, Machoke, Graveler, Haunter, Boldore, Gurdurr, Phantump e Pumpkaboo evoluem ao chegar na outra pessoa, e Karrablast e Shelmet evoluem se forem trocados um pelo outro!</p>
 
       <h2 id="j-equipes">Equipe Sol x Equipe Lua</h2>
       <table class="tabela">
@@ -387,13 +577,27 @@
         ${linha("Fim da live", "A equipe que estiver na frente ganha a fita da vitória, e o placar zera para a próxima")}
       </table>
 
+      <h2 id="j-reputacao">Reputação</h2>
+      <p class="sub">Todo mundo começa <b>Neutro</b>. A reputação sobe com o que você faz na comunidade e aparece no seu perfil com um item brilhante que muda a cada nível (da Pedra Eterna até a Pena Arco-íris). O que <b>mais pesa</b> é ter amizades e shinies.</p>
+      <table class="tabela">
+        <tr><th>O que conta</th><th>Pontos</th></tr>
+        <tr><td>💬 Conversar no chat</td><td>Até 150 (sobe rápido no começo e vai desacelerando)</td></tr>
+        <tr><td>🌿 Capturar Pokémon</td><td>Até 150</td></tr>
+        <tr><td>🔁 Trocar Pokémon com <code>!trade</code></td><td>Até 120</td></tr>
+        <tr><td>🎀 Fitas</td><td>5 por fita, até 150</td></tr>
+        <tr><td>♥ Amizades</td><td>8 por coração de cada amizade + 20 por Melhor Amigo, até <b>300</b></td></tr>
+        <tr><td>✦ Shinies</td><td>30 por espécie shiny, até <b>300</b></td></tr>
+      </table>
+      <p class="sub secao"><b>O que tira pontos:</b> sumir do chat (depois de 10 dias sem falar, vai caindo devagar, no máximo 35%, e volta assim que você aparece), levar <b>timeout</b> (cerca de 30 a 90 pontos, conforme o tempo) e levar <b>ban</b> (250 pontos). As punições vão pesando menos com o tempo: metade a cada 30 dias. Com punições, a reputação pode ficar negativa.</p>
+      <div class="niveis-rep">${NIVEIS_REP.map((n, k) => `<div style="--c:${n.cor}">${iconeRep(n, "mini")}<b>${esc(n.nome)}</b><br><small>${k === 0 ? "abaixo de -50" : k === 1 ? "-50 a -1" : n.min + " pontos" + (NIVEIS_REP[k + 1] ? " ou mais" : "+")}</small></div>`).join("")}</div>
+
       <h2 id="j-carinhas">Carinhas do parceiro</h2>
       <p class="sub">O seu Pokémon muda de expressão sozinho conforme o que você escreve. Alguns exemplos:</p>
       <table class="tabela">
         <tr><th>Você escreve</th><th>Ele fica</th></tr>
         <tr><td>kkkk, hahaha, rsrs, lol, morri, 😂</td><td>Rindo</td></tr>
         <tr><td>sim, amo, valeu, top, show, daora, ❤</td><td>Feliz</td></tr>
-        <tr><td>TUDO EM MAIÚSCULO, não (sozinho), que saco</td><td>Bravo</td></tr>
+        <tr><td>TUDO EM MAIÚSCULO, não ou mano (sozinhos), que saco, porra, merda, lixo, vsf, cacete, scat</td><td>Bravo</td></tr>
         <tr><td>MAIÚSCULO com ! ou ?, ok?</td><td>Gritando</td></tr>
         <tr><td>:( , triste, putz, poxa, que pena</td><td>Triste</td></tr>
         <tr><td>😭, chorei, vou chorar</td><td>Chorando</td></tr>
@@ -441,12 +645,49 @@
       ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada 5 minutos. Se acabou de falar, espere um pouco e recarregue a página.")}
       ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada 5 minutos. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
       ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 10 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
-      ${pergunta("Comprei uma bola e ela não aparece", "Ela já fica equipada na hora. Veja com <code>!mochila</code>. Se você trocou para outra com <code>!bola</code>, use <code>!bola</code> com o nome dela para voltar.")}
+      ${pergunta("Comprei uma bola e ela não aparece", "Ela já fica equipada na hora. Veja com <code>!mochila</code>. Se você trocou para outra com <code>!ball</code>, use <code>!ball</code> com o nome dela para voltar.")}
+      ${pergunta("Por que não consigo capturar mais um Pikachu?", "Cada pessoa pode ter no máximo <b>" + ((D && D.lim) || 5) + " de cada Pokémon</b>, para ninguém monopolizar. Com " + ((D && D.lim) || 5) + ", o <code>!capturar</code> daquele Pokémon não funciona: solte o mais fraco com <code>!release pikachu</code> e capture outro (quem sabe um mais forte!).")}
+      ${pergunta("Capturei um Pokémon que não queria. Dá para tirar?", "Dá: <code>!release nome</code> solta o mais fraco daquela espécie (ou <code>!release nome 2</code> para escolher pelo número que aparece ao clicar nele na sua Pokédex) e depois <code>!release sim</code> para confirmar.")}
+      ${pergunta("Mandei !trade e a pessoa não conseguiu aceitar", "A proposta dura 2 minutos e cada pessoa só pode ter uma esperando resposta. Confira se os dois ainda têm os Pokémon e se o nome está em inglês. Quem recebe responde só <code>!trade aceitar</code>.")}
       ${pergunta("Posso trocar de equipe?", "Pode, quando quiser, com <code>!sol</code> ou <code>!lua</code>. Os pontos que você já deu ficam com a equipe antiga.")}
       ${pergunta("Quanto falta para o próximo coração de amizade?", "Abra o seu perfil aqui no site, na aba <b>Amigos</b>: cada amizade mostra uma barrinha e quantas interações faltam. Cada resposta ou @ vale 1 ponto, até 1 a cada 45 segundos por dupla.")}
       ${pergunta("Como ganho fitas?", "Participando! Cada fita tem a sua regra, e algumas são de eventos especiais. Veja a lista completa em <a href='?p=fitas'>Fitas</a>.")}
       ${pergunta("Por que meus comandos não aparecem no chat da stream?", "Os comandos do jogo não aparecem como mensagem normal, para não poluir o chat. Quando funcionam, aparece um aviso curtinho confirmando.")}`;
     if (location.hash) { const alvo = document.querySelector(location.hash); if (alvo) alvo.scrollIntoView(); }
+  }
+
+  function paginaBolas() {
+    const SUB = [["level", "Level Ball"], ["lure", "Lure Ball"], ["moon", "Moon Ball"], ["friend", "Friend Ball"], ["love", "Love Ball"],
+                 ["heavy", "Heavy Ball"], ["fast", "Fast Ball"], ["premier", "Premier Ball"]];
+    const loja = (window.USUM_BOLAS_LOJA || []).filter((b) => b.id !== "poke");
+    const canal = (D && D.canal) || "";
+    app.innerHTML = `
+      <h2>Pokébolas</h2>
+      <p class="sub">A bola que você usa no <code>!capturar</code> muda a sua chance. Todo mundo tem a <b>Poké Ball</b> infinita; as outras você <b>compra com os pontos do canal na Twitch</b>.</p>
+      <div class="passos">
+        <div><b>1</b>Na live${canal ? ` em <a href="https://twitch.tv/${esc(canal)}" target="_blank" rel="noopener">twitch.tv/${esc(canal)}</a>` : ""}, clique no ícone de <b>pontos do canal</b> embaixo da caixa de mensagem do chat.</div>
+        <div><b>2</b>Escolha a recompensa da bola que você quer (ex: <b>Ultra Ball</b>) e resgate. O preço aparece na própria recompensa.</div>
+        <div><b>3</b>A bola vai para a sua mochila e <b>já fica equipada</b>. No próximo Pokémon selvagem, é só digitar <code>!capturar</code>.</div>
+        <div><b>4</b>Cada <code>!capturar</code> gasta 1 bola. Quando acaba, você volta para a Poké Ball sozinho.</div>
+      </div>
+      <table class="tabela" style="margin-top:14px">
+        <tr><td><code>!ball ultra</code></td><td>Troca a bola equipada por outra que você tem</td></tr>
+        <tr><td><code>!ball poke</code></td><td>Volta para a Poké Ball e guarda as outras para depois</td></tr>
+        <tr><td><code>!mochila</code></td><td>Mostra no chat quantas bolas de cada você tem (também aparece na aba <b>Mochila</b> do seu perfil aqui no site)</td></tr>
+      </table>
+
+      <h2>Bolas para comprar</h2>
+      <div class="bolas-grade">
+        <div class="bola-card"><img src="assets/bolas/poke-ball.png" alt=""><div><b>Poké Ball</b><small>Todo mundo tem, infinita. Captura normal.</small><span class="tag-bola gratis">Grátis</span></div></div>
+        ${loja.map((b) => `<div class="bola-card"><img src="assets/bolas/${b.id}-ball.png" alt=""><div><b>${esc(b.nome)}</b><small>${esc(b.efeito)}</small><span class="tag-bola">Pontos do canal</span></div></div>`).join("")}
+      </div>
+      <p class="sub secao"><b>Dicas:</b> guarde a Master Ball para um lendário ou shiny; a Quick Ball é para quem digita rápido e a Timer Ball para quem espera até o fim da barra; a Repeat Ball é ótima para pegar repetidos para trocar com os amigos.</p>
+
+      <h2>Bolas de sub (só visual)</h2>
+      <p class="sub">Subs do canal podem escolher uma bola de enfeite com <code>!ball nome</code> (ex: <code>!ball love</code>). Ela aparece no encaixe ao lado da sua fotinha no chat da live, mas na captura funciona como a Poké Ball. Não precisa comprar.</p>
+      <div class="bolas-grade">
+        ${SUB.map(([id, n]) => `<div class="bola-card"><img src="assets/bolas/${id}-ball.png" alt=""><div><b>${n}</b><span class="tag-bola sub">Subs · <code>!ball ${id}</code></span></div></div>`).join("")}
+      </div>`;
   }
 
   function paginaFotos() {
@@ -461,6 +702,8 @@
       .map(([l, u, s]) => `<li><a href="?u=${encodeURIComponent(l)}">${esc(u.n || l)}</a> <span>· ${s[k]}</span></li>`).join("") || `<li><span>ninguém ainda</span></li>`;
     app.innerHTML = (naoAchou ? `<p class="vazio">Não achei “${esc(naoAchou)}”. Já falou no chat e capturou algum Pokémon? Os dados sobem a cada 5 minutos.</p>` : "") +
       `<h2>Ranking</h2><div class="rank">
+        <div class="card"><b>Melhor reputação</b><ol>${lista.map(([l, u]) => [l, u, reputacao(u)]).filter((x) => x[2].pts > 0).sort((a, b) => b[2].pts - a[2].pts).slice(0, 10)
+          .map(([l, u, r]) => `<li>${iconeRep(r.nivel, "mini")}<a href="?u=${encodeURIComponent(l)}">${esc(u.n || l)}</a> <span>· ${esc(r.nivel.nome)}</span></li>`).join("") || "<li><span>ninguém ainda</span></li>"}</ol></div>
         <div class="card"><b>Mais espécies capturadas</b><ol>${top("esp")}</ol></div>
         <div class="card"><b>Caçadores de shiny ✦</b><ol>${top("shiny")}</ol></div>
         <div class="card"><b>Mais fitas</b><ol>${top("fitas")}</ol></div>
@@ -510,6 +753,7 @@
           </div>
         </div>
       </section>
+      ${repHtml(u)}
       ${timeHtml(u)}
       <nav class="abas">
         <button data-a="dex">Pokédex</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button>
@@ -563,12 +807,12 @@
       const tem = new Set(u.f || []);
       el.innerHTML = `<p class="sub" style="margin:14px 0">${tem.size} de ${(window.FITAS || []).length} fitas</p><div class="fitas">` +
         (window.FITAS || []).slice().sort((a, b) => tem.has(b.id) - tem.has(a.id)).map((f) =>
-          `<div class="fita ${tem.has(f.id) ? "" : "falta"} ${u.fe === f.id ? "escolhida" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
+          `<div class="fita ${tem.has(f.id) ? "" : "falta"} ${f.misterio && !tem.has(f.id) ? "misterio" : ""} ${u.fe === f.id ? "escolhida" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
             <div><b>${esc(f.nome)}${u.fe === f.id ? " ★" : ""}</b><small>${esc(f.como)}</small></div></div>`).join("") + `</div>`;
     } else if (aba === "amigos") {
       const LIM = [0, 1, 6, 15, 30, 50];   // pontos para cada coração
       const am = (u.am || []).slice().sort((a, b) => (b[2] || 0) - (a[2] || 0) || b[1] - a[1]);
-      const explica = `<div class="explica-amizade"><b>Como funciona:</b> cada vez que você <b>responde</b> alguém no chat da live (botão responder) ou <b>marca com @nome</b>, a amizade de vocês ganha <b>1 ponto</b>. Conta no máximo 1 ponto a cada 45 segundos para a mesma dupla, então conversar ao longo da live vale mais que mandar várias seguidas.
+      const explica = `<div class="explica-amizade"><b>Como funciona:</b> cada vez que você <b>responde</b> alguém no chat da live (botão responder) ou <b>marca com @nome</b>, a amizade de vocês ganha <b>1 ponto</b> (uma <b>troca</b> de Pokémon com <code>!trade</code> vale <b>5</b>). Conta no máximo 1 ponto a cada 45 segundos para a mesma dupla, então conversar ao longo da live vale mais que mandar várias seguidas.
         <div class="escala">${[1, 2, 3, 4, 5].map((k) => `<span><i>${"♥".repeat(k)}</i>${LIM[k]} ${LIM[k] === 1 ? "ponto" : "pontos"}</span>`).join("")}</div>
         No 5º coração vocês viram <b>Melhores Amigos</b> e os dois ganham a Fita Melhores Amigos. Os pontos aparecem aqui a cada 5 minutos durante a live.</div>`;
       el.innerHTML = explica + (am.length ? `<div class="lista amigos" style="margin-top:14px">` + am.map(([l, n, p]) => {
@@ -587,7 +831,7 @@
       el.innerHTML = `<div class="lista" style="margin-top:14px">
         <div class="item"><img src="assets/bolas/poke-ball.png" alt=""><span><b>Poké Ball</b> · infinitas (padrão)</span></div>` +
         it.map((k) => `<div class="item"><img src="assets/bolas/${k}-ball.png" alt=""><span><b>${BOLAS[k]}</b> · ${b[k]}×${u.eq === k ? " · <b>equipada</b>" : ""}<br><small class="sub">${esc(ef(k))}</small></span></div>`).join("") +
-        `</div><p class="sub" style="margin-top:12px">Compre bolas com pontos do canal e equipe no chat com <b>!bola nome</b>. Veja o efeito de cada uma em <a href="?p=jogar">Como jogar</a>.</p>`;
+        `</div><p class="sub" style="margin-top:12px">Compre bolas com pontos do canal e equipe no chat com <b>!ball nome</b>. Veja todas e como conseguir em <a href="?p=bolas">Pokébolas</a>.</p>`;
     }
   }
 
@@ -601,10 +845,44 @@
     g.innerHTML = nums.map((n) => {
       const e = c[n], tem = !!e, sh = tem && e[1] > 0;
       const img = tem ? home(n, sh) : mini(n);
-      return `<div class="pk ${tem ? "" : "falta"} ${sh ? "shiny" : ""} ${LEND.has(n) && tem ? "lend" : ""}">
+      const melhor = tem ? Math.max(0, ...individuos(e).map((x) => x.f)) : 0;
+      return `<div class="pk ${tem ? "tem" : "falta"} ${sh ? "shiny" : ""} ${LEND.has(n) && tem ? "lend" : ""}" data-n="${n}">
         ${tem && e[0] > 1 ? `<span class="q">×${e[0]}</span>` : ""}
-        <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b></div>`;
+        <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b>
+        ${tem && (e[2] || []).length ? `<span class="fz ${classeForca(melhor)}">${melhor === 100 ? "✦ " : ""}${melhor}%</span>` : ""}</div>`;
     }).join("");
+    g.querySelectorAll(".pk.tem").forEach((el) => (el.onclick = () => fichaPokemon(u, +el.dataset.n)));
+  }
+
+  /* ---------- status dos Pokémon (força) ---------- */
+  const ROT_IV = ["PS", "Ataque", "Defesa", "Atq. Esp.", "Def. Esp.", "Velocidade"];
+  const forcaDe = (iv) => Math.round((iv.reduce((a, b) => a + b, 0) / 186) * 100);
+  const notaDe = (f) => (f >= 100 ? "Perfeito ✦" : f >= 90 ? "Incrível" : f >= 75 ? "Ótimo" : f >= 50 ? "Bom" : f >= 25 ? "Razoável" : "Fraco");
+  const classeForca = (f) => (f >= 100 ? "f-perf" : f >= 90 ? "f-inc" : f >= 75 ? "f-oti" : f >= 50 ? "f-bom" : f >= 25 ? "f-raz" : "f-fra");
+  function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
+    return (e[2] || []).map(([cod, sh, t]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv) }; })
+      .sort((a, b) => b.f - a.f || a.t - b.t);
+  }
+  function fichaPokemon(u, n) {
+    const e = (u.c || {})[n]; if (!e) return;
+    const lista = individuos(e), login = Object.keys(D.t).find((k) => D.t[k] === u) || "";
+    const fundo = document.createElement("div"); fundo.className = "ficha-fundo";
+    fundo.innerHTML = `<div class="ficha">
+      <button class="fechar-ficha" title="Fechar">✕</button>
+      <div class="ficha-topo"><img src="${home(n, e[1] > 0)}" alt=""><div><small>#${String(n).padStart(3, "0")}</small><h3>${esc(nome(n))}</h3>
+        <span>${e[0]} ${e[0] === 1 ? "capturado" : "capturados"}${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
+      ${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}">
+        <div class="ind-cab"><b>#${i + 1}</b>${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
+        <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
+        ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
+      </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}
+      <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code></p>
+    </div>`;
+    const fechar = () => fundo.remove();
+    fundo.onclick = (ev) => { if (ev.target === fundo) fechar(); };
+    fundo.querySelector(".fechar-ficha").onclick = fechar;
+    document.addEventListener("keydown", function esc1(ev) { if (ev.key === "Escape") { fechar(); document.removeEventListener("keydown", esc1); } });
+    document.body.appendChild(fundo);
   }
 
   function chatAoVivo() {
@@ -632,17 +910,84 @@
     const abrir = (on) => {
       if (on && !carregado) {
         carregado = true;
-        p.querySelector(".f-overlay").src = `chat.html?canal=${encodeURIComponent(canal)}&g=${encodeURIComponent(GIST)}`;
+        p.querySelector(".f-overlay").src = `chat.html?canal=${encodeURIComponent(canal)}&g=${encodeURIComponent(GIST)}${TWITCH_CLIENT_ID ? "&cid=" + TWITCH_CLIENT_ID : ""}`;
         p.querySelector(".f-twitch").src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`;
       }
       p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
       clearInterval(timer); if (on) timer = setInterval(atualizar, 4 * 60000);
     };
     b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
+    if (TWITCH_CLIENT_ID) p.classList.add("com-login");   // a caixa de escrever fica dentro do próprio chat do overlay
+    try { if (sessionStorage.getItem("pokedex_abrir_chat")) { sessionStorage.removeItem("pokedex_abrir_chat"); setTimeout(() => abrir(true), 300); } } catch (e) {}
     p.querySelectorAll(".chat-abas button").forEach((x) => (x.onclick = () => mostrar(x.dataset.a)));
+    // ao clicar na barra da Twitch, ela cresce: assim aparecem as janelinhas dela (regras do chat, login, emotes)
+    // e a pessoa digita vendo o chat do overlay em cima. Volta ao normal quando clica fora.
+    const ft = p.querySelector(".f-twitch");
+    setInterval(() => {
+      const foco = document.activeElement === ft;
+      if (foco !== p.classList.contains("digitando")) p.classList.toggle("digitando", foco);
+    }, 250);
     const cr = p.querySelector(".crescer");
     cr.onclick = () => { const g = p.classList.toggle("barra-grande"); cr.textContent = g ? "▼" : "▲"; cr.title = g ? "Diminuir" : "Abrir mais (emotes)"; };
     document.body.append(b, p);
+  }
+
+  // Caixa de escrever nossa: entra com a Twitch e manda a mensagem pelo chat da Twitch (aparece no chat do overlay em cima)
+  function escreverComLogin(p, canal) {
+    p.classList.add("com-login");
+    const box = document.createElement("form"); box.className = "escrever";
+    p.querySelector(".f-overlay").after(box);
+    let ws = null, eu = null, fila = [];
+    const lerTok = () => { try { return (JSON.parse(localStorage.getItem(TW)) || {}).token || ""; } catch (e) { return ""; } };
+    const sair = () => { try { localStorage.removeItem(TW); } catch (e) {} eu = null; if (ws) ws.close(); ws = null; desenhar(); };
+    const entrar = () => {
+      const u = new URL("https://id.twitch.tv/oauth2/authorize");
+      u.search = new URLSearchParams({ response_type: "token", client_id: TWITCH_CLIENT_ID, redirect_uri: location.origin + location.pathname,
+        scope: "chat:read chat:edit", state: Math.random().toString(36).slice(2) }).toString();
+      location.href = u.toString();
+    };
+    const aviso = (t) => { const a = box.querySelector(".aviso-tw"); if (a) { a.textContent = t; a.hidden = !t; } };
+    function conectar() {
+      if (ws || !eu) return;
+      ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+      ws.onopen = () => { ws.send("PASS oauth:" + lerTok()); ws.send("NICK " + eu); ws.send("JOIN #" + canal); };
+      ws.onmessage = (ev) => ev.data.split("\r\n").forEach((l) => {
+        if (l.startsWith("PING")) ws.send("PONG :tmi.twitch.tv");
+        else if (/ 001 /.test(l)) { fila.forEach((t) => ws.send(`PRIVMSG #${canal} :${t}`)); fila = []; }
+        else if (/ NOTICE /.test(l)) {
+          const txt = l.split(" :").slice(-1)[0];
+          if (/authentication failed|improperly formatted auth/i.test(txt)) { sair(); aviso("Sua entrada expirou. Entre de novo com a Twitch."); }
+          else aviso(txt);
+        }
+      });
+      ws.onclose = () => { ws = null; };
+    }
+    async function desenhar() {
+      const tok = lerTok();
+      if (tok && !eu) {
+        try {
+          const r = await fetch("https://id.twitch.tv/oauth2/validate", { headers: { Authorization: "OAuth " + tok } });
+          if (r.ok) eu = (await r.json()).login; else { try { localStorage.removeItem(TW); } catch (e) {} }
+        } catch (e) {}
+      }
+      if (!eu) {
+        box.innerHTML = `<button type="button" class="entrar-tw">🔑 Entrar com a Twitch para escrever</button><small class="aviso-tw" hidden></small>`;
+        box.querySelector(".entrar-tw").onclick = entrar; return;
+      }
+      box.innerHTML = `<div class="linha-tw"><input maxlength="500" placeholder="Mandar no chat como ${esc(eu)}…" autocomplete="off"><button>Enviar</button></div>
+        <small class="quem-tw">conectado como <b>${esc(eu)}</b> · <a href="#" class="sair-tw">sair</a></small><small class="aviso-tw" hidden></small>`;
+      box.querySelector(".sair-tw").onclick = (e) => { e.preventDefault(); sair(); };
+      conectar();
+    }
+    box.onsubmit = (e) => {
+      e.preventDefault();
+      const i = box.querySelector("input"); if (!i) return;
+      const t = i.value.replace(/[\r\n]+/g, " ").trim(); if (!t) return;
+      aviso("");
+      if (ws && ws.readyState === 1) ws.send(`PRIVMSG #${canal} :${t}`); else { fila.push(t); conectar(); }
+      i.value = "";
+    };
+    desenhar();
   }
 
   document.getElementById("busca").onsubmit = (e) => {
