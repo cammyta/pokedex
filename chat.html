@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat da live</title>
+<link rel="stylesheet" href="overlay/style.css">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #140c24; }
+  body.solo { width: 100%; height: 100%; }
+  #chat { left: 10px; top: 10px; right: 10px; bottom: 10px; }
+  /* no celular / painel estreito: tudo um pouco menor */
+  @media (max-width: 420px) { body { zoom: .85; } }
+</style>
+</head>
+<body class="solo">
+  <div id="chat" class="moldura vidro"></div>
+<script>
+  // Configuração só do site: as imagens vêm direto da internet (não tem a pasta do PC aqui)
+  window.USUM_CONFIG = {
+    canal: "",
+    chat: { maxMensagens: 30, mostrarParceiro: true },
+    imagens: {
+      pastaPMD: "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/",
+      pmdOnline: "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/",
+      pastaHOME: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/"
+    }
+  };
+  // os dados vêm da página principal (mesmo site); aberto sozinho, busca no Gist
+  const pai = (() => { try { return window.parent !== window ? window.parent : null; } catch (e) { return null; } })();
+  const dadosPai = () => { try { return pai && pai.__pokedexDados; } catch (e) { return null; } };
+  const q = new URLSearchParams(location.search);
+  window.USUM_CONFIG.canal = q.get("canal") || ((dadosPai() || {}).canal) || "";
+</script>
+<script src="pokedex.js"></script>
+<script src="overlay/poke.js"></script>
+<script src="overlay/twitch.js"></script>
+<script src="overlay/chat.js"></script>
+<script>
+(function () {
+  const INICIAIS = new Set([1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501, 650, 653, 656, 722, 725, 728, 25, 133]);
+  const ler = (k, p) => { try { return JSON.parse(localStorage.getItem(k)) || p; } catch (e) { return p; } };
+  const gravar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  let D = null, ultimo = "";
+
+  // copia o que a live publicou para o formato que o chat do overlay entende
+  function semear(dados) {
+    if (!dados || !dados.t || dados.em === ultimo) return;
+    ultimo = dados.em; D = dados;
+    const parc = {}, times = {}, bolas = {};
+    Object.entries(D.t).forEach(([l, u]) => {
+      if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: "" };
+      if (u.t) times[l] = u.t;
+      if (u.eq) bolas[l] = u.eq;
+    });
+    gravar("usum_parceiros", parc); gravar("usum_times", times); gravar("usum_bolas", bolas);
+    if (D.pl) gravar("usum_placar", D.pl);
+  }
+  const usuario = (l) => (D && D.t && D.t[l]) || {};
+  USUM.urlFita = (id) => "assets/fitas/" + id + ".png";
+  USUM.fitaDe = (l) => usuario(l).fe || "";
+  USUM.nomeTreinador = (l) => usuario(l).n || l;
+  USUM.amizade = (a, b) => { const x = (usuario(a).am || []).find((e) => e[0] === b); return { pontos: x ? 1 : 0, nivel: x ? x[1] : 0 }; };
+
+  async function buscarGist() {
+    const g = q.get("g"); if (!g) return;
+    try {
+      const r = await fetch("https://api.github.com/gists/" + g, { cache: "no-store" });
+      const j = await r.json(), f = j.files && j.files["dados.json"];
+      let txt = f && f.content; if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
+      semear(JSON.parse(txt || "{}"));
+    } catch (e) {}
+  }
+
+  // comandos: só os que dão pra mostrar na hora sem estragar nada (o overlay da live é quem manda de verdade)
+  function aoComando(m, cmd, txt, aviso) {
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    if (cmd === "!sol" || cmd === "!lua") {
+      const t = ler("usum_times", {}), time = cmd.slice(1);
+      if (t[m.login] !== time) { t[m.login] = time; gravar("usum_times", t);
+        aviso(time, `<b>${esc(m.nome)}</b> entrou para a Equipe ${time === "sol" ? "Sol" : "Lua"}!`); }
+      return;
+    }
+    if (cmd === "!pokemon" || cmd === "!parceiro") {
+      const p = USUM.lerPokemon(txt.slice(cmd.length)); if (!p) return;
+      const cx = usuario(m.login).c || {}, tem = cx[p.num];
+      if (!m.dono && !INICIAIS.has(p.num) && !tem) return;
+      p.shiny = !!(p.shiny && (m.dono || (tem && tem[1])));
+      const todos = ler("usum_parceiros", {}); todos[m.login] = { num: p.num, forma: p.forma, shiny: p.shiny }; gravar("usum_parceiros", todos);
+      aviso(ler("usum_times", {})[m.login], `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
+    }
+  }
+
+  semear(dadosPai());
+  if (!D) buscarGist();
+  setInterval(() => semear(dadosPai()), 20000);
+  if (!pai) setInterval(buscarGist, 5 * 60000);
+  USUM.chat(document.getElementById("chat"), { espelho: true, aoComando });
+})();
+</script>
+</body>
+</html>
