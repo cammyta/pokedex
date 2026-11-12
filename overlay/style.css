@@ -427,3 +427,11 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 @keyframes ovo-balanca { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-9deg); } 82% { transform: rotate(8deg); } 88% { transform: rotate(-5deg); } 94% { transform: rotate(3deg); } }
 .msg .av img.ovo { width: 58px; height: 58px; }
 .aviso img.ovo { width: 34px; height: 34px; }
+
+/* aviso grande quando um evento começa */
+.aviso.evento-on { padding: 10px 22px 10px 10px; border-radius: 22px; animation: evento-entra .7s cubic-bezier(.2,1.5,.4,1) both, evento-brilha 2.4s ease-in-out .7s 3; }
+.aviso.evento-on .t { display: block; font-size: 1.02em; }
+.aviso.evento-on .ev-tit { display: block; font-size: 1.25em; font-weight: 700; letter-spacing: .01em; margin-bottom: 2px; }
+.aviso.evento-on .fita-ico { width: 56px; height: 56px; }
+@keyframes evento-entra { from { transform: scale(.6) translateY(20px); opacity: 0; } }
+@keyframes evento-brilha { 50% { box-shadow: 0 0 0 3px rgba(255,233,160,.6), 0 0 34px rgba(255,211,106,.65); } }
