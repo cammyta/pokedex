@@ -612,8 +612,10 @@
         <tr><th>Você escreve</th><th>Ele fica</th></tr>
         <tr><td>kkkk, hahaha, rsrs, lol, morri, 😂</td><td>Rindo</td></tr>
         <tr><td>sim, amo, valeu, top, show, daora, ❤</td><td>Feliz</td></tr>
-        <tr><td>TUDO EM MAIÚSCULO, não ou mano (sozinhos), que saco, porra, merda, lixo, vsf, cacete, scat</td><td>Bravo</td></tr>
-        <tr><td>MAIÚSCULO com ! ou ?, ok?</td><td>Gritando</td></tr>
+        <tr><td>TUDO EM MAIÚSCULO, não ou mano (sozinhos), que saco, porra, merda, lixo, vsf, cacete, caralho</td><td>Bravo</td></tr>
+        <tr><td>MAIÚSCULO com ! ou ?</td><td>Gritando</td></tr>
+        <tr><td>qualquer pergunta (termina com ?): oi?, ok?, sério?</td><td>Preocupado</td></tr>
+        <tr><td>OK? (em maiúsculo)</td><td>Bravo</td></tr>
         <tr><td>:( , triste, putz, poxa, que pena</td><td>Triste</td></tr>
         <tr><td>😭, chorei, vou chorar</td><td>Chorando</td></tr>
         <tr><td>que lindo, emocionei, 🥹</td><td>Emocionado</td></tr>
@@ -622,7 +624,7 @@
         <tr><td>chocado, choquei, sem palavras</td><td>Chocado</td></tr>
         <tr><td>credo, eca, deus me livre, 🤢</td><td>Careta</td></tr>
         <tr><td>af, aff, ai ai, que fase, 🙄</td><td>Suspirando</td></tr>
-        <tr><td>ué, oxi, hein, 🤔</td><td>Tonto</td></tr>
+        <tr><td>ué, oxi, hein, scat, 🤔</td><td>Tonto</td></tr>
         <tr><td>ok, blz, partiu, bora lá</td><td>Determinado</td></tr>
         <tr><td>!!, ✨, você consegue, tmj</td><td>Inspirado</td></tr>
       </table>
@@ -675,13 +677,15 @@
     const SUB = [["level", "Level Ball"], ["lure", "Lure Ball"], ["moon", "Moon Ball"], ["friend", "Friend Ball"], ["love", "Love Ball"],
                  ["heavy", "Heavy Ball"], ["fast", "Fast Ball"], ["premier", "Premier Ball"]];
     const loja = (window.USUM_BOLAS_LOJA || []).filter((b) => b.id !== "poke");
+    const PRECO = { great: 100, ultra: 1000, safari: 10000, sport: 15000, luxury: 20000, heal: 25000, nest: 30000, net: 35000, dive: 35000,
+      repeat: 40000, dusk: 45000, timer: 50000, dream: 60000, cherish: 75000, quick: 80000, beast: 100000, master: 500000 };
     const canal = (D && D.canal) || "canaldocamaleao";
     app.innerHTML = `
       <h2>Pokébolas</h2>
       <p class="sub">A bola que você usa no <code>!capturar</code> muda a sua chance. Todo mundo tem a <b>Poké Ball</b> infinita; as outras você <b>compra com os pontos do canal na Twitch</b>.</p>
       <div class="passos">
         <div><b>1</b>Na live${canal ? ` em <a href="https://twitch.tv/${esc(canal)}" target="_blank" rel="noopener">twitch.tv/${esc(canal)}</a>` : ""}, clique no ícone de <b>pontos do canal</b> embaixo da caixa de mensagem do chat.</div>
-        <div><b>2</b>Escolha a recompensa da bola que você quer (ex: <b>Ultra Ball</b>) e resgate. O preço aparece na própria recompensa.</div>
+        <div><b>2</b>Escolha a recompensa da bola que você quer (ex: <b>Ultra Ball</b>), escreva qualquer coisa no campo de texto (ex: ok) e resgate.</div>
         <div><b>3</b>A bola vai para a sua mochila e <b>já fica equipada</b>. No próximo Pokémon selvagem, é só digitar <code>!capturar</code>.</div>
         <div><b>4</b>Cada <code>!capturar</code> gasta 1 bola. Quando acaba, você volta para a Poké Ball sozinho.</div>
       </div>
@@ -694,7 +698,7 @@
       <h2>Bolas para comprar</h2>
       <div class="bolas-grade">
         <div class="bola-card"><img src="assets/bolas/poke-ball.png" alt=""><div><b>Poké Ball</b><small>Todo mundo tem, infinita. Captura normal.</small><span class="tag-bola gratis">Grátis</span></div></div>
-        ${loja.map((b) => `<div class="bola-card"><img src="assets/bolas/${b.id}-ball.png" alt=""><div><b>${esc(b.nome)}</b><small>${esc(b.efeito)}</small><span class="tag-bola">Pontos do canal</span></div></div>`).join("")}
+        ${loja.slice().sort((a, b) => (PRECO[a.id] || 0) - (PRECO[b.id] || 0)).map((b) => `<div class="bola-card"><img src="assets/bolas/${b.id}-ball.png" alt=""><div><b>${esc(b.nome)}</b><small>${esc(b.efeito)}</small><span class="tag-bola">${PRECO[b.id] ? PRECO[b.id].toLocaleString("pt-BR") + " Shuka Coins" : "Pontos do canal"}</span></div></div>`).join("")}
       </div>
       <p class="sub secao"><b>Dicas:</b> guarde a Master Ball para um lendário ou shiny; a Quick Ball é para quem digita rápido e a Timer Ball para quem espera até o fim da barra; a Repeat Ball é ótima para pegar repetidos para trocar com os amigos.</p>
 
