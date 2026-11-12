@@ -11,6 +11,27 @@
   #chat { left: 10px; top: 10px; right: 10px; bottom: 10px; }
   /* no celular / painel estreito: tudo um pouco menor */
   @media (max-width: 420px) { body { zoom: .85; } }
+  /* caixa de escrever dentro do próprio overlay */
+  .compor { flex: none; margin: 8px 12px 12px; position: relative; z-index: 2; }
+  .compor .entrar { width: 100%; border: 0; cursor: pointer; padding: 12px; border-radius: 18px; font: 600 15px "Fredoka", "Poppins", sans-serif; color: #fff;
+    background: linear-gradient(90deg, rgba(255,170,60,.85), rgba(150,110,255,.85)); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  .compor .caixa { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 8px; border-radius: 20px;
+    background: rgba(20,12,40,.72); backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1.5px rgba(255,255,255,.12); }
+  .compor .caixa:focus-within { box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1.5px rgba(255,200,120,.55), 0 0 18px rgba(255,190,120,.25); }
+  .compor .mini-av { width: 52px; height: 52px; flex: none; border-radius: 16px; display: grid; place-items: center; overflow: hidden; background: rgba(255,255,255,.08); }
+  .compor .mini-av img { width: 50px; height: 50px; object-fit: contain; image-rendering: pixelated; border-radius: 14px; }
+  .compor .mini-av img.ovo { width: 34px; height: 34px; }
+  .compor .meio { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .compor .rot { font: 500 11.5px "Poppins", sans-serif; color: rgba(255,255,255,.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .compor .rot b { color: #ffd88a; font-weight: 600; }
+  .compor input { width: 100%; border: 0; outline: none; background: transparent; color: #fff; font: 500 15px "Poppins", sans-serif; padding: 2px 0; }
+  .compor input::placeholder { color: rgba(255,255,255,.45); }
+  .compor .enviar { flex: none; width: 42px; height: 42px; border: 0; border-radius: 14px; cursor: pointer; color: #fff; font-size: 18px;
+    background: linear-gradient(135deg, #ffb347, #b07cff); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+  .compor .enviar:active { transform: scale(.94); }
+  .compor .pe { display: flex; justify-content: space-between; margin: 5px 6px 0; font: 11px "Poppins", sans-serif; color: rgba(255,255,255,.5); }
+  .compor .pe a { color: rgba(255,255,255,.6); }
+  .compor .erro { color: #ffb3b3; }
 </style>
 </head>
 <body class="solo">
@@ -96,6 +117,83 @@
   setInterval(() => semear(dadosPai()), 20000);
   if (!pai) setInterval(buscarGist, 5 * 60000);
   USUM.chat(document.getElementById("chat"), { espelho: true, aoComando });
+
+  /* ---- escrever no chat sem sair do overlay (login da Twitch feito pela página principal) ---- */
+  const CLIENT = q.get("cid") || "";
+  if (CLIENT) {
+    const canal = (window.USUM_CONFIG.canal || "").toLowerCase();
+    const NOMES = { Normal: "normal", Happy: "feliz", Joyous: "rindo", Angry: "bravo", Shouting: "gritando", Sad: "triste", Crying: "chorando",
+      "Teary-Eyed": "emocionado", Worried: "preocupado", Surprised: "surpreso", Stunned: "chocado", Pain: "com careta", Sigh: "suspirando",
+      Dizzy: "tonto", Determined: "determinado", Inspired: "inspirado" };
+    const el = document.createElement("div"); el.className = "compor";
+    document.getElementById("chat").appendChild(el);
+    const lerTok = () => { try { return (JSON.parse(localStorage.getItem("pokedex_twitch")) || {}).token || ""; } catch (e) { return ""; } };
+    let eu = null, ws = null, fila = [], img = null, emoAtual = "";
+    const topo = (() => { try { return window.top; } catch (e) { return window; } })();
+    function entrar() {
+      const volta = topo.location.origin + topo.location.pathname;
+      const u = new URL("https://id.twitch.tv/oauth2/authorize");
+      u.search = new URLSearchParams({ response_type: "token", client_id: CLIENT, redirect_uri: volta, scope: "chat:read chat:edit",
+        state: Math.random().toString(36).slice(2) }).toString();
+      topo.location.href = u.toString();
+    }
+    function sair() { try { localStorage.removeItem("pokedex_twitch"); } catch (e) {} eu = null; if (ws) ws.close(); ws = null; desenhar(); }
+    const erro = (t) => { const e = el.querySelector(".erro"); if (e) e.textContent = t || ""; };
+    function conectar() {
+      if (ws || !eu) return;
+      ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+      ws.onopen = () => { ws.send("PASS oauth:" + lerTok()); ws.send("NICK " + eu); ws.send("JOIN #" + canal); };
+      ws.onmessage = (ev) => ev.data.split("\r\n").forEach((l) => {
+        if (l.startsWith("PING")) ws.send("PONG :tmi.twitch.tv");
+        else if (/ 001 /.test(l)) { fila.forEach((t) => ws.send(`PRIVMSG #${canal} :${t}`)); fila = []; }
+        else if (/ NOTICE /.test(l)) {
+          const t = l.split(" :").slice(-1)[0];
+          if (/authentication failed|improperly formatted auth/i.test(t)) { sair(); }
+          else erro(t);
+        }
+      });
+      ws.onclose = () => { ws = null; };
+    }
+    // a fotinha do seu parceiro muda de carinha enquanto você digita: você vê como vai ficar antes de mandar
+    function carinha(texto) {
+      const emo = texto.trim() ? USUM.emocaoDoTexto(texto) : "Normal";
+      const r = el.querySelector(".rot");
+      if (r) r.innerHTML = `Seu parceiro vai ficar <b>${NOMES[emo] || "normal"}</b>`;
+      if (emo === emoAtual) return; emoAtual = emo;
+      const caixa = el.querySelector(".mini-av"); if (!caixa) return;
+      const p = USUM.parceiroDe(eu);
+      const novo = USUM.imgPokemon(p, emo); caixa.innerHTML = ""; caixa.appendChild(novo);
+    }
+    async function desenhar() {
+      const tok = lerTok();
+      if (tok && !eu) {
+        try { const r = await fetch("https://id.twitch.tv/oauth2/validate", { headers: { Authorization: "OAuth " + tok } });
+          if (r.ok) eu = (await r.json()).login; else localStorage.removeItem("pokedex_twitch"); } catch (e) {}
+      }
+      if (!eu) {
+        el.innerHTML = `<button class="entrar">🔑 Entrar com a Twitch para conversar aqui</button>`;
+        el.querySelector(".entrar").onclick = entrar; return;
+      }
+      el.innerHTML = `<form class="caixa"><div class="mini-av"></div><div class="meio"><span class="rot"></span>
+          <input maxlength="500" placeholder="Mandar mensagem como ${eu}…" autocomplete="off"></div><button class="enviar" title="Enviar">➤</button></form>
+        <div class="pe"><span>conversando como <b>${eu}</b> · <a href="#" class="sair">sair</a></span><span class="erro"></span></div>`;
+      emoAtual = ""; carinha("");
+      const inp = el.querySelector("input");
+      inp.oninput = () => carinha(inp.value);
+      el.querySelector(".sair").onclick = (e) => { e.preventDefault(); sair(); };
+      el.querySelector("form").onsubmit = (e) => {
+        e.preventDefault();
+        const t = inp.value.replace(/[\r\n]+/g, " ").trim(); if (!t) return;
+        erro("");
+        if (ws && ws.readyState === 1) ws.send(`PRIVMSG #${canal} :${t}`); else { fila.push(t); conectar(); }
+        inp.value = ""; carinha("");
+      };
+      conectar();
+    }
+    desenhar();
+    // o parceiro pode mudar (dados novos da live): atualiza a fotinha de vez em quando
+    setInterval(() => { if (eu && !el.querySelector("input").value) { emoAtual = ""; carinha(""); } }, 60000);
+  }
 })();
 </script>
 </body>
