@@ -170,7 +170,7 @@
     // palavra inteira (funciona com acento): p("ué") etc.
     const p = (lista) => new RegExp("(^|[^a-zà-ÿ0-9])(" + lista + ")(?=$|[^a-zà-ÿ0-9])").test(s);
     // emotes do canal
-    if (/camyxany/.test(s)) return "Dizzy";
+    if (/camyxany/.test(s) || /(^|[^a-zà-ÿ0-9])scat(?=$|[^a-zà-ÿ0-9])/.test(s)) return "Dizzy";   // CamyXany e "scat" = tonto
     if (/camychoro/.test(s)) return "Sad";
     // respostas de uma palavra só
     if (/^(sim+|siiim+|s{2,}|yes|sss+)$/.test(so)) return "Happy";
@@ -186,13 +186,15 @@
     if (/(k{3,}|(ha){2,}|(he){2,}|(hi){2,}|(rs){2,}|(hue){2,}|(ka){3,}|(ks){2,}|(sk){2,}|(au(h)?){3,}|(ah){3,}|asuhas|😂|🤣|😆|😹|💀|\blol\b|\blmao\b|\brofl\b|\bxd\b)/.test(s)
         || p("morri|chorando de rir|rachei|me mijei|socorro kk")) return "Joyous";
     if (/\bblz\s*!/.test(s)) return "Joyous";
-    if (/\bok\s*\?/.test(s)) return "Shouting";
+    if (/^OK\s*\?+$/.test(orig)) return "Angry";            // "OK?" em maiúsculo = bravo
     if (/(:\(|:'\(|:c\b|☹|🙁)/.test(s)) return "Sad";
     // GRITANDO EM MAIÚSCULAS (sem contar emotes/menções)
     const letras = orig.replace(/@\S+/g, "").replace(/[^A-Za-zÀ-ÿ]/g, "");
     if (letras.length >= 6 && letras === letras.toUpperCase() && letras !== letras.toLowerCase())
       return /!|\?/.test(orig) || /(nao|não|para|socorro|aaa)/.test(s) ? "Shouting" : "Angry";
     if (/^(NÃO|NAO)[!?.\s]*$/.test(orig)) return "Angry";
+    // qualquer pergunta (termina com ?) = preocupado, como quem está se questionando: "oi?", "ok?", "sério?"
+    if (/\?\s*$/.test(orig)) return "Worried";
     // gírias de chat brasileiro
     if (/(🤢|🤮|😖|😣|😫|🫣)/.test(s) || p("credo|cruzes|eca+|ecaa+|argh+|nojo|nojent[oa]|que nojo|deus me livre|dlivre|ui+|ai que dor|doeu|que horror|horrivel|horrível|bizarro|bizarra")) return "Pain";
     if (/(🙄|😒|😮‍💨|😑|😪|😔|😩)/.test(s) || p("suspiro|suspira|haja paciência|haja paciencia|paciência|paciencia|ai ai|aiai|ai ai ai ai|mimimi|lá vem|la vem|de novo não|de novo nao|de novo isso|sempre isso|aff+ mano|cansado disso|que fase|vida que segue|é isso|e isso ai|fazer oq|fzr o q|af+|af+s|af+e|aff+|afs|aff+s|ah+ff+|pff+|tédio|tedio|preguiça|preguica|sono|cansad[oa]|cansei|enfim|fazer o que|fzr oq|ok né|vish que preguiça")
@@ -202,7 +204,7 @@
     if (/(😭|😿|🥺)/.test(s) || p("vou chorar|quero chorar|vontade de chorar|choro|choros|chorar|chorei muito|chorei|tô mal|to mal|me acabei|desabei|aaa+ 😭|socorro chorei|chorando|tô chorando|to chorando|buá|bua+|snif|sniff")) return "Crying";
     if (p("vish|vixe|vix|ixi|ixe|ihh+|ih+|xii+|eita porra|deu ruim|f no chat|fudeu|lascou|ferrou|danou|ai meu deus|ai ai ai|mds do céu|mds do ceu")) return "Worried";
     if (p("oloco|o loco|olha só|olha so|caraca|caraio|uau|uou|wow|nossa senhora|jura|sério|serio|slk|sem limites|mano do céu|mano do ceu|pqp|que isso|q isso|oxe que|meu pai|minha nossa|ave maria|avemaria")) return "Surprised";
-    if (/^(mano+|manoo+|magna)[!.\s]*$/i.test(orig) || p("porra|merda|bosta|lixo|morra|morre|desgraça|desgraca|desgraçado|desgraçada|fdp|cu|cacete|caralho|krl|scat|droga|saco|que saco|palhaçada|palhacada|pqp mano|vsf|vtnc|tnc|aí não|ai nao|ai não|absurdo|sacanagem|roubado|roubo|injusto|que isso mano")) return "Angry";
+    if (/^(mano+|manoo+|magna)[!.\s]*$/i.test(orig) || p("porra|merda|bosta|lixo|morra|morre|desgraça|desgraca|desgraçado|desgraçada|fdp|cu|cacete|caralho|krl|droga|saco|que saco|palhaçada|palhacada|pqp mano|vsf|vtnc|tnc|aí não|ai nao|ai não|absurdo|sacanagem|roubado|roubo|injusto|que isso mano")) return "Angry";
     if (p("puts|putz|poxa|pô|po|que pena|sad|tristeza|triste demais|nãooo|naooo|aí que tristeza|deu ruim demais|coitad[oa]|tadinh[oa]|tadin")) return "Sad";
     if (p("top|show|massa|daora|da hora|dahora|irado|irada|brabo|braba|brabíssimo|foda|fodase|legal|uhul|uhu+|aee+|ae+|eba+|yay|boa|mitou|mito|lenda|craque|arrasou|arrasa|maravilh[oa]|amei demais|sensacional|pai tá on|pai ta on|mãe tá on|mae ta on|tá on|ta on")) return "Happy";
     if (p("partiu|simbora|bora lá|bora la|vamo que vamo|vamos que vamos|tamo junto|é agora|e agora vai|agora vai|tô dentro|to dentro|pra cima|pra cima deles")) return "Determined";
