@@ -39,11 +39,20 @@
   .tabela th { color: var(--txt2); font-weight: 500; }
   .tabela code { color: var(--sun1); font: 600 14px "Fredoka", "Poppins", sans-serif; white-space: nowrap; }
   .tabela img { width: 26px; height: 26px; vertical-align: middle; margin-right: 6px; object-fit: contain; }
+  .atalhos { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+  .atalhos a { background: var(--card); border: 1px solid var(--borda); border-radius: 999px; padding: 6px 12px; color: inherit; text-decoration: none; font-size: 14px; }
+  .atalhos a:hover { border-color: var(--sun1); }
+  .faq { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; margin-top: 8px; }
+  .faq summary { cursor: pointer; padding: 12px 14px; font-weight: 600; }
+  .faq div { padding: 0 14px 12px; font-size: 14px; opacity: .9; }
+  .faq code { color: var(--sun1); }
+  .faq a { color: var(--moon2); }
+  h2[id] { scroll-margin-top: 16px; }
   .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
   .passos div { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 12px; font-size: 14px; }
   .passos code, .sub code, .tabela td code { color: var(--sun1); font: 600 14px "Fredoka", "Poppins", sans-serif; }
   .passos a, .sub a { color: var(--moon2); }
-  .passos b { display: block; font: 600 26px "Fredoka", "Poppins", sans-serif; color: var(--sun1); }
+  .passos b:first-child { display: block; font: 600 26px "Fredoka", "Poppins", sans-serif; color: var(--sun1); }
   .busca input { flex: 1; min-width: 0; font: 500 16px "Poppins", sans-serif; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda);
     border-radius: 999px; padding: 12px 18px; outline: none; }
   .busca input:focus { border-color: var(--moon1); }
@@ -101,6 +110,15 @@
   .item { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 10px 14px; }
   .item img { width: 34px; height: 34px; object-fit: contain; }
   .item .cor { color: #ff7ab8; letter-spacing: 1px; }
+  .explica-amizade { margin-top: 14px; background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.5; }
+  .explica-amizade .escala { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .explica-amizade .escala span { background: rgba(255,122,184,.12); border-radius: 10px; padding: 4px 10px; font-size: 13px; }
+  .explica-amizade .escala i { color: #ff7ab8; font-style: normal; margin-right: 6px; letter-spacing: 1px; }
+  .item.amigo { align-items: center; }
+  .info-amigo { flex: 1; min-width: 0; }
+  .info-amigo small { display: block; opacity: .8; font-size: 12.5px; margin-top: 3px; }
+  .prog { height: 7px; border-radius: 4px; background: rgba(255,255,255,.1); margin-top: 6px; overflow: hidden; }
+  .prog .cheio { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #ff9ac9, #ff5fa2); }
   .item a { color: #fff; text-decoration: none; font-weight: 600; }
   .rank { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
   .rank ol { padding-left: 22px; } .rank li { padding: 3px 0; } .rank li a { color: #fff; text-decoration: none; } .rank li span { color: var(--txt2); }
@@ -153,6 +171,17 @@
   .chat-painel header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: #26173f; }
   .chat-painel header button { background: rgba(255,255,255,.12); color: #fff; padding: 4px 12px; }
   .chat-painel iframe { flex: 1; border: 0; width: 100%; }
+  /* chat do overlay em cima, só a barra de escrever da Twitch embaixo */
+  .chat-painel .f-overlay { flex: 1; min-height: 0; background: #140c24; }
+  .barra-twitch { position: relative; height: 128px; overflow: hidden; flex: none; background: #18181b; transition: height .25s; }
+  .barra-twitch iframe { position: absolute; left: 0; bottom: 0; width: 100%; height: 640px; border: 0; }
+  .chat-painel.barra-grande .barra-twitch { height: 420px; }
+  .barra-twitch .crescer { position: absolute; top: 2px; right: 6px; z-index: 2; background: rgba(255,255,255,.14); color: #fff;
+    padding: 0 10px; font-size: 11px; line-height: 18px; border-radius: 9px; }
+  .chat-painel.modo-twitch .f-overlay { display: none; }
+  .chat-painel.modo-twitch .barra-twitch { flex: 1; height: auto; }
+  .chat-painel.modo-twitch .barra-twitch iframe { height: 100%; }
+  .chat-painel.modo-twitch .crescer { display: none; }
   .chat-abas { display: flex; gap: 6px; }
   .chat-abas button { opacity: .6; }
   .chat-abas button.on { opacity: 1; background: rgba(255,255,255,.25) !important; }
@@ -299,51 +328,125 @@
   function paginaJogar() {
     const linha = (c, d) => `<tr><td><code>${esc(c)}</code></td><td>${d}</td></tr>`;
     const bola = (id, nome, f) => `<tr><td><img src="assets/bolas/${id}-ball.png" alt="">${nome}</td><td>${f}</td></tr>`;
+    const pergunta = (q, r) => `<details class="faq"><summary>${q}</summary><div>${r}</div></details>`;
     app.innerHTML = `
-      <h2>Pokémon selvagens</h2>
+      <h2>Comece aqui</h2>
       <div class="passos">
-        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada 10 a 20 minutos.</div>
-        <div><b>2</b>Quando o Pokémon sair, digite <code>!capturar</code> no chat em até 10 segundos.</div>
-        <div><b>3</b>Cada um joga a própria Pokébola e tem a sua chance. Vários podem capturar o mesmo!</div>
-        <div><b>4</b>Cada captura vale +1 ponto para a sua equipe (Sol ou Lua). 2% de chance de lendário e 2% de shiny.</div>
+        <div><b>1</b>Fale qualquer coisa no chat da live. Você aparece com um <b>ovo</b> 🥚 ao lado do nome até escolher seu parceiro.</div>
+        <div><b>2</b>Escolha sua equipe com <code>!sol</code> ou <code>!lua</code>. Suas mensagens passam a dar pontos para ela.</div>
+        <div><b>3</b>Escolha um parceiro inicial: <code>!pokemon rowlet</code> (qualquer inicial das gerações 1 a 7, Pikachu ou Eevee).</div>
+        <div><b>4</b>Quando a grama aparecer na live, digite <code>!capturar</code> e comece a sua coleção!</div>
       </div>
-      <p class="sub secao">Também dá para chamar um selvagem com a recompensa <b>Chamar Pokémon selvagem</b> nos pontos do canal.</p>
+      <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 5 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
+      <div class="atalhos">
+        <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a>
+        <a href="#j-equipes">☀️ Equipes</a><a href="#j-carinhas">😆 Carinhas</a><a href="#j-perfil">🪪 Perfil</a>
+        <a href="#j-site">💬 Chat no site</a><a href="#j-faq">❓ Dúvidas</a>
+      </div>
 
-      <h2>Pokébolas</h2>
-      <p class="sub">Todo mundo captura com a Poké Ball. As outras você compra nos <b>pontos do canal</b>, e cada uma tem um efeito diferente. Escolher a bola certa para cada Pokémon é a estratégia!</p>
+      <h2 id="j-selvagens">Pokémon selvagens</h2>
+      <div class="passos">
+        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>10 a 20 minutos</b>.</div>
+        <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>10 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
+        <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
+        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Lendários e shinies aparecem com 2% de chance cada.</div>
+      </div>
+      <p class="sub secao"><b>Quanto mais raro, mais difícil.</b> A chance segue a taxa de captura dos jogos: um Magikarp com Poké Ball sai na maioria das vezes, um Pikachu em mais ou menos metade, um inicial em cerca de 1 a cada 6 tentativas e um lendário raramente. Bolas melhores ajudam muito (veja abaixo).
+      Se o Pokémon escapar, não tem segunda tentativa naquele encontro: espere o próximo.</p>
+      <p class="sub">Também dá para <b>chamar um selvagem</b> com a recompensa <b>Chamar Pokémon selvagem</b> nos pontos do canal. Os Pokémon que você captura ficam guardados para sempre na sua Pokédex desta página.</p>
+
+      <h2 id="j-bolas">Pokébolas</h2>
+      <p class="sub">Todo mundo tem <b>Poké Ball infinita</b>. As outras você compra nos <b>pontos do canal</b> (ícone ao lado do chat da Twitch), e cada uma tem um efeito. Escolher a bola certa para cada Pokémon é a estratégia!</p>
       <table class="tabela"><tr><th>Bola</th><th>Efeito</th></tr>
         ${(window.USUM_BOLAS_LOJA || []).map((b) => bola(b.id, esc(b.nome), esc(b.efeito))).join("")}
       </table>
-      <p class="sub secao">A bola comprada já fica equipada e gasta 1 por arremesso; quando acaba, volta para a Poké Ball. <code>!bola net</code> equipa, <code>!mochila</code> mostra quantas você tem. As bolas de Johto (Level, Lure, Moon, Friend, Love, Heavy, Fast) e a Premier são só visuais, para subs.</p>
+      <table class="tabela" style="margin-top:12px">
+        ${linha("Comprar", "Resgate a bola nos pontos do canal. Ela entra na sua mochila e <b>já fica equipada</b>")}
+        ${linha("!bola ultra", "Troca a bola equipada (só funciona com as que você tem na mochila). <code>!bola poke</code> volta para a Poké Ball e guarda as outras")}
+        ${linha("!mochila", "Mostra quantas bolas de cada tipo você tem")}
+        ${linha("Gasto", "Cada <code>!capturar</code> gasta 1 bola equipada, acertando ou não (menos a Heal Ball, que não gasta se o Pokémon escapar). Quando acaba, você volta para a Poké Ball sozinho")}
+      </table>
+      <p class="sub secao"><b>Dica:</b> guarde a Master Ball para um lendário ou shiny. Quick Ball é para quem é rápido no gatilho; Timer Ball é para quem espera até o fim da barra.
+      As bolas de Johto (Level, Lure, Moon, Friend, Love, Heavy, Fast) e a Premier são <b>só enfeite para subs</b>: aparecem no encaixe ao lado da sua fotinha, mas capturam como a Poké Ball.</p>
 
-      <h2>Seu parceiro e evolução</h2>
+      <h2 id="j-parceiro">Seu parceiro e evolução</h2>
       <table class="tabela">
-        ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live (o seu parceiro). Até você escolher, aparece um <b>ovo</b> 🥚. <b>Você só pode escolher um Pokémon que já capturou</b> na live, além dos iniciais (gerações 1 a 7), Pikachu e Eevee, que todo mundo já tem. Shiny só se capturou o shiny: <code>!pokemon rowlet shiny</code>. A carinha dele muda conforme o que você escreve: ri com kkkk, fica bravo com MAIÚSCULAS, triste com :(")}
-        ${linha("Evoluir meu Pokémon", "Recompensa de pontos do canal: evolui o seu parceiro na hora e aparece um aviso no chat. No texto do resgate, escreva qual evolução quer (ex: Eevee → vaporeon); se não escrever, é sorteada")}
-        ${linha("!caixa", "Quantos Pokémon você já capturou")}
+        ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live. Use o <b>nome em inglês</b> (se errar uma letra, ele tenta adivinhar). Você pode escolher <b>qualquer Pokémon que já capturou</b>, além dos iniciais das gerações 1 a 7, Pikachu e Eevee, que todo mundo já tem")}
+        ${linha("!pokemon rowlet shiny", "Versão shiny: só se você capturou ele shiny. Também vale <code>!pokemon rowlet*</code>")}
+        ${linha("!pokemon vulpix alola", "Forma de Alola, para quem tem")}
+        ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada. Se ele não evolui mais, o aviso aparece no chat e a streamer pode devolver os pontos")}
+        ${linha("!caixa", "Resumo no chat de quantos Pokémon você já capturou")}
+        ${linha("!pokedex", "Link desta página já aberta no seu perfil")}
       </table>
 
-      <h2>Chat da live</h2>
+      <h2 id="j-equipes">Equipe Sol x Equipe Lua</h2>
       <table class="tabela">
-        ${linha("!sol / !lua", "Entra na Equipe Sol ou Lua. Suas mensagens e capturas dão pontos para a equipe; quem vence ganha fita")}
-        ${linha("!fita esforço", "Escolhe qual fita aparece pendurada nas suas mensagens")}
-        ${linha("!minhasfitas", "Mostra suas fitas na live")}
-        ${linha("Responder / @nome", "Responder alguém aumenta a amizade entre vocês. No nível máximo viram Melhores Amigos")}
-        ${linha("!pokedex", "Link desta página com o seu perfil")}
+        ${linha("!sol / !lua", "Entra na equipe e já dá +3 pontos para ela. Dá para trocar quando quiser")}
+        ${linha("Mensagens", "Cada mensagem no chat vale +1 ponto para a sua equipe")}
+        ${linha("Capturas", "+1 ponto por pessoa que capturou (+2 com Luxury Ball)")}
+        ${linha("Fim da live", "A equipe que estiver na frente ganha a fita da vitória, e o placar zera para a próxima")}
       </table>
 
-      <h2>Monte seu perfil</h2>
+      <h2 id="j-carinhas">Carinhas do parceiro</h2>
+      <p class="sub">O seu Pokémon muda de expressão sozinho conforme o que você escreve. Alguns exemplos:</p>
       <table class="tabela">
-        ${linha("!foto cynthia", "Foto de treinador (veja a aba Fotos de treinador)")}
+        <tr><th>Você escreve</th><th>Ele fica</th></tr>
+        <tr><td>kkkk, hahaha, rsrs, lol, morri, 😂</td><td>Rindo</td></tr>
+        <tr><td>sim, amo, valeu, top, show, daora, ❤</td><td>Feliz</td></tr>
+        <tr><td>TUDO EM MAIÚSCULO, não (sozinho), que saco</td><td>Bravo</td></tr>
+        <tr><td>MAIÚSCULO com ! ou ?, ok?</td><td>Gritando</td></tr>
+        <tr><td>:( , triste, putz, poxa, que pena</td><td>Triste</td></tr>
+        <tr><td>😭, chorei, vou chorar</td><td>Chorando</td></tr>
+        <tr><td>que lindo, emocionei, 🥹</td><td>Emocionado</td></tr>
+        <tr><td>tudo bem?, gente?, vish, deu ruim</td><td>Preocupado</td></tr>
+        <tr><td>eita, nossa, oloco, caraca, sério?</td><td>Surpreso</td></tr>
+        <tr><td>chocado, choquei, sem palavras</td><td>Chocado</td></tr>
+        <tr><td>credo, eca, deus me livre, 🤢</td><td>Careta</td></tr>
+        <tr><td>af, aff, ai ai, que fase, 🙄</td><td>Suspirando</td></tr>
+        <tr><td>ué, oxi, hein, 🤔</td><td>Tonto</td></tr>
+        <tr><td>ok, blz, partiu, bora lá</td><td>Determinado</td></tr>
+        <tr><td>!!, ✨, você consegue, tmj</td><td>Inspirado</td></tr>
+      </table>
+      <p class="sub secao">Nem todo Pokémon tem todas as carinhas; quando falta uma, ele usa a mais parecida.</p>
+
+      <h2 id="j-fitas">Fitas e amizade</h2>
+      <p class="sub">Você ganha <b>fitas</b> participando: primeira mensagem, presença em eventos, sub, vitória da equipe e muito mais. Veja todas e como ganhar cada uma em <a href="?p=fitas">Fitas</a>.</p>
+      <table class="tabela">
+        ${linha("!fita esforço", "Escolhe qual das suas fitas aparece pendurada nas suas mensagens")}
+        ${linha("!minhasfitas", "Mostra na live todas as fitas que você tem")}
+        ${linha("Responder / @nome", "Cada vez que você responde ou marca alguém, a amizade de vocês ganha 1 ponto (no máximo 1 a cada 45 segundos para a mesma dupla). Os corações enchem com <b>1, 6, 15, 30 e 50 pontos</b>; no 5º coração vocês viram <b>Melhores Amigos</b> e ganham uma fita. Para não encher o chat, quanto falta para o próximo coração aparece <b>só aqui no site</b>, na aba Amigos do seu perfil")}
+      </table>
+
+      <h2 id="j-perfil">Monte seu perfil</h2>
+      <p class="sub">Tudo isso aparece no seu perfil desta página, que você pode compartilhar.</p>
+      <table class="tabela">
+        ${linha("!foto cynthia", "Foto de treinador. Veja todas em <a href='?p=fotos'>Fotos de treinador</a>")}
         ${linha("!genero menino", "Gênero: menino, menina ou naobinario")}
         ${linha("!regiao alola", "Região: " + esc((window.USUM_REGIOES || []).join(", ")))}
-        ${linha("!favorito pikachu", "Pokémon favorito (qualquer um)")}
-        ${linha("!meujogo ultra sun", "Jogo que você está jogando agora. Cada jogo guarda o próprio time")}
-        ${linha("!meutime rowlet pikachu eevee", "Time do jogo atual (até 6). Sem jogo (<code>!meujogo live</code>) vale só Pokémon capturado na live")}
+        ${linha("!favorito pikachu", "Pokémon favorito (qualquer um, não precisa ter capturado)")}
+        ${linha("!meujogo ultra sun", "Jogo que você está jogando agora nos seus jogos. Cada jogo guarda o próprio time")}
+        ${linha("!meutime rowlet pikachu eevee", "Time do seu jogo atual (até 6, pode ser qualquer Pokémon). Se você não escolheu jogo, ou usou <code>!meujogo live</code>, vale só Pokémon capturado na live")}
         ${linha("!jogofav emerald", "Jogo favorito (aparece com a capa)")}
-        ${linha("!fc SW-1234-5678-9012", "Friend code do Switch, para a galera te adicionar")}
+        ${linha("!fc 1234-5678-9012", "Friend code do Switch, para a galera te adicionar")}
         ${linha("!perfil", "Resumo do seu perfil no chat")}
-      </table>`;
+      </table>
+      <p class="sub secao"><b>Não confunda:</b> o <code>!pokemon</code> é a fotinha do chat (precisa ter capturado). O <code>!meutime</code> e o <code>!favorito</code> são do seu perfil e não mudam a fotinha.</p>
+
+      <h2 id="j-site">Chat aqui no site</h2>
+      <p class="sub">O botão <b>💬 Chat da live</b> (canto de baixo) abre o chat da live com as fotinhas, equipes e fitas, igual aparece na stream. Embaixo fica a barra da Twitch para você escrever direto daqui; o <b>▲</b> abre mais espaço para escolher emotes. Para escrever, você precisa estar logado na Twitch neste navegador. A aba <b>Twitch</b> mostra o chat comum.</p>
+
+      <h2 id="j-faq">Dúvidas comuns</h2>
+      ${pergunta("Digitei !pokemon e a fotinha não mudou", "Confira três coisas: o nome está <b>em inglês</b> (ex: <i>popplio</i>, não <i>pinguim</i>); você <b>já capturou</b> esse Pokémon (ou é um inicial, Pikachu ou Eevee); e, se pediu shiny, você capturou ele <b>shiny</b>. Quando dá certo, aparece um aviso no chat dizendo quem você escolheu.")}
+      ${pergunta("Por que meu Pokémon é um ovo?", "Você ainda não escolheu parceiro. Use <code>!pokemon</code> com um inicial, Pikachu, Eevee ou um Pokémon que você capturou.")}
+      ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada 5 minutos. Se acabou de falar, espere um pouco e recarregue a página.")}
+      ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada 5 minutos. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
+      ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 10 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
+      ${pergunta("Comprei uma bola e ela não aparece", "Ela já fica equipada na hora. Veja com <code>!mochila</code>. Se você trocou para outra com <code>!bola</code>, use <code>!bola</code> com o nome dela para voltar.")}
+      ${pergunta("Posso trocar de equipe?", "Pode, quando quiser, com <code>!sol</code> ou <code>!lua</code>. Os pontos que você já deu ficam com a equipe antiga.")}
+      ${pergunta("Quanto falta para o próximo coração de amizade?", "Abra o seu perfil aqui no site, na aba <b>Amigos</b>: cada amizade mostra uma barrinha e quantas interações faltam. Cada resposta ou @ vale 1 ponto, até 1 a cada 45 segundos por dupla.")}
+      ${pergunta("Como ganho fitas?", "Participando! Cada fita tem a sua regra, e algumas são de eventos especiais. Veja a lista completa em <a href='?p=fitas'>Fitas</a>.")}
+      ${pergunta("Por que meus comandos não aparecem no chat da stream?", "Os comandos do jogo não aparecem como mensagem normal, para não poluir o chat. Quando funcionam, aparece um aviso curtinho confirmando.")}`;
+    if (location.hash) { const alvo = document.querySelector(location.hash); if (alvo) alvo.scrollIntoView(); }
   }
 
   function paginaFotos() {
@@ -463,11 +566,21 @@
           `<div class="fita ${tem.has(f.id) ? "" : "falta"} ${u.fe === f.id ? "escolhida" : ""}"><img src="assets/fitas/${f.id}.png" alt="" loading="lazy">
             <div><b>${esc(f.nome)}${u.fe === f.id ? " ★" : ""}</b><small>${esc(f.como)}</small></div></div>`).join("") + `</div>`;
     } else if (aba === "amigos") {
-      const am = (u.am || []).slice().sort((a, b) => b[1] - a[1]);
-      el.innerHTML = am.length ? `<div class="lista" style="margin-top:14px">` + am.map(([l, n]) => {
-        const o = D.t[l] || {}; const p = o.p ? `<img src="${mini(o.p[0])}" alt="">` : "";
-        return `<div class="item">${p}<a href="?u=${encodeURIComponent(l)}">${esc(o.n || l)}</a><span class="cor">${nivel(n)}</span>${n >= 5 ? "<span>Melhores amigos</span>" : ""}</div>`;
-      }).join("") + `</div>` : `<p class="vazio">Responda as pessoas no chat (botão responder ou @nome) para fazer amizades.</p>`;
+      const LIM = [0, 1, 6, 15, 30, 50];   // pontos para cada coração
+      const am = (u.am || []).slice().sort((a, b) => (b[2] || 0) - (a[2] || 0) || b[1] - a[1]);
+      const explica = `<div class="explica-amizade"><b>Como funciona:</b> cada vez que você <b>responde</b> alguém no chat da live (botão responder) ou <b>marca com @nome</b>, a amizade de vocês ganha <b>1 ponto</b>. Conta no máximo 1 ponto a cada 45 segundos para a mesma dupla, então conversar ao longo da live vale mais que mandar várias seguidas.
+        <div class="escala">${[1, 2, 3, 4, 5].map((k) => `<span><i>${"♥".repeat(k)}</i>${LIM[k]} ${LIM[k] === 1 ? "ponto" : "pontos"}</span>`).join("")}</div>
+        No 5º coração vocês viram <b>Melhores Amigos</b> e os dois ganham a Fita Melhores Amigos. Os pontos aparecem aqui a cada 5 minutos durante a live.</div>`;
+      el.innerHTML = explica + (am.length ? `<div class="lista amigos" style="margin-top:14px">` + am.map(([l, n, p]) => {
+        const o = D.t[l] || {}; const img = o.p ? `<img src="${mini(o.p[0])}" alt="">` : "";
+        let barra = "";
+        if (n >= 5) barra = `<div class="prog"><div class="cheio" style="width:100%"></div></div><small>Melhores amigos! ✦ amizade no máximo</small>`;
+        else if (typeof p === "number") {
+          const ini = LIM[n], fim = LIM[n + 1], falta = Math.max(0, fim - p), pct = Math.round(((p - ini) / (fim - ini)) * 100);
+          barra = `<div class="prog"><div class="cheio" style="width:${pct}%"></div></div><small><b>${p}</b> ${p === 1 ? "ponto" : "pontos"} · faltam <b>${falta}</b> ${falta === 1 ? "interação" : "interações"} para o ${n + 1}º coração</small>`;
+        }
+        return `<div class="item amigo">${img}<div class="info-amigo"><div><a href="?u=${encodeURIComponent(l)}">${esc(o.n || l)}</a> <span class="cor">${nivel(n)}</span></div>${barra}</div></div>`;
+      }).join("") + `</div>` : `<p class="vazio">Você ainda não tem amizades. Responda alguém no chat da live ou marque com @nome para começar!</p>`);
     } else {
       const b = u.b || {}, it = Object.keys(BOLAS).filter((k) => b[k] > 0);
       const ef = (id) => ((window.USUM_BOLAS_LOJA || []).find((x) => x.id === id) || {}).efeito || "";
@@ -498,16 +611,13 @@
     const canal = (D && D.canal || "").toLowerCase();
     if (!canal || canal === "seucanal") return;
     const b = document.createElement("button"); b.className = "chat-btn"; b.textContent = "💬 Chat da live";
-    const p = document.createElement("aside"); p.className = "chat-painel";
-    p.innerHTML = `<header><div class="chat-abas"><button data-a="overlay" class="on">✨ Chat da live</button><button data-a="twitch">✏️ Escrever</button></div><button class="fechar">Fechar</button></header>`;
-    const frames = {};
-    const url = { overlay: `chat.html?canal=${encodeURIComponent(canal)}&g=${encodeURIComponent(GIST)}`,
-                  twitch: `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout` };
-    let atual = "overlay", timer = null;
+    const p = document.createElement("aside"); p.className = "chat-painel modo-overlay";
+    p.innerHTML = `<header><div class="chat-abas"><button data-a="overlay" class="on">✨ Chat da live</button><button data-a="twitch">Twitch</button></div><button class="fechar">Fechar</button></header>
+      <iframe class="f-overlay" title="Chat da live"></iframe>
+      <div class="barra-twitch"><button class="crescer" title="Abrir mais (emotes)">▲</button><iframe class="f-twitch" title="Escrever no chat"></iframe></div>`;
+    let carregado = false, timer = null;
     const mostrar = (a) => {
-      atual = a;
-      if (!frames[a]) { const f = document.createElement("iframe"); f.src = url[a]; p.appendChild(f); frames[a] = f; }
-      Object.entries(frames).forEach(([k, f]) => (f.style.display = k === a ? "" : "none"));
+      p.classList.toggle("modo-overlay", a === "overlay"); p.classList.toggle("modo-twitch", a === "twitch");
       p.querySelectorAll(".chat-abas button").forEach((x) => x.classList.toggle("on", x.dataset.a === a));
     };
     // enquanto o chat está aberto, puxa os dados novos da live de vez em quando (parceiros, equipes, fitas)
@@ -520,12 +630,18 @@
       } catch (e) {}
     };
     const abrir = (on) => {
-      if (on) mostrar(atual);
+      if (on && !carregado) {
+        carregado = true;
+        p.querySelector(".f-overlay").src = `chat.html?canal=${encodeURIComponent(canal)}&g=${encodeURIComponent(GIST)}`;
+        p.querySelector(".f-twitch").src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`;
+      }
       p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
       clearInterval(timer); if (on) timer = setInterval(atualizar, 4 * 60000);
     };
     b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
     p.querySelectorAll(".chat-abas button").forEach((x) => (x.onclick = () => mostrar(x.dataset.a)));
+    const cr = p.querySelector(".crescer");
+    cr.onclick = () => { const g = p.classList.toggle("barra-grande"); cr.textContent = g ? "▼" : "▲"; cr.title = g ? "Diminuir" : "Abrir mais (emotes)"; };
     document.body.append(b, p);
   }
 
