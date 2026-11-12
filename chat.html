@@ -79,7 +79,8 @@
   }
   const usuario = (l) => (D && D.t && D.t[l]) || {};
   USUM.urlFita = (id) => "assets/fitas/" + id + ".png";
-  USUM.fitaDe = (l) => usuario(l).fe || "";
+  // igual ao overlay: a fita escolhida com !fita; se não escolheu, a mais recente que ganhou
+  USUM.fitaDe = (l) => { const u = usuario(l), f = u.f || []; return (u.fe && f.includes(u.fe) ? u.fe : f[f.length - 1]) || ""; };
   USUM.nomeTreinador = (l) => usuario(l).n || l;
   USUM.amizade = (a, b) => { const x = (usuario(a).am || []).find((e) => e[0] === b); return { pontos: x ? 1 : 0, nivel: x ? x[1] : 0 }; };
 
