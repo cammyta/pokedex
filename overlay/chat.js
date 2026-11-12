@@ -178,8 +178,11 @@
       } else if (ev.tipo === "autooff" || ev.tipo === "autoon") {
         d.className = "aviso"; d.innerHTML = `<span class="t">Pokémon selvagens automáticos ${ev.tipo === "autoon" ? "ligados" : "desligados"}</span>`;
       } else if (ev.tipo === "eventoon") {
-        d.className = "aviso fita-nova";
-        d.innerHTML = `<img class="fita-ico" src="${USUM.urlFita(ev.id)}"><span class="t">Evento ligado: quem estiver no chat ganha a <b>${esc(f.nome || ev.id)}</b>!</span>`;
+        const NOMES_EV = { filme: "Live de filme", conversa: "Just Chatting", dupla: "Live em dupla", zerou: "Zeramos o jogo!", aniversario: "Aniversário do canal", shiny: "Apareceu um shiny!", especial: "Live especial" };
+        d.className = "aviso fita-nova evento-on";
+        d.innerHTML = `${metal(USUM.urlFita(ev.id), "fita-ico")}<span class="t"><span class="ev-tit">🎉 Evento: ${esc(NOMES_EV[ev.nome] || f.nome || ev.id)}</span>Quem falar no chat nesta live ganha a <b>${esc(f.nome || ev.id)}</b>!${ev.presentes ? ` <small>(${ev.presentes} já ${ev.presentes === 1 ? "ganhou" : "ganharam"})</small>` : ""}</span>`;
+      } else if (ev.tipo === "eventooff") {
+        d.className = "aviso"; d.innerHTML = `<span class="t">Evento encerrado. Obrigado a todo mundo que participou! 💜</span>`;
       } else return;
       adicionar(d);
     });
