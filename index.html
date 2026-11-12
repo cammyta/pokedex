@@ -147,13 +147,16 @@
   .avatares code { color: var(--sun1); font: 600 12px "Fredoka", "Poppins", sans-serif; }
   /* chat da live */
   .chat-btn { position: fixed; right: 18px; bottom: 18px; z-index: 20; box-shadow: 0 10px 24px rgba(0,0,0,.4); }
-  .chat-painel { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; max-width: 100%; z-index: 30; background: #18181b;
+  .chat-painel { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 100%; z-index: 30; background: #18181b;
     transform: translateX(100%); transition: transform .3s; box-shadow: -10px 0 30px rgba(0,0,0,.5); display: flex; flex-direction: column; }
   .chat-painel.on { transform: none; }
   .chat-painel header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: #26173f; }
   .chat-painel header button { background: rgba(255,255,255,.12); color: #fff; padding: 4px 12px; }
   .chat-painel iframe { flex: 1; border: 0; width: 100%; }
-  @media (min-width: 1300px) { body.com-chat .wrap { margin-right: 380px; } }
+  .chat-abas { display: flex; gap: 6px; }
+  .chat-abas button { opacity: .6; }
+  .chat-abas button.on { opacity: 1; background: rgba(255,255,255,.25) !important; }
+  @media (min-width: 1300px) { body.com-chat .wrap { margin-right: 440px; } }
   @media (max-width: 640px) { .jogo-atual { grid-template-columns: 80px 1fr; } .capa, .capa-txt { width: 80px; } }
   @media (max-width: 640px) { .time6 { grid-template-columns: repeat(3, 1fr); } .tags { justify-content: center; } }
   footer { margin-top: 40px; color: var(--txt2); font-size: 13px; text-align: center; }
@@ -225,6 +228,7 @@
       if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
       D = JSON.parse(txt || "{}");
     } catch (e) { D = null; }
+    window.__pokedexDados = D;
     if (!D || !D.t) { app.innerHTML = `<p class="vazio">Ainda não tem dados publicados. Volte depois da próxima live!</p>`; return; }
     document.getElementById("nomes").innerHTML = Object.values(D.t).map((u) => `<option value="${esc(u.n)}">`).join("");
     chatAoVivo();
@@ -495,13 +499,33 @@
     if (!canal || canal === "seucanal") return;
     const b = document.createElement("button"); b.className = "chat-btn"; b.textContent = "💬 Chat da live";
     const p = document.createElement("aside"); p.className = "chat-painel";
-    p.innerHTML = `<header><b>Chat de ${esc(canal)}</b><button>Fechar</button></header>`;
-    let carregado = false;
-    const abrir = (on) => {
-      if (on && !carregado) { const f = document.createElement("iframe"); f.src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`; p.appendChild(f); carregado = true; }
-      p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
+    p.innerHTML = `<header><div class="chat-abas"><button data-a="overlay" class="on">✨ Chat da live</button><button data-a="twitch">✏️ Escrever</button></div><button class="fechar">Fechar</button></header>`;
+    const frames = {};
+    const url = { overlay: `chat.html?canal=${encodeURIComponent(canal)}&g=${encodeURIComponent(GIST)}`,
+                  twitch: `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout` };
+    let atual = "overlay", timer = null;
+    const mostrar = (a) => {
+      atual = a;
+      if (!frames[a]) { const f = document.createElement("iframe"); f.src = url[a]; p.appendChild(f); frames[a] = f; }
+      Object.entries(frames).forEach(([k, f]) => (f.style.display = k === a ? "" : "none"));
+      p.querySelectorAll(".chat-abas button").forEach((x) => x.classList.toggle("on", x.dataset.a === a));
     };
-    b.onclick = () => abrir(true); p.querySelector("header button").onclick = () => abrir(false);
+    // enquanto o chat está aberto, puxa os dados novos da live de vez em quando (parceiros, equipes, fitas)
+    const atualizar = async () => {
+      try {
+        const g = await (await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" })).json();
+        const f = g.files && g.files["dados.json"]; let txt = f && f.content;
+        if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
+        const n = JSON.parse(txt || "{}"); if (n && n.t) { D = n; window.__pokedexDados = n; }
+      } catch (e) {}
+    };
+    const abrir = (on) => {
+      if (on) mostrar(atual);
+      p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
+      clearInterval(timer); if (on) timer = setInterval(atualizar, 4 * 60000);
+    };
+    b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
+    p.querySelectorAll(".chat-abas button").forEach((x) => (x.onclick = () => mostrar(x.dataset.a)));
     document.body.append(b, p);
   }
 
