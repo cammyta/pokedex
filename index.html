@@ -461,6 +461,21 @@
     ir("?p=" + a.dataset.p);
   };
   window.addEventListener("popstate", () => D && rota());
+  // dados novos da live a cada 2 minutos: redesenha a página (sem atrapalhar quem está com uma ficha aberta ou digitando)
+  setInterval(async () => {
+    if (!D || document.hidden) return;
+    try {
+      const g = await (await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" })).json();
+      const f = g.files && g.files["dados.json"]; let txt = f && f.content;
+      if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
+      const n = JSON.parse(txt || "{}");
+      if (!n.t || n.em === D.em) return;
+      D = n; window.__pokedexDados = n;
+      const ocupado = document.querySelector(".ficha-fundo") || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+      const rodape = document.getElementById("rodape"); if (rodape) rodape.textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
+      if (!ocupado) { const y = scrollY; rota(); scrollTo(0, y); }
+    } catch (e) {}
+  }, 2 * 60e3);
 
   function rota() {
     const p = new URLSearchParams(location.search);
@@ -475,7 +490,7 @@
     if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
     if (pag === "bolas") { marcar("bolas"); return paginaBolas(); }
     if (login) { marcar("perfil"); return perfil(login); }
-    if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada 5 minutos durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
+    if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada minuto durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
     marcar("inicio"); inicio(u);
   }
 
@@ -502,7 +517,7 @@
         <div><b>3</b>Escolha um parceiro inicial: <code>!pokemon rowlet</code> (qualquer inicial das gerações 1 a 7, Pikachu ou Eevee).</div>
         <div><b>4</b>Quando a grama aparecer na live, digite <code>!capturar</code> e comece a sua coleção!</div>
       </div>
-      <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 5 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
+      <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 1 ou 2 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
       <div class="atalhos">
         <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a>
         <a href="#j-status">💪 Força</a><a href="#j-trocas">🔁 Trocas</a><a href="#j-equipes">☀️ Equipes</a><a href="#j-carinhas">😆 Carinhas</a><a href="#j-perfil">🪪 Perfil</a>
@@ -642,8 +657,8 @@
       <h2 id="j-faq">Dúvidas comuns</h2>
       ${pergunta("Digitei !pokemon e a fotinha não mudou", "Confira três coisas: o nome está <b>em inglês</b> (ex: <i>popplio</i>, não <i>pinguim</i>); você <b>já capturou</b> esse Pokémon (ou é um inicial, Pikachu ou Eevee); e, se pediu shiny, você capturou ele <b>shiny</b>. Quando dá certo, aparece um aviso no chat dizendo quem você escolheu.")}
       ${pergunta("Por que meu Pokémon é um ovo?", "Você ainda não escolheu parceiro. Use <code>!pokemon</code> com um inicial, Pikachu, Eevee ou um Pokémon que você capturou.")}
-      ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada 5 minutos. Se acabou de falar, espere um pouco e recarregue a página.")}
-      ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada 5 minutos. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
+      ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada minuto. Se acabou de falar, espere um pouco e recarregue a página.")}
+      ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada minuto. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
       ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 10 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
       ${pergunta("Comprei uma bola e ela não aparece", "Ela já fica equipada na hora. Veja com <code>!mochila</code>. Se você trocou para outra com <code>!ball</code>, use <code>!ball</code> com o nome dela para voltar.")}
       ${pergunta("Por que não consigo capturar mais um Pikachu?", "Cada pessoa pode ter no máximo <b>" + ((D && D.lim) || 5) + " de cada Pokémon</b>, para ninguém monopolizar. Com " + ((D && D.lim) || 5) + ", o <code>!capturar</code> daquele Pokémon não funciona: solte o mais fraco com <code>!release pikachu</code> e capture outro (quem sabe um mais forte!).")}
@@ -660,7 +675,7 @@
     const SUB = [["level", "Level Ball"], ["lure", "Lure Ball"], ["moon", "Moon Ball"], ["friend", "Friend Ball"], ["love", "Love Ball"],
                  ["heavy", "Heavy Ball"], ["fast", "Fast Ball"], ["premier", "Premier Ball"]];
     const loja = (window.USUM_BOLAS_LOJA || []).filter((b) => b.id !== "poke");
-    const canal = (D && D.canal) || "";
+    const canal = (D && D.canal) || "canaldocamaleao";
     app.innerHTML = `
       <h2>Pokébolas</h2>
       <p class="sub">A bola que você usa no <code>!capturar</code> muda a sua chance. Todo mundo tem a <b>Poké Ball</b> infinita; as outras você <b>compra com os pontos do canal na Twitch</b>.</p>
@@ -700,7 +715,7 @@
     const lista = Object.entries(D.t).map(([l, u]) => [l, u, stats(u)]);
     const top = (k, n) => lista.filter((x) => x[2][k] > 0).sort((a, b) => b[2][k] - a[2][k]).slice(0, n || 10)
       .map(([l, u, s]) => `<li><a href="?u=${encodeURIComponent(l)}">${esc(u.n || l)}</a> <span>· ${s[k]}</span></li>`).join("") || `<li><span>ninguém ainda</span></li>`;
-    app.innerHTML = (naoAchou ? `<p class="vazio">Não achei “${esc(naoAchou)}”. Já falou no chat e capturou algum Pokémon? Os dados sobem a cada 5 minutos.</p>` : "") +
+    app.innerHTML = (naoAchou ? `<p class="vazio">Não achei “${esc(naoAchou)}”. Já falou no chat e capturou algum Pokémon? Os dados sobem a cada minuto.</p>` : "") +
       `<h2>Ranking</h2><div class="rank">
         <div class="card"><b>Melhor reputação</b><ol>${lista.map(([l, u]) => [l, u, reputacao(u)]).filter((x) => x[2].pts > 0).sort((a, b) => b[2].pts - a[2].pts).slice(0, 10)
           .map(([l, u, r]) => `<li>${iconeRep(r.nivel, "mini")}<a href="?u=${encodeURIComponent(l)}">${esc(u.n || l)}</a> <span>· ${esc(r.nivel.nome)}</span></li>`).join("") || "<li><span>ninguém ainda</span></li>"}</ol></div>
@@ -814,7 +829,7 @@
       const am = (u.am || []).slice().sort((a, b) => (b[2] || 0) - (a[2] || 0) || b[1] - a[1]);
       const explica = `<div class="explica-amizade"><b>Como funciona:</b> cada vez que você <b>responde</b> alguém no chat da live (botão responder) ou <b>marca com @nome</b>, a amizade de vocês ganha <b>1 ponto</b> (uma <b>troca</b> de Pokémon com <code>!trade</code> vale <b>5</b>). Conta no máximo 1 ponto a cada 45 segundos para a mesma dupla, então conversar ao longo da live vale mais que mandar várias seguidas.
         <div class="escala">${[1, 2, 3, 4, 5].map((k) => `<span><i>${"♥".repeat(k)}</i>${LIM[k]} ${LIM[k] === 1 ? "ponto" : "pontos"}</span>`).join("")}</div>
-        No 5º coração vocês viram <b>Melhores Amigos</b> e os dois ganham a Fita Melhores Amigos. Os pontos aparecem aqui a cada 5 minutos durante a live.</div>`;
+        No 5º coração vocês viram <b>Melhores Amigos</b> e os dois ganham a Fita Melhores Amigos. Os pontos aparecem aqui em 1 ou 2 minutos durante a live.</div>`;
       el.innerHTML = explica + (am.length ? `<div class="lista amigos" style="margin-top:14px">` + am.map(([l, n, p]) => {
         const o = D.t[l] || {}; const img = o.p ? `<img src="${mini(o.p[0])}" alt="">` : "";
         let barra = "";
@@ -886,7 +901,7 @@
   }
 
   function chatAoVivo() {
-    const canal = (D && D.canal || "").toLowerCase();
+    const canal = (D && D.canal || "canaldocamaleao").toLowerCase();
     if (!canal || canal === "seucanal") return;
     const b = document.createElement("button"); b.className = "chat-btn"; b.textContent = "💬 Chat da live";
     const p = document.createElement("aside"); p.className = "chat-painel modo-overlay";
