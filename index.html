@@ -85,6 +85,54 @@
   .rank { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
   .rank ol { padding-left: 22px; } .rank li { padding: 3px 0; } .rank li a { color: #fff; text-decoration: none; } .rank li span { color: var(--txt2); }
   .vazio { color: var(--txt2); padding: 20px 0; }
+  .tags { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.08); font-size: 14px; }
+  .tag img { width: 26px; height: 26px; object-fit: contain; margin: -4px 0; }
+  .tag small { color: var(--txt2); }
+  .time6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .slot { position: relative; aspect-ratio: .85; border-radius: 18px; background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+    border: 1px solid var(--borda); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; text-align: center; }
+  .slot img { width: 90%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 8px 10px rgba(0,0,0,.4)); }
+  .slot b { font: 600 14px "Fredoka", "Poppins", sans-serif; }
+  .slot.shiny { border-color: rgba(255,246,194,.7); box-shadow: 0 0 16px rgba(255,210,240,.35); }
+  .slot.shiny::after { content: "✦"; position: absolute; top: 6px; left: 10px; color: #fff6c2; text-shadow: 0 0 8px #ffd2f0; }
+  .slot.vago { border-style: dashed; color: var(--txt2); font-size: 12px; }
+  .slot.vago::before { content: ""; width: 34%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(255,255,255,.15);
+    background: linear-gradient(rgba(255,255,255,.06) 46%, rgba(255,255,255,.15) 46% 54%, transparent 54%); }
+  .perfil .foto .treinador { width: 70%; filter: drop-shadow(0 10px 12px rgba(0,0,0,.5)); }
+  .perfil .foto .parceiro { position: absolute; right: 2%; bottom: 2%; width: 46%; }
+  .perfil .foto .parceiro.so { position: static; width: 92%; }
+  .genero { font-size: 26px; } .genero.m { color: #6cb8ff; } .genero.f { color: #ff8cc6; } .genero.nb { font: 700 12px "Fredoka", "Poppins", sans-serif; color: #1a1033; padding: 3px 9px; border-radius: 999px;
+    background: linear-gradient(90deg, #fcf434 0 25%, #fff 25% 50%, #9c59d1 50% 75%, #2c2c2c 75%); text-shadow: 0 0 3px #fff; }
+  .fc { cursor: pointer; } .fc:hover { background: rgba(255,255,255,.16); }
+  .jogo-atual { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: center; }
+  .capa { width: 110px; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,.45); display: block; }
+  .capa-txt { width: 110px; aspect-ratio: .72; border-radius: 10px; display: grid; place-items: center; text-align: center; padding: 8px;
+    font: 700 15px "Fredoka", "Poppins", sans-serif; background: linear-gradient(160deg, #ff7ab8, #57c6ff); color: #fff; }
+  .mini-capa { width: 22px; border-radius: 3px; vertical-align: middle; margin: -4px 0; }
+  .outros { margin-top: 14px; display: grid; gap: 8px; }
+  .outros .item img.s { width: 40px; height: 40px; object-fit: contain; }
+  .acoes { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .acoes button { padding: 8px 16px; font-size: 14px; }
+  .acoes button.sec { background: rgba(255,255,255,.12); color: #fff; }
+  .guia { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
+  .guia div { background: var(--card); border: 1px solid var(--borda); border-radius: 12px; padding: 8px 12px; font-size: 14px; }
+  .guia code { font: 600 14px "Fredoka", "Poppins", sans-serif; color: var(--sun1); }
+  .avatares { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+  .avatares div { background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 6px; text-align: center; font-size: 12px; }
+  .avatares img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+  .avatares code { color: var(--sun1); font: 600 12px "Fredoka", "Poppins", sans-serif; }
+  /* chat da live */
+  .chat-btn { position: fixed; right: 18px; bottom: 18px; z-index: 20; box-shadow: 0 10px 24px rgba(0,0,0,.4); }
+  .chat-painel { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; max-width: 100%; z-index: 30; background: #18181b;
+    transform: translateX(100%); transition: transform .3s; box-shadow: -10px 0 30px rgba(0,0,0,.5); display: flex; flex-direction: column; }
+  .chat-painel.on { transform: none; }
+  .chat-painel header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: #26173f; }
+  .chat-painel header button { background: rgba(255,255,255,.12); color: #fff; padding: 4px 12px; }
+  .chat-painel iframe { flex: 1; border: 0; width: 100%; }
+  @media (min-width: 1300px) { body.com-chat .wrap { margin-right: 380px; } }
+  @media (max-width: 640px) { .jogo-atual { grid-template-columns: 80px 1fr; } .capa, .capa-txt { width: 80px; } }
+  @media (max-width: 640px) { .time6 { grid-template-columns: repeat(3, 1fr); } .tags { justify-content: center; } }
   footer { margin-top: 40px; color: var(--txt2); font-size: 13px; text-align: center; }
   @media (max-width: 640px) { .perfil { grid-template-columns: 1fr; } .perfil .foto { max-width: 220px; margin: 0 auto; } .perfil .nome { justify-content: center; } }
 </style>
@@ -111,6 +159,7 @@
 
 <script src="pokedex.js"></script>
 <script src="fitas-catalogo.js"></script>
+<script src="perfil-dados.js"></script>
 <script>
 (function () {
   const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
@@ -124,6 +173,16 @@
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const nivel = (n) => "♥".repeat(n) + "♡".repeat(5 - n);
   const app = document.getElementById("app");
+  const JOGO = (id) => (window.USUM_JOGOS || []).find((j) => j.id === id) || null;
+  const TREIN = (id) => (window.USUM_TREINADORES || []).find((t) => t.id === id) || null;
+  const capa = (j, cls) => !j ? "" : j.capa ? `<img class="${cls || "capa"}" src="assets/jogos/${j.id}.jpg" alt="Pokémon ${esc(j.nome)}">`
+    : (cls ? "🎮" : `<div class="capa-txt">Pokémon<br>${esc(j.nome)}</div>`);
+  const GEN = { m: ["♂", "Menino"], f: ["♀", "Menina"], nb: ["NB", "Não-binário"] };
+  function slots(t) {
+    return `<div class="time6">${[0, 1, 2, 3, 4, 5].map((i) => { const x = (t || [])[i];
+      return x ? `<div class="slot ${x[1] ? "shiny" : ""}"><img src="${home(x[0], x[1])}" alt="" loading="lazy"><b>${esc(nome(x[0]))}</b></div>`
+               : `<div class="slot vago"><span></span></div>`; }).join("")}</div>`;
+  }
   let D = null, aba = "dex", filtro = "cap", busca = "";
 
   async function carregar() {
@@ -137,7 +196,9 @@
     } catch (e) { D = null; }
     if (!D || !D.t) { app.innerHTML = `<p class="vazio">Ainda não tem dados publicados. Volte depois da próxima live!</p>`; return; }
     document.getElementById("nomes").innerHTML = Object.values(D.t).map((u) => `<option value="${esc(u.n)}">`).join("");
-    document.getElementById("rodape").textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
+    chatAoVivo();
+    document.getElementById("rodape").textContent = D.em ? "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live"
+      : "Os dados aparecem aqui a partir da próxima live";
     rota();
   }
   function quando(iso) {
@@ -175,7 +236,17 @@
         <div class="card"><b>Mais espécies capturadas</b><ol>${top("esp")}</ol></div>
         <div class="card"><b>Caçadores de shiny ✦</b><ol>${top("shiny")}</ol></div>
         <div class="card"><b>Mais fitas</b><ol>${top("fitas")}</ol></div>
-      </div>`;
+      </div>` + guia();
+  }
+  function guia() {
+    const cmds = [["!foto cynthia", "foto de treinador (veja abaixo)"], ["!genero menino / menina / naobinario", "gênero"],
+      ["!regiao alola", "região: " + (window.USUM_REGIOES || []).join(", ")], ["!favorito pikachu", "Pokémon favorito"],
+      ["!setgame ultra sun", "o jogo que você está jogando agora"], ["!meutime rowlet pikachu eevee", "time do jogo atual (até 6)"],
+      ["!jogofav emerald", "jogo favorito"], ["!fc SW-1234-5678-9012", "friend code do Switch"], ["!pokemon rowlet", "parceiro no chat da live"],
+      ["!setgame live", "volta pro time da live (só Pokémon capturados)"]];
+    return `<h2>Monte seu perfil pelo chat</h2><div class="guia">${cmds.map(([c, d]) => `<div><code>${esc(c)}</code><br>${esc(d)}</div>`).join("")}</div>
+      <h2>Fotos de treinador</h2><div class="avatares">${(window.USUM_TREINADORES || []).map((t) =>
+        `<div><img src="assets/treinadores/${t.id}.png" alt="" loading="lazy"><code>!foto ${esc(t.id)}</code><br>${esc(t.nome)}</div>`).join("")}</div>`;
   }
 
   function perfil(login) {
@@ -183,10 +254,18 @@
     history.replaceState(null, "", "?u=" + encodeURIComponent(login));
     app.innerHTML = `
       <section class="perfil ${u.t || ""}">
-        <div class="foto">${parc ? `<img src="${home(parc.num, parc.shiny)}" alt="">` : ""}</div>
+        <div class="foto">${u.av && TREIN(u.av) ? `<img class="treinador" src="assets/treinadores/${u.av}.png" alt="">` : ""}${parc ? `<img class="parceiro ${u.av ? "" : "so"}" src="${home(parc.num, parc.shiny)}" alt="">` : ""}</div>
         <div>
-          <div class="nome">${esc(u.n || login)} ${u.t ? `<span class="time ${u.t}">Equipe ${u.t === "sol" ? "Sol" : "Lua"}</span>` : ""}</div>
+          <div class="nome">${esc(u.n || login)} ${u.g && GEN[u.g] ? `<span class="genero ${u.g}" title="${GEN[u.g][1]}">${GEN[u.g][0]}</span>` : ""} ${u.t ? `<span class="time ${u.t}">Equipe ${u.t === "sol" ? "Sol" : "Lua"}</span>` : ""}</div>
           <div class="parc">${parc ? "Parceiro: <b>" + esc(nome(parc.num)) + "</b>" + (parc.shiny ? " ✦ shiny" : "") : "Sem parceiro ainda (use !pokemon no chat)"}</div>
+          <div class="tags">
+            <span class="tag">🗺️ ${u.r ? "Região de <b>" + esc(u.r) + "</b>" : "Sem região <small>(!regiao alola)</small>"}</span>
+            <span class="tag">${u.fv ? `<img src="${home(u.fv[0], u.fv[1])}" alt="">Favorito: <b>${esc(nome(u.fv[0]))}</b>${u.fv[1] ? " ✦" : ""}` : "❤ Sem favorito <small>(!favorito pikachu)</small>"}</span>
+            ${u.jf && JOGO(u.jf) ? `<span class="tag">${capa(JOGO(u.jf), "mini-capa")} Jogo favorito: <b>${esc(JOGO(u.jf).nome)}</b></span>` : ""}
+            ${u.g && GEN[u.g] ? `<span class="tag">${u.g === "nb" ? "" : GEN[u.g][0] + " "}${GEN[u.g][1]}</span>` : ""}
+            ${u.fc ? `<span class="tag fc" id="fc" title="Clique para copiar">🎮 Friend code: <b>${esc(u.fc)}</b></span>` : ""}
+          </div>
+          <div class="acoes"><button id="compartilhar">Compartilhar perfil</button></div>
           <div class="nums">
             <div class="num"><b>${s.esp}<small>/${TOTAL}</small></b><small>Espécies</small><div class="barra"><i style="width:${(s.esp / TOTAL * 100).toFixed(1)}%"></i></div></div>
             <div class="num"><b>${s.total}</b><small>Capturas</small></div>
@@ -197,12 +276,32 @@
           </div>
         </div>
       </section>
+      ${timeHtml(u)}
       <nav class="abas">
         <button data-a="dex">Pokédex</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button>
       </nav>
       <div id="conteudo"></div>`;
     app.querySelectorAll(".abas button").forEach((b) => b.onclick = () => { aba = b.dataset.a; desenhar(login); });
+    const link = location.origin + location.pathname + "?u=" + encodeURIComponent(login);
+    document.getElementById("compartilhar").onclick = async (e) => {
+      try { if (navigator.share) { await navigator.share({ title: "Perfil de " + (u.n || login), url: link }); return; } } catch (er) {}
+      try { await navigator.clipboard.writeText(link); e.target.textContent = "Link copiado!"; } catch (er) { prompt("Copie o link:", link); }
+    };
+    const fc = document.getElementById("fc");
+    if (fc) fc.onclick = async () => { try { await navigator.clipboard.writeText(u.fc); fc.innerHTML = "🎮 Friend code copiado!"; } catch (er) {} };
     desenhar(login);
+  }
+
+  function timeHtml(u) {
+    const tms = u.tms || (u.tm ? { live: u.tm } : {}), jg = u.jg && JOGO(u.jg);
+    const atual = jg ? tms[jg.id] : tms.live;
+    const titulo = jg ? `Jogando agora: Pokémon ${esc(jg.nome)}` : "Time da live";
+    let h = `<h2>${titulo}</h2><div class="${jg ? "jogo-atual" : ""}">${jg ? capa(jg) : ""}<div>${(atual || []).length ? slots(atual)
+      : `<p class="vazio">${jg ? "Monte o time desse jogo com <b>!meutime</b> no chat." : "Monte seu time com <b>!meutime rowlet pikachu eevee</b>. Use <b>!setgame</b> para dizer qual jogo você está jogando."}</p>`}</div></div>`;
+    const outros = Object.keys(tms).filter((k) => k !== (jg ? jg.id : "live") && (tms[k] || []).length);
+    if (outros.length) h += `<div class="outros">` + outros.map((k) => { const j = JOGO(k);
+      return `<div class="item">${j ? capa(j, "mini-capa") : "📺"} <span style="min-width:150px">${j ? "Pokémon " + esc(j.nome) : "Time da live"}</span>${tms[k].map((x) => `<img class="s" src="${home(x[0], x[1])}" alt="">`).join("")}</div>`; }).join("") + `</div>`;
+    return h;
   }
 
   function desenhar(login) {
@@ -253,6 +352,21 @@
         ${tem && e[0] > 1 ? `<span class="q">×${e[0]}</span>` : ""}
         <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b></div>`;
     }).join("");
+  }
+
+  function chatAoVivo() {
+    const canal = (D && D.canal || "").toLowerCase();
+    if (!canal || canal === "seucanal") return;
+    const b = document.createElement("button"); b.className = "chat-btn"; b.textContent = "💬 Chat da live";
+    const p = document.createElement("aside"); p.className = "chat-painel";
+    p.innerHTML = `<header><b>Chat de ${esc(canal)}</b><button>Fechar</button></header>`;
+    let carregado = false;
+    const abrir = (on) => {
+      if (on && !carregado) { const f = document.createElement("iframe"); f.src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`; p.appendChild(f); carregado = true; }
+      p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
+    };
+    b.onclick = () => abrir(true); p.querySelector("header button").onclick = () => abrir(false);
+    document.body.append(b, p);
   }
 
   document.getElementById("busca").onsubmit = (e) => {
