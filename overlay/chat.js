@@ -17,6 +17,24 @@
     if (!time || !primeiraVez(id + ":" + time)) return;
     const p = placar(); p[time] = (p[time] || 0) + pts; gravar("usum_placar", p);
   }
+  // Várias telas do OBS recebem a mesma mensagem ao mesmo tempo. Para uma não sobrescrever a outra com dados velhos,
+  // só UMA tela grava cada comando (as outras só mostram o aviso). Lê o valor mais novo na hora de gravar.
+  // Uma tela vira a "líder" (trava do navegador): só ela grava. Se ela fechar, outra assume sozinha.
+  let lider = false;
+  const temTrava = !!(navigator.locks && navigator.locks.request);
+  if (temTrava) navigator.locks.request("usum_lider", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
+  function umaVez(m, fn) {
+    if (temTrava) { if (lider) fn(); return; }
+    setTimeout(() => {
+      const k = (m.id || m.texto) + "", v = ler("usum_cmd_feitos", []);
+      if (v.includes(k)) return;
+      v.push(k); gravar("usum_cmd_feitos", v.slice(-300));
+      fn();
+    }, 30 + Math.random() * 220);
+  }
+  function mudar(m, chave, fn) { umaVez(m, () => { const tudo = ler(chave, {}); fn(tudo); gravar(chave, tudo); }); }
+  function mudarPerfil(m, fn) { mudar(m, "usum_perfil", (pf) => fn(pf[m.login] = pf[m.login] || {})); }
+  USUM.umaVez = umaVez;
   function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return Math.abs(h); }
   // Pokémon de cada pessoa: escolhido com !pokemon, ou um de Alola sorteado pelo nome
   function parceiroDe(login) {
@@ -131,11 +149,16 @@
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
         const q = ev.quem || [], nomes = q.slice(0, 3).map(esc).join(", ") + (q.length > 3 ? " e +" + (q.length - 3) : "");
-        d.insertAdjacentHTML("beforeend", `<span class="t">Gotcha! <b>${nomes}</b> ${q.length > 1 ? "capturaram" : "capturou"} ${esc(ev.nome)}${ev.shiny ? " ✦" : ""}!</span>`);
+        const fz = q.length === 1 && ev.forcas && ev.forcas.length && USUM.selvagens ? ` <small class="forca">força ${ev.forcas[0]}% · ${USUM.selvagens.nota(ev.forcas[0])}</small>` : "";
+        d.insertAdjacentHTML("beforeend", `<span class="t">Gotcha! <b>${nomes}</b> ${q.length > 1 ? "capturaram" : "capturou"} ${esc(ev.nome)}${ev.shiny ? " ✦" : ""}!${fz}</span>`);
       } else if (ev.tipo === "fugiu") {
         d.className = "aviso";
         const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Normal"); im.className = "ret"; d.appendChild(im);
         d.insertAdjacentHTML("beforeend", `<span class="t">${esc(ev.nome)} ${ev.tentaram ? "escapou!" : "voltou pro mato…"}</span>`);
+      } else if (ev.tipo === "caixacheia") {
+        if (lista.querySelector(`.cheia[data-l="${CSS.escape(ev.login)}"]`)) return;
+        d.className = "aviso cheia"; d.dataset.l = ev.login;
+        d.innerHTML = `<span class="t">📦 <b>${esc(ev.nome)}</b>, você já tem ${ev.limite} ${esc(ev.pnome || "")} (o máximo de cada Pokémon). Solte o mais fraco com <b>!release ${esc((ev.pnome || "nome").toLowerCase())}</b> para capturar outro</span>`;
       } else if (ev.tipo === "chamou") {
         d.className = "aviso"; d.innerHTML = `<span class="ico sol-ico"></span><span class="t"><b>${esc(ev.nome)}</b> balançou a grama… 🌿</span>`;
       } else if (ev.tipo === "registrando") {
@@ -151,7 +174,7 @@
         d.insertAdjacentHTML("beforeend", `<span class="t">O ${esc(ev.de)} de <b>${esc(ev.nome)}</b> evoluiu para <b>${esc(ev.para)}</b>!</span>`);
       } else if (ev.tipo === "naoevolui") {
         d.className = "aviso";
-        d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, ${ev.motivo === "semparceiro" ? "escolha um parceiro com !pokemon antes de evoluir" : esc(ev.pnome || "") + " não evolui mais"} (o streamer pode devolver os pontos)</span>`;
+        d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, ${ev.motivo === "semparceiro" ? "escolha um parceiro com !pokemon antes de evoluir" : ev.motivo === "cheio" ? "você já tem " + (ev.limite || 5) + " " + esc(ev.pnome || "") + ", solte um antes de evoluir" : esc(ev.pnome || "") + " não evolui mais"} (o streamer pode devolver os pontos)</span>`;
       } else if (ev.tipo === "autooff" || ev.tipo === "autoon") {
         d.className = "aviso"; d.innerHTML = `<span class="t">Pokémon selvagens automáticos ${ev.tipo === "autoon" ? "ligados" : "desligados"}</span>`;
       } else if (ev.tipo === "eventoon") {
@@ -177,7 +200,12 @@
     }
 
     USUM.aoMensagem((m) => {
-      if (m.tipo === "limpar") { lista.innerHTML = ""; return; }
+      if (m.tipo === "limpar") {
+        if (m.login) lista.querySelectorAll(`.msg[data-login="${CSS.escape(m.login)}"]`).forEach((x) => x.remove());
+        else if (m.msgId !== undefined) { if (m.msgId) lista.querySelectorAll(`.msg[data-id="${CSS.escape(m.msgId)}"]`).forEach((x) => x.remove()); }
+        else lista.innerHTML = "";
+        return;
+      }
       if (m.tipo === "status") {   // confirma na tela que o chat conectou (some sozinho)
         const d = document.createElement("div"); d.className = "aviso";
         d.innerHTML = `<span class="t">${m.ok ? "✓ Chat conectado: <b>#" + esc(m.canal) + "</b>" : "⚠ Configure o nome do canal no config.js"}</span>`;
@@ -192,7 +220,7 @@
       if (cmd === "!sol" || cmd === "!lua") {
         const time = cmd.slice(1), t = times();
         if (t[m.login] !== time) {
-          t[m.login] = time; gravar("usum_times", t); pontuar(time, 3, m.id); pulsar(time);
+          t[m.login] = time; mudar(m, "usum_times", (x) => (x[m.login] = time)); pontuar(time, 3, m.id); pulsar(time);
           aviso(time, `<b>${esc(m.nome)}</b> entrou para a Equipe ${time === "sol" ? "Sol" : "Lua"}!`);
         }
         atualizarPlacar(); return;
@@ -207,24 +235,24 @@
             return;
           }
           p.shiny = !!(p.shiny && (livre || SV.pode(m.login, p.num, true)));
-          const todos = ler("usum_parceiros", {}); todos[m.login] = { num: p.num, forma: p.forma, shiny: p.shiny }; gravar("usum_parceiros", todos);
+          const novo = { num: p.num, forma: p.forma, shiny: p.shiny }; mudar(m, "usum_parceiros", (x) => (x[m.login] = novo));
           aviso(times()[m.login], `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
         } else if (txt.slice(cmd.length).trim()) {
           aviso(times()[m.login], `<b>${esc(m.nome)}</b>, não achei esse Pokémon 🤔 confere o nome em inglês (ex: !pokemon popplio)`, parceiroDe(m.login));
         }
         return;
       }
-      if ((cmd === "!bola" || cmd === "!pokebola") && !/^\d/.test(txt.split(/\s+/)[1] || "")) {
+      if ((cmd === "!ball" || cmd === "!bola" || cmd === "!pokebola") && !/^\d/.test(txt.split(/\s+/)[1] || "")) {
         const b = USUM.lerBola(txt.split(/\s+/).slice(1).join(" "));
         if (!b) return;
         const SV = USUM.selvagens;
         if (SV && SV.COMPRAVEIS.includes(b)) {
           // Great, Ultra, Quick e Master: só quem comprou com pontos do canal
-          if (!m.dono && !USUM.modoDemo && !(SV.mochila(m.login)[b] > 0)) {
+          if (!USUM.modoDemo && !(SV.mochila(m.login)[b] > 0)) {
             aviso("", `<b>${esc(m.nome)}</b>, você não tem ${USUM.BOLAS[b]}. Compre com pontos do canal!`); return;
           }
-        } else if (b !== "poke" && !(m.sub || m.dono)) { aviso("", `Pokébolas especiais são só pra subs ✦`); return; }
-        const todas = ler("usum_bolas", {}); todas[m.login] = b; gravar("usum_bolas", todas);
+        } else if (b !== "poke" && !(m.sub || m.dono || m.ajudante)) { aviso("", `Pokébolas especiais são só pra subs ✦`); return; }
+        mudar(m, "usum_bolas", (x) => (x[m.login] = b));
         const d = document.createElement("div"); d.className = "aviso " + (times()[m.login] || "");
         d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(b)}"><span class="t"><b>${esc(m.nome)}</b> agora usa a ${USUM.BOLAS[b]}!</span>`;
         adicionar(d); return;
@@ -238,6 +266,132 @@
         if (USUM.pokedexUrl) aviso(times()[m.login], `Veja tudo na sua Pokédex: <b>${esc(USUM.pokedexUrl.replace(/^https?:\/\//, ""))}</b> (ou digite !pokedex)`);
         return;
       }
+      /* ---- troca entre treinadores: !trade @pessoa meu [por dela] → !trade aceitar / recusar ---- */
+      if ((cmd === "!trade" || cmd === "!troca" || cmd === "!trocar") && USUM.selvagens && !/^\d/.test(txt.split(/\s+/)[1] || "")) {
+        const SV = USUM.selvagens, t = times()[m.login], arg = txt.slice(cmd.length).trim();
+        const EVO_TROCA = { 64: 65, 67: 68, 75: 76, 93: 94, 525: 526, 533: 534, 708: 709, 710: 711 };
+        const nm = (n, sh) => USUM.nomeDe(n) + (sh ? " ✦" : "");
+        const tem = (login, p) => !!SV.escolher(SV.individuos(login, p.num), p.qual, p.shiny);
+        const pend = ler("usum_trocas", {});
+        const ajuda = () => aviso(t, `Troca: <b>!trade @pessoa seu_pokemon por pokemon_dela</b> (ex: !trade @ana pikachu por eevee). Quem recebe responde <b>!trade aceitar</b> ou <b>!trade recusar</b>`);
+        if (!arg) { ajuda(); return; }
+        const acao = arg.split(/\s+/)[0].toLowerCase();
+        if (/^(aceitar|aceito|sim|ok)$/.test(acao)) {
+          const pd = pend[m.login];
+          if (!pd || Date.now() > pd.ate) { aviso(t, `<b>${esc(m.nome)}</b>, você não tem nenhuma troca esperando`); return; }
+          let quero = pd.quero;
+          if (!quero) {
+            const resto = arg.split(/\s+/).slice(1).join(" "), k = resto.match(/^(.*?)\s+(\d+)$/);
+            const p = USUM.lerPokemon(k ? k[1] : resto);
+            if (!p) { aviso(t, `<b>${esc(m.nome)}</b>, diga qual Pokémon você dá em troca: <b>!trade aceitar eevee</b>`); return; }
+            quero = { num: p.num, shiny: !!p.shiny, qual: k ? +k[2] : null };
+          }
+          if (!tem(pd.de, pd.dou)) { aviso(t, `${esc(pd.nomeDe)} não tem mais ${esc(nm(pd.dou.num, pd.dou.shiny))}. Troca cancelada`); mudar(m, "usum_trocas", (x) => delete x[m.login]); return; }
+          if (!tem(m.login, quero)) { aviso(t, `<b>${esc(m.nome)}</b>, você não tem ${esc(nm(quero.num, quero.shiny))} para trocar`); return; }
+          {
+            const evo0 = (n) => EVO_TROCA[n] || n, chegaEu = evo0(pd.dou.num), chegaEle = evo0(quero.num);
+            if (chegaEu !== quero.num && SV.cheio(m.login, chegaEu)) { aviso(t, `<b>${esc(m.nome)}</b>, você já tem o máximo de ${esc(USUM.nomeDe(chegaEu))}. Solte um antes de trocar`); return; }
+            if (chegaEle !== pd.dou.num && SV.cheio(pd.de, chegaEle)) { aviso(t, `${esc(pd.nomeDe)} já tem o máximo de ${esc(USUM.nomeDe(chegaEle))}. Troca cancelada`); return; }
+          }
+          // quem recebe o quê (com evolução por troca)
+          const parEsp = (pd.dou.num === 588 && quero.num === 616) || (pd.dou.num === 616 && quero.num === 588);
+          const evo = (n) => (parEsp ? { 588: 589, 616: 617 }[n] : EVO_TROCA[n]) || n;
+          const recebeEu = evo(pd.dou.num), recebeEle = evo(quero.num);
+          const nomeEle = pd.nomeDe;
+          umaVez(m, () => {
+            const a1 = SV.tirarUm(pd.de, pd.dou.num, pd.dou.shiny, pd.dou.qual), a2 = SV.tirarUm(m.login, quero.num, quero.shiny, quero.qual);
+            if (!a1 || !a2) return;
+            SV.guardar(m.login, m.nome, recebeEu, !!a1.ind.s, a1.ind.iv);   // o Pokémon chega com os mesmos status
+            SV.guardar(pd.de, nomeEle, recebeEle, !!a2.ind.s, a2.ind.iv);
+            const pa = ler("usum_parceiros", {});   // se deu o último da espécie que era o parceiro, vira ovo
+            if (a1.acabou && pa[pd.de] && pa[pd.de].num === pd.dou.num) delete pa[pd.de];
+            if (a2.acabou && pa[m.login] && pa[m.login].num === quero.num) delete pa[m.login];
+            gravar("usum_parceiros", pa);
+            if (USUM.somarAmizade) USUM.somarAmizade(pd.de, nomeEle, m.login, m.nome, 5);
+            const rp = ler("usum_reputacao", {});
+            [pd.de, m.login].forEach((l) => { const r = rp[l] = rp[l] || {}; r.tr = (r.tr || 0) + 1; });
+            gravar("usum_reputacao", rp);
+            const r = ler("usum_trocas", {}); delete r[m.login]; gravar("usum_trocas", r);
+          });
+          const ev = (de, para) => (de !== para ? ` (e evoluiu para <b>${esc(USUM.nomeDe(para))}</b>!)` : "");
+          aviso(t, `🔁 Troca feita! <b>${esc(m.nome)}</b> recebeu ${esc(nm(pd.dou.num, pd.dou.shiny))}${ev(pd.dou.num, recebeEu)} e <b>${esc(nomeEle)}</b> recebeu ${esc(nm(quero.num, quero.shiny))}${ev(quero.num, recebeEle)} · amizade +5 ♥`,
+            { num: recebeEu, forma: "", shiny: !!pd.dou.shiny });
+          return;
+        }
+        if (/^(recusar|recuso|nao|não|n)$/.test(acao)) {
+          const pd = pend[m.login]; if (!pd) return;
+          mudar(m, "usum_trocas", (x) => delete x[m.login]);
+          aviso(t, `<b>${esc(m.nome)}</b> recusou a troca de ${esc(pd.nomeDe)}`); return;
+        }
+        if (/^(cancelar|cancela)$/.test(acao)) {
+          const meu = Object.keys(pend).find((k) => pend[k].de === m.login); if (!meu) return;
+          mudar(m, "usum_trocas", (x) => delete x[meu]);
+          aviso(t, `<b>${esc(m.nome)}</b> cancelou a troca`); return;
+        }
+        // proposta
+        const alvoM = arg.match(/^@?(\w+)\s+(.+)$/);
+        if (!alvoM) { ajuda(); return; }
+        const alvo = alvoM[1].toLowerCase();
+        if (alvo === m.login) { aviso(t, `Não dá pra trocar com você mesmo 😅`); return; }
+        const [ladoA, ladoB] = alvoM[2].split(/\s+(?:por|pelo|pela|for)\s+/i);
+        const numDe = (x) => { const k = (x || "").match(/^(.*?)\s+(\d+)$/); return k ? [k[1], +k[2]] : [x || "", null]; };
+        const [txtA, qA] = numDe(ladoA), [txtB, qB] = numDe(ladoB);
+        const dou = USUM.lerPokemon(txtA), quero = ladoB ? USUM.lerPokemon(txtB) : null;
+        if (dou) dou.qual = qA; if (quero) quero.qual = qB;
+        if (!dou || (ladoB && !quero)) { ajuda(); return; }
+        if (!tem(m.login, dou)) { aviso(t, `<b>${esc(m.nome)}</b>, você não tem ${esc(dou.nome)}${dou.shiny ? " shiny" : ""} para trocar`); return; }
+        const outra = pend[alvo];
+        if (outra && Date.now() < outra.ate && outra.de !== m.login) { aviso(t, `${esc(alvo)} já tem uma troca esperando resposta. Tente daqui a pouco`); return; }
+        const nomeAlvo = USUM.nomeTreinador ? USUM.nomeTreinador(alvo) : alvo;
+        const prop = { de: m.login, nomeDe: m.nome, dou: { num: dou.num, shiny: !!dou.shiny, qual: dou.qual }, quero: quero ? { num: quero.num, shiny: !!quero.shiny, qual: quero.qual } : null, ate: Date.now() + 120000 };
+        const indDou = SV.escolher(SV.individuos(m.login, dou.num), dou.qual, dou.shiny);
+        if (!indDou) { aviso(t, `<b>${esc(m.nome)}</b>, não achei esse ${esc(dou.nome)} (veja os números na sua Pokédex do site)`); return; }
+        prop.dou.forca = SV.forcaIV(indDou.iv);
+        mudar(m, "usum_trocas", (x) => (x[alvo] = prop));
+        aviso(t, `📦 <b>${esc(nomeAlvo)}</b>, ${esc(m.nome)} quer trocar ${esc(nm(dou.num, dou.shiny))} <small>(força ${prop.dou.forca}%)</small> ` +
+          (quero ? `pelo seu ${esc(nm(quero.num, quero.shiny))}! Responda <b>!trade aceitar</b> ou <b>!trade recusar</b>` : `com você! Responda <b>!trade aceitar nome_do_seu_pokemon</b> ou <b>!trade recusar</b>`) + ` (2 min)`,
+          { num: dou.num, forma: "", shiny: !!dou.shiny });
+        return;
+      }
+      /* ---- release: solta um Pokémon (o mais fraco, um número da lista do site, ou todos da espécie) ---- */
+      if ((cmd === "!release" || cmd === "!soltar") && USUM.selvagens) {
+        const SV = USUM.selvagens, arg = txt.slice(cmd.length).trim(), t = times()[m.login];
+        const pend = ler("usum_release", {});
+        if (/^(sim|confirmar|confirmo|s)$/i.test(arg)) {
+          const pd = pend[m.login];
+          if (!pd || Date.now() > pd.ate) { aviso(t, `<b>${esc(m.nome)}</b>, primeiro digite <b>!release nome</b> (ex: !release magikarp)`); return; }
+          const nomeP = USUM.nomeDe(pd.num);
+          umaVez(m, () => {
+            const r0 = SV.soltar(m.login, pd.num, pd.qual);
+            if (r0 && r0.acabou) {   // não sobrou nenhum: perde a fotinha (volta a ser ovo) e sai do time da live
+              const pa = ler("usum_parceiros", {});
+              if (pa[m.login] && pa[m.login].num === pd.num) { delete pa[m.login]; gravar("usum_parceiros", pa); }
+              const pf = ler("usum_perfil", {}), eu = pf[m.login];
+              if (eu && eu.times && eu.times.live) { eu.times.live = eu.times.live.filter((x) => x[0] !== pd.num); gravar("usum_perfil", pf); }
+            }
+            const r = ler("usum_release", {}); delete r[m.login]; gravar("usum_release", r);
+          });
+          aviso(t, `<b>${esc(m.nome)}</b> soltou ${pd.qual === "todos" ? "todos os " : ""}${esc(nomeP)}${pd.forca != null ? ` (força ${pd.forca}%)` : ""}. Tchau! 👋`, { num: pd.num, forma: "", shiny: false });
+          return;
+        }
+        // "!release pikachu", "!release pikachu 3" (número da lista no site) ou "!release pikachu todos"
+        const mm = arg.match(/^(.*?)(?:\s+(\d+|todos|tudo))?$/i);
+        const p = USUM.lerPokemon(mm[1] || "");
+        if (!p) { aviso(t, `Use <b>!release nome</b> (solta o mais fraco), <b>!release nome 2</b> (o número da lista no site) ou <b>!release nome todos</b>`); return; }
+        const lista = SV.individuos(m.login, p.num);
+        if (!lista.length) { aviso(t, `<b>${esc(m.nome)}</b>, você não tem ${esc(p.nome)} na sua Pokédex`); return; }
+        const qual = !mm[2] ? null : /^\d+$/.test(mm[2]) ? +mm[2] : "todos";
+        let alvo = null;
+        if (qual !== "todos") { alvo = SV.escolher(lista, qual, false); if (!alvo) { aviso(t, `<b>${esc(m.nome)}</b>, você só tem ${lista.length} ${esc(p.nome)} (veja a lista no site)`); return; } }
+        const f = alvo ? SV.forcaIV(alvo.iv) : null;
+        const ultimo = qual === "todos" || lista.length === 1;
+        mudar(m, "usum_release", (x) => (x[m.login] = { num: p.num, qual: qual === "todos" ? "todos" : lista.indexOf(alvo) + 1, forca: f, ate: Date.now() + 60000 }));
+        const parc = parceiroDe(m.login).num === p.num;
+        const qualTxt = qual === "todos" ? `todos os ${lista.length} ${esc(p.nome)}${lista.some((x) => x.s) ? " (inclusive shiny)" : ""}`
+          : `${lista.length > 1 && !qual ? "o seu " + esc(p.nome) + " mais fraco" : esc(p.nome)} (força ${f}% · ${SV.nota(f)}${alvo.s ? " · shiny ✦" : ""})`;
+        aviso(t, `<b>${esc(m.nome)}</b>, soltar ${qualTxt}?${ultimo ? ` Ele sai da sua Pokédex${parc ? " e da sua fotinha do chat" : ""}.` : ""} Para confirmar, digite <b>!release sim</b> em até 1 minuto`, { num: p.num, forma: "", shiny: !!(alvo && alvo.s) });
+        return;
+      }
       /* ---- perfil do treinador: região, favorito e time (aparecem na Pokédex online) ---- */
       if (cmd === "!regiao" || cmd === "!região") {
         const REG = { kanto: "Kanto", johto: "Johto", hoenn: "Hoenn", sinnoh: "Sinnoh", unova: "Unova", unova2: "Unova", kalos: "Kalos",
@@ -245,18 +399,19 @@
         const arg = (txt.split(/\s+/)[1] || "").toLowerCase().normalize("NFD").replace(/[^a-z]/g, "");
         const r = REG[arg] || (arg === "isshu" ? "Unova" : "");
         if (!r) { aviso(times()[m.login], `Regiões: ${(window.USUM_REGIOES || []).join(", ")}. Ex: <b>!regiao alola</b>`); return; }
-        const pf = ler("usum_perfil", {}); (pf[m.login] = pf[m.login] || {}).regiao = r; gravar("usum_perfil", pf);
+        mudarPerfil(m, (e) => (e.regiao = r));
         aviso(times()[m.login], `<b>${esc(m.nome)}</b> é da região de <b>${r}</b> 🗺️`); return;
       }
       if (cmd === "!favorito" || cmd === "!fav") {
         const p = USUM.lerPokemon(txt.slice(cmd.length));
         if (!p) { aviso(times()[m.login], `Ex: <b>!favorito pikachu</b>`); return; }
-        const pf = ler("usum_perfil", {}); (pf[m.login] = pf[m.login] || {}).fav = [p.num, p.shiny ? 1 : 0]; gravar("usum_perfil", pf);
+        mudarPerfil(m, (e) => (e.fav = [p.num, p.shiny ? 1 : 0]));
         aviso(times()[m.login], `O Pokémon favorito de <b>${esc(m.nome)}</b> é ${esc(p.nome)}${p.shiny ? " ✦" : ""} ❤`, p); return;
       }
       if (cmd === "!meutime") {
-        const pf = ler("usum_perfil", {}), eu = pf[m.login] = pf[m.login] || {};
+        const eu = JSON.parse(JSON.stringify(ler("usum_perfil", {})[m.login] || {}));   // cópia só para ler
         eu.times = eu.times || {}; if (eu.time && !eu.times.live) { eu.times.live = eu.time; } delete eu.time;
+        const ajeitar = (e) => { e.times = e.times || {}; if (e.time && !e.times.live) e.times.live = e.time; delete e.time; };
         const chave = eu.jogo || "live", jg = eu.jogo && window.USUM_acharJogo ? USUM_acharJogo(eu.jogo) : null;
         const resto = txt.slice(cmd.length).trim();
         const cartao = (lista, extra) => {
@@ -267,7 +422,7 @@
           adicionar(d);
         };
         if (!resto) { (eu.times[chave] || []).length ? cartao(eu.times[chave]) : aviso(times()[m.login], `<b>${esc(m.nome)}</b>, monte seu time: <b>!meutime rowlet pikachu eevee</b>`); return; }
-        if (/^(limpar|apagar|zerar)$/i.test(resto)) { delete eu.times[chave]; gravar("usum_perfil", pf); aviso(times()[m.login], `Time de <b>${esc(m.nome)}</b>${jg ? " em " + esc(jg.nome) : ""} apagado`); return; }
+        if (/^(limpar|apagar|zerar)$/i.test(resto)) { mudarPerfil(m, (e) => { ajeitar(e); delete e.times[chave]; }); aviso(times()[m.login], `Time de <b>${esc(m.nome)}</b>${jg ? " em " + esc(jg.nome) : ""} apagado`); return; }
         // lê vários Pokémon: "rowlet, pikachu shiny, tapu koko" ou "rowlet pikachu eevee"
         // com !meujogo é o time do jogo que a pessoa joga (qualquer Pokémon); sem jogo é o time da live (só os que ela tem)
         const SV = USUM.selvagens, livre = m.dono || USUM.modoDemo || !SV || !!eu.jogo;
@@ -290,7 +445,7 @@
           time.push([p.num, p.shiny && (livre || SV.pode(m.login, p.num, true)) ? 1 : 0]);
         });
         if (!time.length) { aviso(times()[m.login], `<b>${esc(m.nome)}</b>, você ainda não tem ${faltam.length ? esc(faltam.join(", ")) : "esses Pokémon"}. Capture na grama 🌿`); return; }
-        eu.times[chave] = time; gravar("usum_perfil", pf);
+        mudarPerfil(m, (e) => { ajeitar(e); e.times[chave] = time; });
         cartao(time, faltam.length ? ` <small>(ainda não tem: ${esc(faltam.slice(0, 3).join(", "))})</small>` : "");
         return;
       }
@@ -299,32 +454,31 @@
         const g = /^(m|menino|masculino|homem|garoto|ele|macho)$/.test(a) ? "m" : /^(f|menina|feminino|mulher|garota|ela|femea)$/.test(a) ? "f"
                 : /^(nb|naobinario|naobinaria|nbinario|enby|elu|neutro|outro)$/.test(a) ? "nb" : "";
         if (!g) { aviso(times()[m.login], `Use <b>!genero menino</b>, <b>!genero menina</b> ou <b>!genero naobinario</b>`); return; }
-        const pf = ler("usum_perfil", {}); (pf[m.login] = pf[m.login] || {}).genero = g; gravar("usum_perfil", pf);
+        mudarPerfil(m, (e) => (e.genero = g));
         aviso(times()[m.login], `<b>${esc(m.nome)}</b>: ${{ m: "♂ Menino", f: "♀ Menina", nb: "Não-binário" }[g]} ✓`); return;
       }
       if ((cmd === "!foto" || cmd === "!avatar") && window.USUM_acharTreinador) {
         const t = USUM_acharTreinador(txt.slice(cmd.length));
         if (!t) { aviso(times()[m.login], `Escolha sua foto de treinador na Pokédex online e use <b>!foto nome</b> (ex: !foto cynthia)`); return; }
-        const pf = ler("usum_perfil", {}); (pf[m.login] = pf[m.login] || {}).foto = t.id; gravar("usum_perfil", pf);
+        mudarPerfil(m, (e) => (e.foto = t.id));
         aviso(times()[m.login], `<b>${esc(m.nome)}</b> agora usa a foto de treinador <b>${esc(t.nome)}</b> 📸`); return;
       }
       if (cmd === "!fc" || cmd === "!friendcode") {
         const d = txt.slice(cmd.length).replace(/\D/g, "");
         if (d.length !== 12) { aviso(times()[m.login], `Friend code do Switch: <b>!fc SW-1234-5678-9012</b>`); return; }
         const fc = `SW-${d.slice(0, 4)}-${d.slice(4, 8)}-${d.slice(8)}`;
-        const pf = ler("usum_perfil", {}); (pf[m.login] = pf[m.login] || {}).fc = fc; gravar("usum_perfil", pf);
+        mudarPerfil(m, (e) => (e.fc = fc));
         aviso(times()[m.login], `Friend code de <b>${esc(m.nome)}</b> salvo no perfil 🎮`); return;
       }
       if ((cmd === "!meujogo" || cmd === "!jogofav" || cmd === "!jogofavorito") && window.USUM_acharJogo) {
         const arg = txt.slice(cmd.length).trim();
-        const pf = ler("usum_perfil", {}), eu = pf[m.login] = pf[m.login] || {};
+        const eu = ler("usum_perfil", {})[m.login] || {};   // só para ler
         const fav = cmd === "!jogofav" || cmd === "!jogofavorito";
-        if (!fav && /^(nenhum|limpar|live)$/i.test(arg)) { delete eu.jogo; gravar("usum_perfil", pf); aviso(times()[m.login], `<b>${esc(m.nome)}</b> voltou pro time da live`); return; }
+        if (!fav && /^(nenhum|limpar|live)$/i.test(arg)) { mudarPerfil(m, (e) => delete e.jogo); aviso(times()[m.login], `<b>${esc(m.nome)}</b> voltou pro time da live`); return; }
         const j = USUM_acharJogo(arg);
         if (!j) { aviso(times()[m.login], `Não achei esse jogo. Ex: <b>${fav ? "!jogofav" : "!meujogo"} ultra sun</b>, scarlet, emerald, legends arceus…`); return; }
-        if (fav) eu.jogofav = j.id; else { eu.jogo = j.id; eu.times = eu.times || {}; if (eu.time && !eu.times.live) eu.times.live = eu.time; delete eu.time; }
-        gravar("usum_perfil", pf);
-        const temTime = !fav && (eu.times[j.id] || []).length;
+        mudarPerfil(m, (e) => { if (fav) e.jogofav = j.id; else { e.jogo = j.id; e.times = e.times || {}; if (e.time && !e.times.live) e.times.live = e.time; delete e.time; } });
+        const temTime = !fav && ((eu.times || {})[j.id] || []).length;
         aviso(times()[m.login], fav ? `O jogo favorito de <b>${esc(m.nome)}</b> é <b>Pokémon ${esc(j.nome)}</b> ⭐`
           : `<b>${esc(m.nome)}</b> está jogando <b>Pokémon ${esc(j.nome)}</b> 🎮` + (temTime ? "" : ` · monte o time com <b>!meutime</b>`));
         return;
@@ -352,7 +506,7 @@
       if (/^!(fita|minhasfitas)\b/.test(low)) return;            // viram aviso pelas fitas
       if ((m.dono || m.ajudante) && /^!(evento|darfita)\b/.test(low)) return;
       if (cmd === "!zerar" && (m.dono || m.ajudante)) { gravar("usum_placar", { sol: 0, lua: 0 }); gravar("usum_destaques", {}); atualizarPlacar(); return; }
-      if (/^!(slot|party|time|tirar|trocar|bola|pokebola|evoluir|apelido|shiny)2?\b/.test(low) && (m.dono || (USUM.podeParty && (USUM.podeParty(m) || USUM.podeParty(m, "2"))))) return;
+      if (/^!(slot|party|time|tirar|trocar|ball|bola|pokebola|evoluir|apelido|shiny)2?\b/.test(low) && (m.dono || (USUM.podeParty && (USUM.podeParty(m) || USUM.podeParty(m, "2"))))) return;
       if (CFG.esconderComandos && txt.startsWith("!")) return;
 
       const time = times()[m.login] || "";
@@ -363,7 +517,7 @@
 
       const { html, soEmote } = textoComEmotes(m);
       const d = document.createElement("div");
-      d.dataset.login = m.login;
+      d.dataset.login = m.login; d.dataset.id = m.id || "";
       d.className = `msg ${time || "neutro"}${m.sub ? " sub" : ""}${m.dono ? " dono" : ""}${soEmote ? " so-emote" : ""}`;
       let badges = "";
       if (m.dono) badges += '<span class="badge b-dono">Treinador</span>';
@@ -379,7 +533,7 @@
       if (CFG.mostrarParceiro) {
         const parc = parceiroDe(m.login);
         d.querySelector(".av").appendChild(USUM.imgPokemon(parc, USUM.emocaoDoTexto(txt)));
-        const bola = m.sub ? (ler("usum_bolas", {})[m.login] || "poke") : "poke";
+        const bola = (m.sub || m.dono || m.ajudante) ? (ler("usum_bolas", {})[m.login] || "poke") : "poke";
         const enc = d.querySelector(".encaixe");
         if (bola !== "poke") enc.classList.add("especial");
         enc.innerHTML = `<img src="${USUM.urlBola(bola)}" alt="">`;
