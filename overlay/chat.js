@@ -508,6 +508,7 @@
       if ((m.dono || m.ajudante) && /^!selvagem\b/.test(low)) return;
       if (/^!(fita|minhasfitas)\b/.test(low)) return;            // viram aviso pelas fitas
       if ((m.dono || m.ajudante) && /^!(evento|darfita)\b/.test(low)) return;
+      if (m.mod && /^!evento\b/.test(low)) return;
       if (cmd === "!zerar" && (m.dono || m.ajudante)) { gravar("usum_placar", { sol: 0, lua: 0 }); gravar("usum_destaques", {}); atualizarPlacar(); return; }
       if (/^!(slot|party|time|tirar|trocar|ball|bola|pokebola|evoluir|apelido|shiny)2?\b/.test(low) && (m.dono || (USUM.podeParty && (USUM.podeParty(m) || USUM.podeParty(m, "2"))))) return;
       if (CFG.esconderComandos && txt.startsWith("!")) return;
