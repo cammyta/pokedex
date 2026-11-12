@@ -71,7 +71,18 @@
         if (!l) return;
         if (l.startsWith("PING")) { ws.send("PONG :tmi.twitch.tv"); return; }
         if (/ ROOMSTATE #/.test(l) && !avisado) { avisado = true; emitir({ tipo: "status", ok: true, canal }); }
-        if (/ CLEARCHAT /.test(l) || / CLEARMSG /.test(l)) { emitir({ tipo: "limpar", raw: l }); return; }
+        if (/ CLEARCHAT /.test(l) || / CLEARMSG /.test(l)) {
+          // timeout / ban de alguém: some só as mensagens dessa pessoa e conta na reputação
+          const tg = l.startsWith("@") ? lerTags(l.slice(1, l.indexOf(" "))) : {};
+          const alvo = (l.match(/ CLEARCHAT #\S+ :(\w+)/) || [])[1];
+          if (alvo) {
+            const login = alvo.toLowerCase(), dur = parseInt(tg["ban-duration"] || "0", 10);
+            emitir({ tipo: "punicao", login, ban: !tg["ban-duration"], dur, id: (tg["tmi-sent-ts"] || Date.now()) + ":" + login });
+            emitir({ tipo: "limpar", login, raw: l });
+          } else if (/ CLEARMSG /.test(l)) emitir({ tipo: "limpar", msgId: tg["target-msg-id"] || "", raw: l });
+          else emitir({ tipo: "limpar", raw: l });
+          return;
+        }
         const msg = interpretar(l) || interpretarEvento(l); if (msg) emitir(msg);
       });
     };
@@ -98,7 +109,7 @@
     const roteiro = [
       ["AshKetchum", "!sol", { sub: true }],
       ["AshKetchum", "!pokemon pikachu", { sub: true }],
-      ["AshKetchum", "!bola love ball", { sub: true }],
+      ["AshKetchum", "!ball love ball", { sub: true }],
       ["Lillie_Fan", "!lua", { vip: true }],
       ["Lillie_Fan", "!pokemon vulpix alola", { vip: true }],
       ["Kukui", "Woo! Bora pra mais uma aventura em Alola!!", { mod: true }],
@@ -106,7 +117,7 @@
       [eu, "!party rowlet:love pikachu:great mimikyu:dusk", dono],
       ["AshKetchum", "ROWLET DE INICIAL SIM kkkkk", { sub: true }],
       ["Gladion", "!lua"], ["Gladion", "!pokemon lunala"],
-      ["Hau", "!sol"], ["Hau", "!pokemon solgaleo"], ["Hau", "!bola dusk", { sub: true }],
+      ["Hau", "!sol"], ["Hau", "!pokemon solgaleo"], ["Hau", "!ball dusk", { sub: true }],
       ["Hau", "Malasada pra todo mundo 🍩 bora!", { sub: true }],
       [eu, "!slot 4 rockruff Totó", dono],
       ["Gladion", "Necrozma vai dar trabalho... como assim??"],
