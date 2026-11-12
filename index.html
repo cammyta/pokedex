@@ -122,6 +122,9 @@
   .perfil .foto .treinador { width: 70%; filter: drop-shadow(0 10px 12px rgba(0,0,0,.5)); }
   .perfil .foto .parceiro { position: absolute; right: 2%; bottom: 2%; width: 46%; }
   .perfil .foto .parceiro.so { position: static; width: 92%; }
+  .perfil .foto .parceiro.ovo { width: 30%; image-rendering: pixelated; animation: ovo 3.2s ease-in-out infinite; transform-origin: 50% 85%; }
+  .perfil .foto .parceiro.ovo.so { width: 45%; }
+  @keyframes ovo { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-9deg); } 82% { transform: rotate(8deg); } 88% { transform: rotate(-5deg); } }
   .genero { font-size: 26px; } .genero.m { color: #6cb8ff; } .genero.f { color: #ff8cc6; } .genero.nb { font: 700 12px "Fredoka", "Poppins", sans-serif; color: #1a1033; padding: 3px 9px; border-radius: 999px;
     background: linear-gradient(90deg, #fcf434 0 25%, #fff 25% 50%, #9c59d1 50% 75%, #2c2c2c 75%); text-shadow: 0 0 3px #fff; }
   .fc { cursor: pointer; } .fc:hover { background: rgba(255,255,255,.16); }
@@ -193,7 +196,7 @@
   const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
   const TOTAL = 807;
   const LEND = new Set([144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,638,639,640,641,642,643,644,645,646,647,648,649,716,717,718,719,720,721,772,773,785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807]);
-  const BOLAS = { great: "Great Ball", ultra: "Ultra Ball", quick: "Quick Ball", master: "Master Ball" };
+  const BOLAS = {}; (window.USUM_BOLAS_LOJA || []).forEach((b) => { if (b.id !== "poke") BOLAS[b.id] = b.nome; });
   const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
   const home = (n, s) => SPR + "other/home/" + (s ? "shiny/" : "") + n + ".png";
   const mini = (n) => SPR + n + ".png";
@@ -208,7 +211,7 @@
   const GEN = { m: ["♂", "Menino"], f: ["♀", "Menina"], nb: ["NB", "Não-binário"] };
   function slots(t) {
     return `<div class="time6">${[0, 1, 2, 3, 4, 5].map((i) => { const x = (t || [])[i];
-      return x ? `<div class="slot ${x[1] ? "shiny" : ""}"><img src="${home(x[0], x[1])}" alt="" loading="lazy"><b>${esc(nome(x[0]))}</b></div>`
+      return x ? `<div class="slot ${x[1] ? "shiny" : ""}"><img src="${home(x[0], x[1])}" alt="" loading="lazy"><b>${esc(x[2] || nome(x[0]))}</b>${x[2] ? `<small class="sub">${esc(nome(x[0]))}</small>` : ""}</div>`
                : `<div class="slot vago"><span></span></div>`; }).join("")}</div>`;
   }
   let D = null, aba = "dex", filtro = "cap", busca = "";
@@ -303,18 +306,15 @@
       <p class="sub secao">Também dá para chamar um selvagem com a recompensa <b>Chamar Pokémon selvagem</b> nos pontos do canal.</p>
 
       <h2>Pokébolas</h2>
-      <table class="tabela"><tr><th>Bola</th><th>Como funciona</th></tr>
-        ${bola("poke", "Poké Ball", "Todo mundo tem, infinita. Chance normal")}
-        ${bola("great", "Great Ball", "1,5× a chance. Compre nos pontos do canal")}
-        ${bola("ultra", "Ultra Ball", "2× a chance. Compre nos pontos do canal")}
-        ${bola("quick", "Quick Ball", "5× a chance. Compre nos pontos do canal")}
-        ${bola("master", "Master Ball", "Nunca falha. Compre nos pontos do canal")}
+      <p class="sub">Todo mundo captura com a Poké Ball. As outras você compra nos <b>pontos do canal</b>, e cada uma tem um efeito diferente. Escolher a bola certa para cada Pokémon é a estratégia!</p>
+      <table class="tabela"><tr><th>Bola</th><th>Efeito</th></tr>
+        ${(window.USUM_BOLAS_LOJA || []).map((b) => bola(b.id, esc(b.nome), esc(b.efeito))).join("")}
       </table>
-      <p class="sub secao">A bola comprada já fica equipada e gasta 1 por arremesso; quando acaba, volta para a Poké Ball. <code>!bola ultra</code> equipa, <code>!mochila</code> mostra quantas você tem. Bolas visuais (Love, Dusk, Moon…) são para subs e capturam como Poké Ball.</p>
+      <p class="sub secao">A bola comprada já fica equipada e gasta 1 por arremesso; quando acaba, volta para a Poké Ball. <code>!bola net</code> equipa, <code>!mochila</code> mostra quantas você tem. As bolas de Johto (Level, Lure, Moon, Friend, Love, Heavy, Fast) e a Premier são só visuais, para subs.</p>
 
       <h2>Seu parceiro e evolução</h2>
       <table class="tabela">
-        ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live (o seu parceiro). <b>Você só pode escolher um Pokémon que já capturou</b> na live, além dos iniciais (gerações 1 a 7), Pikachu e Eevee, que todo mundo já tem. Shiny só se capturou o shiny: <code>!pokemon rowlet shiny</code>. A carinha dele muda conforme o que você escreve: ri com kkkk, fica bravo com MAIÚSCULAS, triste com :(")}
+        ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live (o seu parceiro). Até você escolher, aparece um <b>ovo</b> 🥚. <b>Você só pode escolher um Pokémon que já capturou</b> na live, além dos iniciais (gerações 1 a 7), Pikachu e Eevee, que todo mundo já tem. Shiny só se capturou o shiny: <code>!pokemon rowlet shiny</code>. A carinha dele muda conforme o que você escreve: ri com kkkk, fica bravo com MAIÚSCULAS, triste com :(")}
         ${linha("Evoluir meu Pokémon", "Recompensa de pontos do canal: evolui o seu parceiro na hora e aparece um aviso no chat. No texto do resgate, escreva qual evolução quer (ex: Eevee → vaporeon); se não escrever, é sorteada")}
         ${linha("!caixa", "Quantos Pokémon você já capturou")}
       </table>
@@ -334,8 +334,8 @@
         ${linha("!genero menino", "Gênero: menino, menina ou naobinario")}
         ${linha("!regiao alola", "Região: " + esc((window.USUM_REGIOES || []).join(", ")))}
         ${linha("!favorito pikachu", "Pokémon favorito (qualquer um)")}
-        ${linha("!setgame ultra sun", "Jogo que você está jogando agora. Cada jogo guarda o próprio time")}
-        ${linha("!meutime rowlet pikachu eevee", "Time do jogo atual (até 6). Sem jogo (<code>!setgame live</code>) vale só Pokémon capturado na live")}
+        ${linha("!meujogo ultra sun", "Jogo que você está jogando agora. Cada jogo guarda o próprio time")}
+        ${linha("!meutime rowlet pikachu eevee", "Time do jogo atual (até 6). Sem jogo (<code>!meujogo live</code>) vale só Pokémon capturado na live")}
         ${linha("!jogofav emerald", "Jogo favorito (aparece com a capa)")}
         ${linha("!fc SW-1234-5678-9012", "Friend code do Switch, para a galera te adicionar")}
         ${linha("!perfil", "Resumo do seu perfil no chat")}
@@ -367,9 +367,9 @@
   function guia() {
     const cmds = [["!foto cynthia", "foto de treinador (veja abaixo)"], ["!genero menino / menina / naobinario", "gênero"],
       ["!regiao alola", "região: " + (window.USUM_REGIOES || []).join(", ")], ["!favorito pikachu", "Pokémon favorito"],
-      ["!setgame ultra sun", "o jogo que você está jogando agora"], ["!meutime rowlet pikachu eevee", "time do jogo atual (até 6)"],
+      ["!meujogo ultra sun", "o jogo que você está jogando agora"], ["!meutime rowlet pikachu eevee", "time do jogo atual (até 6)"],
       ["!jogofav emerald", "jogo favorito"], ["!fc SW-1234-5678-9012", "friend code do Switch"], ["!pokemon rowlet", "parceiro no chat da live"],
-      ["!setgame live", "volta pro time da live (só Pokémon capturados)"]];
+      ["!meujogo live", "volta pro time da live (só Pokémon capturados)"]];
     return `<h2>Monte seu perfil pelo chat</h2><div class="guia">${cmds.map(([c, d]) => `<div><code>${esc(c)}</code><br>${esc(d)}</div>`).join("")}</div>
       <h2>Fotos de treinador</h2><div class="avatares">${(window.USUM_TREINADORES || []).map((t) =>
         `<div><img src="assets/treinadores/${t.id}.png" alt="" loading="lazy"><code>!foto ${esc(t.id)}</code><br>${esc(t.nome)}</div>`).join("")}</div>`;
@@ -381,10 +381,10 @@
     lembrar(login);
     app.innerHTML = `
       <section class="perfil ${u.t || ""}">
-        <div class="foto">${u.av && TREIN(u.av) ? `<img class="treinador" src="assets/treinadores/${u.av}.png" alt="">` : ""}${parc ? `<img class="parceiro ${u.av ? "" : "so"}" src="${home(parc.num, parc.shiny)}" alt="">` : ""}</div>
+        <div class="foto">${u.av && TREIN(u.av) ? `<img class="treinador" src="assets/treinadores/${u.av}.png" alt="">` : ""}${parc ? `<img class="parceiro ${u.av ? "" : "so"}" src="${home(parc.num, parc.shiny)}" alt="">` : `<img class="parceiro ovo ${u.av ? "" : "so"}" src="assets/ovo.png" alt="" title="Ainda não escolheu parceiro">`}</div>
         <div>
           <div class="nome">${esc(u.n || login)} ${u.g && GEN[u.g] ? `<span class="genero ${u.g}" title="${GEN[u.g][1]}">${GEN[u.g][0]}</span>` : ""} ${u.t ? `<span class="time ${u.t}">Equipe ${u.t === "sol" ? "Sol" : "Lua"}</span>` : ""}</div>
-          <div class="parc">${parc ? "Parceiro: <b>" + esc(nome(parc.num)) + "</b>" + (parc.shiny ? " ✦ shiny" : "") : "Sem parceiro ainda (use !pokemon no chat)"}</div>
+          <div class="parc">${parc ? "Parceiro: <b>" + esc(nome(parc.num)) + "</b>" + (parc.shiny ? " ✦ shiny" : "") : "🥚 Parceiro ainda no ovo: escolha com <b>!pokemon</b> no chat"}</div>
           <div class="tags">
             <span class="tag">🗺️ ${u.r ? "Região de <b>" + esc(u.r) + "</b>" : "Sem região <small>(!regiao alola)</small>"}</span>
             <span class="tag">${u.fv ? `<img src="${home(u.fv[0], u.fv[1])}" alt="">Favorito: <b>${esc(nome(u.fv[0]))}</b>${u.fv[1] ? " ✦" : ""}` : "❤ Sem favorito <small>(!favorito pikachu)</small>"}</span>
@@ -420,11 +420,19 @@
   }
 
   function timeHtml(u) {
+    let h0 = "";
+    if (u.lv && (u.lv.tm || []).length) {   // party mostrada na live do canal (Cammy / Quarty)
+      const j = JOGO(u.lv.jg);
+      h0 = `<h2>📺 Na live${j ? ": Pokémon " + esc(j.nome) : ""}</h2><div class="${j ? "jogo-atual" : ""}">${j ? capa(j) : ""}<div>${slots(u.lv.tm)}</div></div>`;
+    }
+    return h0 + timePessoal(u);
+  }
+  function timePessoal(u) {
     const tms = u.tms || (u.tm ? { live: u.tm } : {}), jg = u.jg && JOGO(u.jg);
     const atual = jg ? tms[jg.id] : tms.live;
     const titulo = jg ? `Jogando agora: Pokémon ${esc(jg.nome)}` : "Time da live";
     let h = `<h2>${titulo}</h2><div class="${jg ? "jogo-atual" : ""}">${jg ? capa(jg) : ""}<div>${(atual || []).length ? slots(atual)
-      : `<p class="vazio">${jg ? "Monte o time desse jogo com <b>!meutime</b> no chat." : "Monte seu time com <b>!meutime rowlet pikachu eevee</b>. Use <b>!setgame</b> para dizer qual jogo você está jogando."}</p>`}</div></div>`;
+      : `<p class="vazio">${jg ? "Monte o time desse jogo com <b>!meutime</b> no chat." : "Monte seu time com <b>!meutime rowlet pikachu eevee</b>. Use <b>!meujogo</b> para dizer qual jogo você está jogando."}</p>`}</div></div>`;
     const outros = Object.keys(tms).filter((k) => k !== (jg ? jg.id : "live") && (tms[k] || []).length);
     if (outros.length) h += `<div class="outros">` + outros.map((k) => { const j = JOGO(k);
       return `<div class="item">${j ? capa(j, "mini-capa") : "📺"} <span style="min-width:150px">${j ? "Pokémon " + esc(j.nome) : "Time da live"}</span>${tms[k].map((x) => `<img class="s" src="${home(x[0], x[1])}" alt="">`).join("")}</div>`; }).join("") + `</div>`;
@@ -458,10 +466,11 @@
       }).join("") + `</div>` : `<p class="vazio">Responda as pessoas no chat (botão responder ou @nome) para fazer amizades.</p>`;
     } else {
       const b = u.b || {}, it = Object.keys(BOLAS).filter((k) => b[k] > 0);
+      const ef = (id) => ((window.USUM_BOLAS_LOJA || []).find((x) => x.id === id) || {}).efeito || "";
       el.innerHTML = `<div class="lista" style="margin-top:14px">
         <div class="item"><img src="assets/bolas/poke-ball.png" alt=""><span><b>Poké Ball</b> · infinitas (padrão)</span></div>` +
-        it.map((k) => `<div class="item"><img src="assets/bolas/${k}-ball.png" alt=""><span><b>${BOLAS[k]}</b> · ${b[k]}×${u.eq === k ? " · equipada" : ""}</span></div>`).join("") +
-        `</div><p class="sub" style="margin-top:12px">Compre Great, Ultra, Quick e Master Ball com pontos do canal. Equipe no chat com <b>!bola ultra</b>.</p>`;
+        it.map((k) => `<div class="item"><img src="assets/bolas/${k}-ball.png" alt=""><span><b>${BOLAS[k]}</b> · ${b[k]}×${u.eq === k ? " · <b>equipada</b>" : ""}<br><small class="sub">${esc(ef(k))}</small></span></div>`).join("") +
+        `</div><p class="sub" style="margin-top:12px">Compre bolas com pontos do canal e equipe no chat com <b>!bola nome</b>. Veja o efeito de cada uma em <a href="?p=jogar">Como jogar</a>.</p>`;
     }
   }
 
