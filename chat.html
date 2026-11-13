@@ -111,7 +111,7 @@
     });
     const parc = {}, times = {}, bolas = {};
     Object.entries(D.t).forEach(([l, u]) => {
-      if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: "" };
+      if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] || "" };
       if (u.t) times[l] = u.t;
       if (u.eq) bolas[l] = u.eq;
     });
@@ -158,11 +158,11 @@
       const [a, b] = mm[2].split(/\s+(?:por|pelo|pela|for)\s+/i);
       const pa = USUM.lerPokemon((a || "").replace(/\s+\d+$/, "")), pb = b ? USUM.lerPokemon(b.replace(/\s+\d+$/, "")) : null;
       if (!pa) return;
-      aviso(t, `📦 <b>${esc(mm[1])}</b>, ${esc(m.nome)} quer trocar ${esc(pa.nome)}${pb ? ` pelo seu ${esc(pb.nome)}` : " com você"}! Responda <b>!trade aceitar</b> ou <b>!trade recusar</b>`, { num: pa.num, forma: "", shiny: !!pa.shiny });
+      aviso(t, `📦 <b>${esc(mm[1])}</b>, ${esc(m.nome)} quer trocar ${esc(pa.nome)}${pb ? ` pelo seu ${esc(pb.nome)}` : " com você"}! Responda <b>!trade aceitar</b> ou <b>!trade recusar</b>`, { num: pa.num, forma: USUM.formaRegional(pa.num), shiny: !!pa.shiny });
       return;
     }
     if (cmd === "!pokemon" || cmd === "!parceiro") {
-      const p = USUM.lerPokemon(txt.slice(cmd.length)); if (!p) return;
+      const p = USUM.formaPadraoAlola(USUM.lerPokemon(txt.slice(cmd.length))); if (!p) return;
       const cx = usuario(m.login).c || {}, tem = cx[p.num];
       if (!m.dono && !INICIAIS.has(p.num) && !tem) return;
       p.shiny = !!(p.shiny && (m.dono || (tem && tem[1])));
