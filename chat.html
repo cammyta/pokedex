@@ -111,7 +111,7 @@
     });
     const parc = {}, times = {}, bolas = {};
     Object.entries(D.t).forEach(([l, u]) => {
-      if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] || "" };
+      if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] && u.p[2] !== "k" ? u.p[2] : "", kanto: u.p[2] === "k" || undefined };
       if (u.t) times[l] = u.t;
       if (u.eq) bolas[l] = u.eq;
     });
@@ -166,7 +166,7 @@
       const cx = usuario(m.login).c || {}, tem = cx[p.num];
       if (!m.dono && !INICIAIS.has(p.num) && !tem) return;
       p.shiny = !!(p.shiny && (m.dono || (tem && tem[1])));
-      const todos = ler("usum_parceiros", {}); todos[m.login] = { num: p.num, forma: p.forma, shiny: p.shiny }; gravar("usum_parceiros", todos);
+      const todos = ler("usum_parceiros", {}); todos[m.login] = p.kanto ? { num: p.num, forma: "", shiny: p.shiny, kanto: true } : { num: p.num, forma: p.forma, shiny: p.shiny }; gravar("usum_parceiros", todos);
       aviso(ler("usum_times", {})[m.login], `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
     }
   }
