@@ -68,7 +68,7 @@
 <script src="overlay/chat.js"></script>
 <script>
 (function () {
-  const INICIAIS = new Set([1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501, 650, 653, 656, 722, 725, 728, 25, 133]);
+  const INICIAIS = new Set([722, 725, 728, 25, 133, 35]);
   const ler = (k, p) => { try { return JSON.parse(localStorage.getItem(k)) || p; } catch (e) { return p; } };
   const gravar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   let D = null, ultimo = "";
