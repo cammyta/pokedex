@@ -210,6 +210,43 @@
     const lista = el.querySelector(".lista");
     // só a tela de cinema pergunta pelo cartaz (o programa do PC lê o Letterboxd no máximo 1 vez por hora)
     if (!opcoes.espelho && opcoes.cinema) { USUM.atualizarCartaz(); setInterval(() => USUM.atualizarCartaz(), 60 * 60e3); }
+
+    /* ---------- Pokédex de Alola da streamer (pelo Citra) ---------- */
+    const DEX_ALOLA = [722,723,724,725,726,727,728,729,730,731,732,733,734,735,19,20,10,11,12,165,166,167,168,427,428,686,687,570,571,676,172,25,26,736,737,738,438,185,440,113,242,446,143,79,80,199,278,279,63,64,65,52,53,81,82,462,88,89,439,122,23,24,206,58,59,96,97,296,297,235,739,740,92,93,94,425,426,198,430,41,42,169,714,715,50,51,21,22,627,628,629,630,56,57,225,701,741,742,743,669,670,671,548,549,546,547,54,55,238,124,129,130,339,340,86,87,66,67,68,524,525,526,703,302,303,744,745,327,72,73,456,457,746,370,222,747,748,90,91,366,367,368,223,224,458,226,371,372,373,506,507,508,133,134,135,136,196,197,470,471,700,179,180,181,749,750,174,39,40,128,241,283,284,751,752,753,754,755,756,46,47,60,61,62,186,118,119,550,349,350,594,661,662,663,757,758,104,105,115,240,126,467,636,637,759,760,761,762,763,764,127,163,164,352,765,766,704,705,706,351,767,768,120,121,769,770,138,139,140,141,345,346,347,348,408,409,410,411,566,567,564,565,696,697,698,699,246,247,248,708,709,177,178,299,476,771,170,171,772,773,803,804,718,568,569,572,573,204,205,227,132,173,35,36,605,606,774,374,375,376,137,233,474,674,675,775,324,776,228,229,702,777,309,310,239,125,466,74,75,76,551,552,553,328,329,330,443,444,445,343,344,622,623,707,778,353,354,592,593,779,780,359,361,362,478,215,461,27,28,37,38,582,583,584,559,560,624,625,209,210,422,423,369,781,318,319,690,691,692,693,320,321,131,357,102,103,341,342,619,620,782,783,784,587,123,212,214,190,424,667,668,200,429,621,108,463,447,448,147,148,149,142,785,786,787,788,789,790,791,792,793,805,806,794,795,796,797,798,799,800,801,802,807];
+    let dexAberta = false;
+    async function mostrarPokedex() {
+      if (dexAberta || opcoes.espelho) return;
+      const CIT = Object.assign({ enderecoPokedex: "0x33013D90" }, (window.USUM_CONFIG || {}).citra);
+      let pegos = null;
+      try {
+        const r = await fetch("http://127.0.0.1:47321/citra?base=" + encodeURIComponent(CIT.enderecoPokedex) + "&sel=" + encodeURIComponent(CIT.enderecoPokedex), { cache: "no-store" });
+        const j = await r.json();
+        if (j.ok && j.slots && j.slots[0]) { const b = USUM.hexParaBytes(j.slots[0].slice(0, 202)); pegos = (n) => (b[(n - 1) >> 3] >> ((n - 1) & 7)) & 1; }
+      } catch (e) {}
+      if (!pegos) { aviso("", `📕 Abra o jogo no Citra para ver a Pokédex de Alola`); return; }
+      dexAberta = true;
+      const total = DEX_ALOLA.filter((n) => pegos(n)).length;
+      const nomeS = (((window.USUM_CONFIG || {}).jogadores || {}).j1 || {}).nome || "Cammy";
+      const SV = USUM.selvagens;
+      const cx = document.createElement("div"); cx.className = "dex-alola";
+      cx.innerHTML = `<div class="dex-topo"><div class="dex-tit">📕 Pokédex de Alola · <b>${esc(nomeS)}</b></div>
+        <div class="dex-cont"><b>${total}</b> / ${DEX_ALOLA.length} capturados</div><div class="dex-barra"><i style="width:${(total / DEX_ALOLA.length) * 100}%"></i></div></div>
+        <div class="dex-janela"><div class="dex-grade">${DEX_ALOLA.map((n, i) => `<div class="dex-pk ${pegos(n) ? "tem" : "nao"}"><span class="n">${String(i + 1).padStart(3, "0")}</span><img loading="eager" data-n="${n}" alt=""><span class="nm">${pegos(n) ? esc(USUM.nomeDe(n)) : "???"}</span></div>`).join("")}</div></div>`;
+      cx.querySelectorAll("img").forEach((im) => {
+        const n = +im.dataset.n;
+        im.src = SV ? SV.urlHome(n, false) : "";
+        im.onerror = () => { im.onerror = null; const p = USUM.imgPokemon({ num: n, forma: "", shiny: false }, "Normal"); im.replaceWith(p); };
+      });
+      el.appendChild(cx);
+      requestAnimationFrame(() => cx.classList.add("on"));
+      // rola até o fim: 1,5 s parada no começo, ~12 s descendo, 1,5 s no fim
+      const jan = cx.querySelector(".dex-janela"), grade = cx.querySelector(".dex-grade");
+      setTimeout(() => {
+        const dist = grade.scrollHeight - jan.clientHeight;
+        grade.style.transition = "transform 12s linear"; grade.style.transform = `translateY(${-Math.max(0, dist)}px)`;
+      }, 1500);
+      setTimeout(() => { cx.classList.remove("on"); setTimeout(() => { cx.remove(); dexAberta = false; }, 600); }, 15000);
+    }
     if (!opcoes.espelho && USUM.backup && USUM.backup.testeAtivo) {
       const selo = () => el.classList.toggle("em-teste", USUM.backup.testeAtivo());
       selo(); setInterval(selo, 2000);
@@ -272,12 +309,12 @@
       } else if (ev.tipo === "selvagem") {
         d.className = "aviso selvagem" + (ev.lendario ? " lendario" : "") + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Surprised"); im.className = "ret"; d.appendChild(im);
-        d.insertAdjacentHTML("beforeend", `<span class="t">Um <b>${esc(ev.nome)}</b>${ev.shiny ? " ✦ shiny" : ""} ${ev.lendario ? "lendário" : "selvagem"} apareceu! Digite <b>!capturar</b></span>`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">Um <b>${esc(ev.nome)}</b>${ev.shiny ? " ✦ shiny" : ""} ${ev.lendario ? "lendário" : "selvagem"} apareceu!${ev.forca != null ? ` <small class="forca">força ${ev.forca}% · ${esc(ev.natureza || "")}</small>` : ""} Digite <b>!capturar</b></span>`);
       } else if (ev.tipo === "captura") {
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
         const q = ev.quem || [], nomes = q.slice(0, 3).map(esc).join(", ") + (q.length > 3 ? " e +" + (q.length - 3) : "");
-        const fz = q.length === 1 && ev.forcas && ev.forcas.length && USUM.selvagens ? ` <small class="forca">força ${ev.forcas[0]}% · ${USUM.selvagens.nota(ev.forcas[0])}</small>` : "";
+        const fz = ev.forcas && ev.forcas.length ? ` <small class="forca">força ${ev.forcas[0]}%${ev.natureza ? " · " + esc(ev.natureza) : ""}</small>` : "";
         d.insertAdjacentHTML("beforeend", `<span class="t">Gotcha! <b>${nomes}</b> ${q.length > 1 ? "capturaram" : "capturou"} ${esc(ev.nome)}${ev.shiny ? " ✦" : ""}!${fz}</span>`);
       } else if (ev.tipo === "fugiu") {
         d.className = "aviso";
@@ -371,6 +408,8 @@
         }
         return;
       }
+      // !pokedexcamy (você, Quarty ou mods): o chat vira a Pokédex de Alola da streamer por 15 s, lida direto do jogo no Citra
+      if ((cmd === "!pokedexcamy" || cmd === "!pokedexcammy") && (m.dono || m.ajudante || m.mod)) { mostrarPokedex(); return; }
       // live de teste: !teste liga (tira uma foto de tudo) · !teste fim apaga tudo que aconteceu e volta como era
       if (cmd === "!teste" && (m.dono || m.ajudante) && USUM.backup && USUM.backup.comecarTeste) {
         const fim = /^(fim|off|acabar|acabou|parar|desligar)$/i.test(txt.split(/\s+/)[1] || "");
@@ -458,7 +497,7 @@
           }
           if (ganhou) setTimeout(() => {
             const ind = SV.individuos(m.login, p.num)[0];
-            if (ind) aviso(times()[m.login], `📘 ${esc(p.nome)}${p.shiny ? " ✦" : ""} entrou na Pokédex de <b>${esc(m.nome)}</b> · força ${SV.forcaIV(ind.iv)}% (${SV.nota(SV.forcaIV(ind.iv))})`, p);
+            if (ind) aviso(times()[m.login], `📘 ${esc(p.nome)}${p.shiny ? " ✦" : ""} entrou na Pokédex de <b>${esc(m.nome)}</b> · força ${SV.forcaIV(ind.iv)}% · ${esc(SV.nomeNatureza(ind.n))}`, p);
           }, 900);
           aviso(times()[m.login], sorteado ? `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)} e ele veio ✨ <b>SHINY</b>! (só ${Math.round(chanceIni * 100)}% de chance)`
             : `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
@@ -770,6 +809,7 @@
       if ((m.dono || m.ajudante) && /^!selvagem\b/.test(low)) return;
       if ((m.dono || m.ajudante) && /^!surto\b/.test(low)) return;
       if (m.dono && /^!citra\b/.test(low)) return;
+      if (/^!pokedexcam+y\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;
       if (/^!(fita|minhasfitas)\b/.test(low)) return;            // viram aviso pelas fitas
       if ((m.dono || m.ajudante) && /^!(evento|darfita)\b/.test(low)) return;
       if (m.mod && /^!evento\b/.test(low)) return;
