@@ -245,6 +245,8 @@
     out.set(x.subarray(224), 232);
     return out;
   };
+  // problema de status (igual aos jogos): dormindo, envenenado, queimado, congelado, paralisado
+  const statusDe = (st) => (st & 7 ? "dormindo" : st & 0x88 ? "envenenado" : st & 0x10 ? "queimado" : st & 0x20 ? "congelado" : st & 0x40 ? "paralisado" : "");
   USUM.lerPK7 = function (d) {
     const especie = u16(d, 8);
     if (!especie || especie > 807) return null;
@@ -256,7 +258,8 @@
     let apelido = ""; for (let i = 0x40; i < 0x40 + 24; i += 2) { const c = u16(d, i); if (!c) break; apelido += String.fromCharCode(c); }
     const hpAtual = d.length > 0xF3 ? u16(d, 0xF0) : 0, hpMax = d.length > 0xF3 ? u16(d, 0xF2) : 0;
     return { especie, forma, ec: u32(d, 0), ovo, shiny: ((pid >>> 16) ^ (pid & 0xFFFF) ^ tid ^ sid) < 16, bola: BOLA_ID[d[0xDC]] || "poke",
-      apelido: temApelido ? apelido.replace(/[\uE000-\uF8FF]/g, "").trim() : "", nivel: d.length > 0xEC ? d[0xEC] : 0, hpAtual, hpMax };
+      apelido: temApelido ? apelido.replace(/[\uE000-\uF8FF]/g, "").trim() : "", nivel: d.length > 0xEC ? d[0xEC] : 0, hpAtual, hpMax,
+      natureza: d[0x1C] % 25, status: statusDe(d.length > 0xEB ? u32(d, 0xE8) : 0) };
   };
   USUM.hexParaBytes = (h) => { const b = new Uint8Array(h.length / 2); for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16); return b; };
 })();
