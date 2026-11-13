@@ -110,13 +110,19 @@
   USUM.EMOCAO_PARECIDA = { Pain: "Angry", Sigh: "Sad", Stunned: "Surprised", "Teary-Eyed": "Happy", Crying: "Sad", Inspired: "Happy",
                            Joyous: "Happy", Shouting: "Angry", Dizzy: "Surprised", Determined: "Happy", Worried: "Sad" };
 
+  // retratos que o canal fez e que não existem no PMD (ficam em Pokemon Assets/portrait no PC e em assets/retratos no site)
+  USUM.RETRATOS_PROPRIOS = ["0019/0001"];
+
   /* Lista de endereços em ordem de preferência */
   USUM.urlsRetrato = function (p, emocao) {
     const n4 = String(p.num).padStart(4, "0");
     const caminho = n4 + (p.forma ? "/" + p.forma : "") + (p.shiny ? (p.forma ? "/0001" : "/0000/0001") : "");
     const base = n4 + (p.forma ? "/" + p.forma : "");
     const urls = [];
-    [P.pastaPMD, P.pmdOnline].forEach((raiz) => {
+    // retratos feitos para o canal (que o PMD não tem, ex: carinhas do Rattata de Alola): no site, vêm da pasta do próprio site
+    const raizes = [P.pastaPMD, P.pmdOnline];
+    if (P.pastaPropria && USUM.RETRATOS_PROPRIOS.indexOf(base) >= 0) raizes.unshift(P.pastaPropria);
+    raizes.forEach((raiz) => {
       if (emocao && emocao !== "Normal") {
         urls.push(raiz + caminho + "/" + emocao + ".png");
         const par = USUM.EMOCAO_PARECIDA[emocao];
@@ -150,7 +156,7 @@
     if (!img.classList.contains("pmd")) return;
     const n4 = String(p.num).padStart(4, "0");
     const caminho = n4 + (p.forma ? "/" + p.forma : "") + (p.shiny ? (p.forma ? "/0001" : "/0000/0001") : "");
-    const raiz = img.src.indexOf("raw.githubusercontent") >= 0 ? P.pmdOnline : P.pastaPMD;
+    const raiz = P.pastaPropria && img.src.indexOf(P.pastaPropria) >= 0 ? P.pastaPropria : img.src.indexOf("raw.githubusercontent") >= 0 ? P.pmdOnline : P.pastaPMD;
     // nem todo Pokémon tem todas as carinhas: tenta uma parecida antes de desistir
     const PARECIDA = USUM.EMOCAO_PARECIDA;
     const tentar = (e) => {
