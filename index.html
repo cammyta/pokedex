@@ -789,7 +789,7 @@
   }
 
   function perfil(login) {
-    const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] || "" } : null;
+    const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] === "k" ? "" : u.p[2] } : null;
     history.replaceState(null, "", "?u=" + encodeURIComponent(login) + (aba !== "dex" ? "&aba=" + aba : ""));
     lembrar(login);
     app.innerHTML = `
