@@ -39,7 +39,8 @@
   // Pokémon de cada pessoa: escolhido com !pokemon, ou um de Alola sorteado pelo nome
   function parceiroDe(login) {
     const p = ler("usum_parceiros", {})[login];
-    if (p && p.num) return p;
+    // parceiros escolhidos antes sem região: em Alola, quem tem forma de Alola é a de Alola
+    if (p && p.num) return !p.forma && USUM.formaRegional && USUM.formaRegional(p.num) ? Object.assign({}, p, { forma: USUM.formaRegional(p.num) }) : p;
     return { num: 0, ovo: true, forma: "", shiny: false };   // ainda não escolheu parceiro: ovo
   }
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -235,7 +236,7 @@
       cx.querySelectorAll("img").forEach((im) => {
         const n = +im.dataset.n;
         im.src = SV ? SV.urlHome(n, false) : "";
-        im.onerror = () => { im.onerror = null; const p = USUM.imgPokemon({ num: n, forma: "", shiny: false }, "Normal"); im.replaceWith(p); };
+        im.onerror = () => { im.onerror = null; const p = USUM.imgPokemon({ num: n, forma: USUM.formaRegional(n), shiny: false }, "Normal"); im.replaceWith(p); };
       });
       el.appendChild(cx);
       requestAnimationFrame(() => cx.classList.add("on"));
@@ -308,17 +309,17 @@
         setTimeout(() => d.remove(), 7000);
       } else if (ev.tipo === "selvagem") {
         d.className = "aviso selvagem" + (ev.lendario ? " lendario" : "") + (ev.shiny ? " shiny" : "");
-        const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Surprised"); im.className = "ret"; d.appendChild(im);
+        const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Surprised"); im.className = "ret"; d.appendChild(im);
         d.insertAdjacentHTML("beforeend", `<span class="t">Um <b>${esc(ev.nome)}</b>${ev.shiny ? " ✦ shiny" : ""} ${ev.lendario ? "lendário" : "selvagem"} apareceu!${ev.forca != null ? ` <small class="forca">força ${ev.forca}% · ${esc(ev.natureza || "")}</small>` : ""} Digite <b>!capturar</b></span>`);
       } else if (ev.tipo === "captura") {
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
-        const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
+        const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
         const q = ev.quem || [], nomes = q.slice(0, 3).map(esc).join(", ") + (q.length > 3 ? " e +" + (q.length - 3) : "");
         const fz = ev.forcas && ev.forcas.length ? ` <small class="forca">força ${ev.forcas[0]}%${ev.natureza ? " · " + esc(ev.natureza) : ""}</small>` : "";
         d.insertAdjacentHTML("beforeend", `<span class="t">Gotcha! <b>${nomes}</b> ${q.length > 1 ? "capturaram" : "capturou"} ${esc(ev.nome)}${ev.shiny ? " ✦" : ""}!${fz}</span>`);
       } else if (ev.tipo === "fugiu") {
         d.className = "aviso";
-        const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Normal"); im.className = "ret"; d.appendChild(im);
+        const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Normal"); im.className = "ret"; d.appendChild(im);
         d.insertAdjacentHTML("beforeend", `<span class="t">${esc(ev.nome)} ${ev.tentaram ? "escapou!" : "voltou pro mato…"}</span>`);
       } else if (ev.tipo === "caixacheia") {
         if (lista.querySelector(`.cheia[data-l="${CSS.escape(ev.login)}"]`)) return;
@@ -326,7 +327,7 @@
         d.innerHTML = `<span class="t">📦 <b>${esc(ev.nome)}</b>, você já tem ${ev.limite} ${esc(ev.pnome || "")} (o máximo de cada Pokémon). Solte o mais fraco com <b>!release ${esc((ev.pnome || "nome").toLowerCase())}</b> para capturar outro</span>`;
       } else if (ev.tipo === "borda") {
         d.className = "aviso borda-nova b-" + (ev.borda || "");
-        const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
+        const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
         d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
       } else if (ev.tipo === "surto") {
         d.className = "aviso surto";
@@ -350,7 +351,7 @@
         d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(ev.bola)}"><span class="t"><b>${esc(ev.nome)}</b> comprou uma ${USUM.BOLAS[ev.bola]}! (tem ${ev.qtd}, já equipada)</span>`;
       } else if (ev.tipo === "evoluiu") {
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
-        const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
+        const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
         d.insertAdjacentHTML("beforeend", `<span class="t">O ${esc(ev.de)} de <b>${esc(ev.nome)}</b> evoluiu para <b>${esc(ev.para)}</b>!</span>`);
       } else if (ev.tipo === "naoevolui") {
         d.className = "aviso";
@@ -474,7 +475,8 @@
         atualizarPlacar(); return;
       }
       if (cmd === "!pokemon" || cmd === "!parceiro") {
-        const p = USUM.lerPokemon(txt.slice(cmd.length));
+        // sem dizer a região, vale a forma de Alola (é a que aparece na grama e fica na caixa); "rattata kanto" não existe aqui
+        const p = USUM.formaPadraoAlola(USUM.lerPokemon(txt.slice(cmd.length)));
         if (p) {
           const SV = USUM.selvagens, livre = m.dono || USUM.modoDemo || !SV;
           // só iniciais de Alola, Pikachu, Eevee, Clefairy ou Pokémon que a pessoa capturou; shiny só se capturou shiny
@@ -527,7 +529,7 @@
       }
       if ((cmd === "!caixa" || cmd === "!box" || cmd === "!pokedex") && USUM.selvagens) {
         const r = USUM.selvagens.resumoCaixa(m.login);
-        const ult = r.ultimo ? { num: r.ultimo, forma: "", shiny: false } : null;
+        const ult = r.ultimo ? { num: r.ultimo, forma: USUM.formaRegional(r.ultimo), shiny: false } : null;
         aviso(times()[m.login], r.especies
           ? `<b>${esc(m.nome)}</b> já capturou <b>${r.especies}</b> ${r.especies === 1 ? "espécie" : "espécies"} (${r.total} no total${r.shiny ? ", " + r.shiny + " shiny" : ""}${r.lendarios ? ", " + r.lendarios + " lendário" + (r.lendarios > 1 ? "s" : "") : ""})`
           : `<b>${esc(m.nome)}</b> ainda não capturou nenhum. Fique de olho na grama 🌿`, ult);
@@ -583,7 +585,7 @@
           });
           const ev = (de, para) => (de !== para ? ` (e evoluiu para <b>${esc(USUM.nomeDe(para))}</b>!)` : "");
           aviso(t, `🔁 Troca feita! <b>${esc(m.nome)}</b> recebeu ${esc(nm(pd.dou.num, pd.dou.shiny))}${ev(pd.dou.num, recebeEu)} e <b>${esc(nomeEle)}</b> recebeu ${esc(nm(quero.num, quero.shiny))}${ev(quero.num, recebeEle)} · amizade +5 ♥`,
-            { num: recebeEu, forma: "", shiny: !!pd.dou.shiny });
+            { num: recebeEu, forma: USUM.formaRegional(recebeEu), shiny: !!pd.dou.shiny });
           return;
         }
         if (/^(recusar|recuso|nao|não|n)$/.test(acao)) {
@@ -618,7 +620,7 @@
         mudar(m, "usum_trocas", (x) => (x[alvo] = prop));
         aviso(t, `📦 <b>${esc(nomeAlvo)}</b>, ${esc(m.nome)} quer trocar ${esc(nm(dou.num, dou.shiny))} <small>(força ${prop.dou.forca}%)</small> ` +
           (quero ? `pelo seu ${esc(nm(quero.num, quero.shiny))}! Responda <b>!trade aceitar</b> ou <b>!trade recusar</b>` : `com você! Responda <b>!trade aceitar nome_do_seu_pokemon</b> ou <b>!trade recusar</b>`) + ` (2 min)`,
-          { num: dou.num, forma: "", shiny: !!dou.shiny });
+          { num: dou.num, forma: USUM.formaRegional(dou.num), shiny: !!dou.shiny });
         return;
       }
       /* ---- release: solta um Pokémon (o mais fraco, um número da lista do site, ou todos da espécie) ---- */
@@ -679,7 +681,7 @@
         umaVez(m, () => SV.apelidar(m.login, p.num, pos, apagar ? "" : novo));
         const ind = lista[pos - 1], qualTxt = lista.length > 1 ? ` nº ${pos}` : "";
         aviso(t, apagar ? `<b>${esc(m.nome)}</b> tirou o apelido do seu ${esc(p.nome)}${qualTxt}`
-          : `<b>${esc(m.nome)}</b> deu o nome <b>“${esc(novo)}”</b> ao seu ${esc(p.nome)}${qualTxt}${ind.s ? " ✦" : ""} 🏷️`, { num: p.num, forma: "", shiny: !!ind.s });
+          : `<b>${esc(m.nome)}</b> deu o nome <b>“${esc(novo)}”</b> ao seu ${esc(p.nome)}${qualTxt}${ind.s ? " ✦" : ""} 🏷️`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!ind.s });
         return;
       }
       if ((cmd === "!release" || cmd === "!soltar") && USUM.selvagens) {
@@ -699,7 +701,7 @@
             }
             const r = ler("usum_release", {}); delete r[m.login]; gravar("usum_release", r);
           });
-          aviso(t, `<b>${esc(m.nome)}</b> soltou ${pd.qual === "todos" ? "todos os " : ""}${esc(nomeP)}${pd.forca != null ? ` (força ${pd.forca}%)` : ""}. Tchau! 👋`, { num: pd.num, forma: "", shiny: false });
+          aviso(t, `<b>${esc(m.nome)}</b> soltou ${pd.qual === "todos" ? "todos os " : ""}${esc(nomeP)}${pd.forca != null ? ` (força ${pd.forca}%)` : ""}. Tchau! 👋`, { num: pd.num, forma: USUM.formaRegional(pd.num), shiny: false });
           return;
         }
         // "!release pikachu", "!release pikachu 3" (número da lista no site) ou "!release pikachu todos"
@@ -717,7 +719,7 @@
         const parc = parceiroDe(m.login).num === p.num;
         const qualTxt = qual === "todos" ? `todos os ${lista.length} ${esc(p.nome)}${lista.some((x) => x.s) ? " (inclusive shiny)" : ""}`
           : `${lista.length > 1 && !qual ? "o seu " + esc(p.nome) + " mais fraco" : esc(p.nome)} (força ${f}% · ${SV.nota(f)}${alvo.s ? " · shiny ✦" : ""})`;
-        aviso(t, `<b>${esc(m.nome)}</b>, soltar ${qualTxt}?${ultimo ? ` Ele sai da sua Pokédex${parc ? " e da sua fotinha do chat" : ""}.` : ""} Para confirmar, digite <b>!release sim</b> em até 1 minuto`, { num: p.num, forma: "", shiny: !!(alvo && alvo.s) });
+        aviso(t, `<b>${esc(m.nome)}</b>, soltar ${qualTxt}?${ultimo ? ` Ele sai da sua Pokédex${parc ? " e da sua fotinha do chat" : ""}.` : ""} Para confirmar, digite <b>!release sim</b> em até 1 minuto`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!(alvo && alvo.s) });
         return;
       }
       /* ---- perfil do treinador: região, favorito e time (aparecem na Pokédex online) ---- */
@@ -746,7 +748,7 @@
           const d = document.createElement("div"); d.className = "aviso meutime " + (times()[m.login] || "");
           d.insertAdjacentHTML("beforeend", `<span class="t"><b>Time de ${esc(m.nome)}</b>${jg ? " em " + esc(jg.nome) : ""}${extra || ""}</span><span class="time-6"></span>`);
           const g = d.querySelector(".time-6");
-          lista.forEach(([n, sh]) => { const im = USUM.imgPokemon({ num: n, forma: "", shiny: !!sh }, "Happy"); im.className = "mini" + (sh ? " sh" : ""); g.appendChild(im); });
+          lista.forEach(([n, sh]) => { const im = USUM.imgPokemon({ num: n, forma: USUM.formaRegional(n), shiny: !!sh }, "Happy"); im.className = "mini" + (sh ? " sh" : ""); g.appendChild(im); });
           adicionar(d);
         };
         if (!resto) { (eu.times[chave] || []).length ? cartao(eu.times[chave]) : aviso(times()[m.login], `<b>${esc(m.nome)}</b>, monte seu time: <b>!meutime rowlet pikachu eevee</b>`); return; }
