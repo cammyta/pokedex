@@ -54,6 +54,15 @@
   window.USUM_CONFIG.canal = q.get("canal") || ((dadosPai() || {}).canal) || "";
 </script>
 <script src="pokedex.js"></script>
+<script src="fitas-catalogo.js"></script>
+<script>
+  // avisos do overlay (capturas, fitas, eventos...) chegam pelos dados publicados
+  window.USUM = window.USUM || {};
+  USUM.FITAS = window.FITAS || [];
+  const __ouvintes = [];
+  USUM.aoFitaEvento = (fn) => __ouvintes.push(fn);
+  USUM.__avisar = (ev) => __ouvintes.forEach((fn) => { try { fn(ev); } catch (e) { console.error(e); } });
+</script>
 <script src="overlay/poke.js"></script>
 <script src="overlay/twitch.js"></script>
 <script src="overlay/chat.js"></script>
@@ -65,9 +74,15 @@
   let D = null, ultimo = "";
 
   // copia o que a live publicou para o formato que o chat do overlay entende
+  const abriu = Date.now(), jaVi = new Set();
   function semear(dados) {
     if (!dados || !dados.t || dados.em === ultimo) return;
     ultimo = dados.em; D = dados;
+    // avisos recentes do overlay: mostra os que aconteceram desde pouco antes de abrir o chat
+    (D.av || []).forEach((ev) => {
+      if (!ev || jaVi.has(ev.k) || ev.t < abriu - 3 * 60e3) return;
+      jaVi.add(ev.k); setTimeout(() => USUM.__avisar(ev), 50);
+    });
     const parc = {}, times = {}, bolas = {};
     Object.entries(D.t).forEach(([l, u]) => {
       if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: "" };
@@ -76,6 +91,9 @@
     });
     gravar("usum_parceiros", parc); gravar("usum_times", times); gravar("usum_bolas", bolas);
     if (D.pl) gravar("usum_placar", D.pl);
+    // quem comprou filme do cartaz (balão de ingresso): [nome, [logins], posição na lista]
+    const cz = []; (D.cz || []).forEach(([nome, quem, pos]) => { cz[pos] = { nome, quem }; });
+    gravar("usum_cartaz", { filmes: Array.from(cz, (f) => f || { nome: "", quem: [] }) });
   }
   const usuario = (l) => (D && D.t && D.t[l]) || {};
   USUM.urlFita = (id) => "assets/fitas/" + id + ".png";
@@ -99,8 +117,22 @@
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     if (cmd === "!sol" || cmd === "!lua") {
       const t = ler("usum_times", {}), time = cmd.slice(1);
+      if (t[m.login] && t[m.login] !== time) return;   // trocar de equipe só na próxima live: quem manda é o overlay
       if (t[m.login] !== time) { t[m.login] = time; gravar("usum_times", t);
         aviso(time, `<b>${esc(m.nome)}</b> entrou para a Equipe ${time === "sol" ? "Sol" : "Lua"}!`); }
+      return;
+    }
+    // trocas: mostra a proposta e a resposta na hora (o resultado chega depois pelos dados da live)
+    if (cmd === "!trade" || cmd === "!troca" || (cmd === "!trocar" && !/^!trocar\s+\d/.test(txt))) {
+      const arg = txt.slice(cmd.length).trim(), ac = (arg.split(/\s+/)[0] || "").toLowerCase(), t = ler("usum_times", {})[m.login];
+      if (/^(aceitar|aceito|sim|ok)$/.test(ac)) { aviso(t, `🔁 <b>${esc(m.nome)}</b> aceitou a troca!`); return; }
+      if (/^(recusar|recuso|nao|não|n)$/.test(ac)) { aviso(t, `<b>${esc(m.nome)}</b> recusou a troca`); return; }
+      if (/^(cancelar|cancela)$/.test(ac)) { aviso(t, `<b>${esc(m.nome)}</b> cancelou a troca`); return; }
+      const mm = arg.match(/^@?(\w+)\s+(.+)$/); if (!mm) return;
+      const [a, b] = mm[2].split(/\s+(?:por|pelo|pela|for)\s+/i);
+      const pa = USUM.lerPokemon((a || "").replace(/\s+\d+$/, "")), pb = b ? USUM.lerPokemon(b.replace(/\s+\d+$/, "")) : null;
+      if (!pa) return;
+      aviso(t, `📦 <b>${esc(mm[1])}</b>, ${esc(m.nome)} quer trocar ${esc(pa.nome)}${pb ? ` pelo seu ${esc(pb.nome)}` : " com você"}! Responda <b>!trade aceitar</b> ou <b>!trade recusar</b>`, { num: pa.num, forma: "", shiny: !!pa.shiny });
       return;
     }
     if (cmd === "!pokemon" || cmd === "!parceiro") {
