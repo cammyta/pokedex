@@ -40,7 +40,7 @@
   function parceiroDe(login) {
     const p = ler("usum_parceiros", {})[login];
     // parceiros escolhidos antes sem região: em Alola, quem tem forma de Alola é a de Alola
-    if (p && p.num) return !p.forma && USUM.formaRegional && USUM.formaRegional(p.num) ? Object.assign({}, p, { forma: USUM.formaRegional(p.num) }) : p;
+    if (p && p.num) return !p.forma && !p.kanto && USUM.formaRegional && USUM.formaRegional(p.num) ? Object.assign({}, p, { forma: USUM.formaRegional(p.num) }) : p;
     return { num: 0, ovo: true, forma: "", shiny: false };   // ainda não escolheu parceiro: ovo
   }
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -489,7 +489,7 @@
           const chanceIni = ((window.USUM_CONFIG || {}).selvagens || {}).chanceShinyInicial ?? 0.1;
           const sorteado = !!(SV && SV.iniciais.has(p.num) && (hash(m.login + ":" + p.num + ":inicial") % 1000) < chanceIni * 1000);
           p.shiny = !!((p.shiny && (livre || SV.pode(m.login, p.num, true))) || sorteado);
-          const novo = { num: p.num, forma: p.forma, shiny: p.shiny }; mudar(m, "usum_parceiros", (x) => (x[m.login] = novo));
+          const novo = p.kanto ? { num: p.num, forma: "", shiny: p.shiny, kanto: true } : { num: p.num, forma: p.forma, shiny: p.shiny }; mudar(m, "usum_parceiros", (x) => (x[m.login] = novo));
           // o inicial escolhido vai para a Pokédex da pessoa (com status sorteados), uma vez só por espécie
           let ganhou = false;
           if (SV && SV.iniciais.has(p.num) && !SV.individuos(m.login, p.num).length && !((ler("usum_iniciais_ganhos", {})[m.login] || []).includes(p.num))) {
