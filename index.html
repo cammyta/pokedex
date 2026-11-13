@@ -463,7 +463,7 @@
   window.addEventListener("popstate", () => D && rota());
   // dados novos da live a cada 2 minutos: redesenha a página (sem atrapalhar quem está com uma ficha aberta ou digitando)
   setInterval(async () => {
-    if (!D || document.hidden) return;
+    if (!D || document.hidden || document.body.classList.contains("com-chat")) return;   // com o chat aberto, ele já atualiza
     try {
       const g = await (await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" })).json();
       const f = g.files && g.files["dados.json"]; let txt = f && f.content;
@@ -933,7 +933,7 @@
         p.querySelector(".f-twitch").src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`;
       }
       p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
-      clearInterval(timer); if (on) timer = setInterval(atualizar, 4 * 60000);
+      clearInterval(timer); if (on) timer = setInterval(atualizar, 75000);   // chat aberto: dados (e avisos) novos a cada 75 s
     };
     b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
     if (TWITCH_CLIENT_ID) p.classList.add("com-login");   // a caixa de escrever fica dentro do próprio chat do overlay
