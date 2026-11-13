@@ -338,7 +338,17 @@
   const LEND = new Set([144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,638,639,640,641,642,643,644,645,646,647,648,649,716,717,718,719,720,721,772,773,785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807]);
   const BOLAS = {}; (window.USUM_BOLAS_LOJA || []).forEach((b) => { if (b.id !== "poke") BOLAS[b.id] = b.nome; });
   const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
-  const home = (n, s) => SPR + "other/home/" + (s ? "shiny/" : "") + n + ".png";
+  // formas regionais: a caixa é de Alola (quem tem forma de Alola é a de Alola); o parceiro guarda a forma (Galar, Hisui...)
+  const HOME_FORMA = { "0001": { 19: 10091, 20: 10092, 26: 10100, 27: 10101, 28: 10102, 37: 10103, 38: 10104, 50: 10105, 51: 10106, 52: 10107, 53: 10108, 74: 10109, 75: 10110, 76: 10111, 88: 10112, 89: 10113, 103: 10114, 105: 10115,
+      77: 10162, 78: 10163, 79: 10164, 80: 10165, 83: 10166, 110: 10167, 122: 10168, 144: 10169, 145: 10170, 146: 10171, 199: 10172, 222: 10173, 263: 10174, 264: 10175, 554: 10176, 562: 10179, 618: 10180,
+      58: 10229, 59: 10230, 100: 10231, 101: 10232, 157: 10233, 211: 10234, 215: 10235, 503: 10236, 549: 10237, 570: 10238, 571: 10239, 628: 10240, 705: 10241, 706: 10242, 713: 10243, 724: 10244, 128: 10250 },
+    "0002": { 52: 10161, 555: 10177, 194: 10253 } };
+  const ALOLA_CAIXA = new Set([19, 20, 26, 27, 28, 37, 38, 50, 51, 52, 53, 74, 75, 76, 88, 89, 103, 105]);
+  const home = (n, s, forma) => {
+    const f = forma === undefined ? (ALOLA_CAIXA.has(n) ? "0001" : "") : forma;
+    const id = (f && HOME_FORMA[f] && HOME_FORMA[f][n]) || n;
+    return SPR + "other/home/" + (s ? "shiny/" : "") + id + ".png";
+  };
   const mini = (n) => SPR + n + ".png";
   const nome = (n) => (window.USUM_DEX || [])[n - 1] || "#" + n;
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -683,7 +693,7 @@
         ${linha("!info 1", "Abre na tela da live a ficha completa do Pokémon do quadrado 1 da party do Cammy (de 1 a 6): nível, natureza, habilidade, item, IVs, EVs, golpes e mais. Uma ficha por vez, no máximo a cada 20 s")}
         ${linha("!gostei / !naogostei", "No cineminha (watch party): vota se gostou do filme")}
       </table>
-      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 4, 8, 10 ou 16 minutos e fica 12 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando o Cammy joga no emulador, às vezes aparece o mesmo Pokémon que apareceu para ela no jogo.</p>
+      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 4, 8, 10 ou 16 minutos e fica 12 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando o Cammy joga no emulador, às vezes aparece o mesmo Pokémon que apareceu para ele no jogo.</p>
 
       <h2 id="j-site">Chat aqui no site</h2>
       <p class="sub">O botão <b>💬 Chat da live</b> (canto de baixo) abre o chat da live com as fotinhas, equipes e fitas, igual aparece na stream. Embaixo fica a barra da Twitch para você escrever direto daqui; o <b>▲</b> abre mais espaço para escolher emotes. Para escrever, você precisa estar logado na Twitch neste navegador. A aba <b>Twitch</b> mostra o chat comum. Use <b>⧉ Desprender</b> para abrir o chat numa janela separada (no computador) ou em tela cheia (no celular), e deixar a live em outra tela.</p>
@@ -779,12 +789,12 @@
   }
 
   function perfil(login) {
-    const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1] } : null;
+    const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] || "" } : null;
     history.replaceState(null, "", "?u=" + encodeURIComponent(login) + (aba !== "dex" ? "&aba=" + aba : ""));
     lembrar(login);
     app.innerHTML = `
       <section class="perfil ${u.t || ""}">
-        <div class="foto">${u.av && TREIN(u.av) ? `<img class="treinador" src="assets/treinadores/${u.av}.png" alt="">` : ""}${parc ? `<img class="parceiro ${u.av ? "" : "so"}" src="${home(parc.num, parc.shiny)}" alt="">` : `<img class="parceiro ovo ${u.av ? "" : "so"}" src="assets/ovo.png" alt="" title="Ainda não escolheu parceiro">`}</div>
+        <div class="foto">${u.av && TREIN(u.av) ? `<img class="treinador" src="assets/treinadores/${u.av}.png" alt="">` : ""}${parc ? `<img class="parceiro ${u.av ? "" : "so"}" src="${home(parc.num, parc.shiny, parc.forma)}" alt="">` : `<img class="parceiro ovo ${u.av ? "" : "so"}" src="assets/ovo.png" alt="" title="Ainda não escolheu parceiro">`}</div>
         <div>
           <div class="nome">${esc(u.n || login)} ${u.g && GEN[u.g] ? `<span class="genero ${u.g}" title="${GEN[u.g][1]}">${GEN[u.g][0]}</span>` : ""} ${u.t ? `<span class="time ${u.t}">Equipe ${u.t === "sol" ? "Sol" : "Lua"}</span>` : ""}</div>
           <div class="parc">${parc ? "Parceiro: <b>" + esc(nome(parc.num)) + "</b>" + (parc.shiny ? " ✦ shiny" : "") : "🥚 Parceiro ainda no ovo: escolha com <b>!pokemon</b> no chat"}</div>
