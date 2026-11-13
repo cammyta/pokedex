@@ -435,3 +435,80 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .aviso.evento-on .fita-ico { width: 56px; height: 56px; }
 @keyframes evento-entra { from { transform: scale(.6) translateY(20px); opacity: 0; } }
 @keyframes evento-brilha { 50% { box-shadow: 0 0 0 3px rgba(255,233,160,.6), 0 0 34px rgba(255,211,106,.65); } }
+
+/* ================= Cineminha (watch party): Gostei (Love Ball) x Não gostei (Black Sludge) =================
+   Cores suaves (não ardem no olho), mas com o contorno "quase neon" no quadrado da foto. */
+.chat.cinema { --love1: #f2a0c6; --love2: #f6c5db; --love3: #fbe3ee; --dusk1: #86d3ad; --dusk2: #3f7d63; --dusk3: #cdeedc; }
+.chat.cinema .duelo .emblema { display: grid; place-items: center; }
+.chat.cinema .bola-voto { width: 78%; height: 78%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+.chat.cinema .lado.sol .bola-voto { animation: bate-coracao 1.6s ease-in-out infinite; }
+.chat.cinema .lado.lua .bola-voto { animation: balanco 6s ease-in-out infinite; }
+@keyframes bate-coracao { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.12); } 30% { transform: scale(.98); } 45% { transform: scale(1.08); } }
+.chat.cinema .duelo .sol .rot { color: var(--love3); } .chat.cinema .duelo .lua .rot { color: var(--dusk3); }
+.chat.cinema .duelo .sol .info b { color: var(--love1); text-shadow: 0 0 14px rgba(242,160,198,.45); }
+.chat.cinema .duelo .lua .info b { color: var(--dusk1); text-shadow: 0 0 14px rgba(134,211,173,.4); }
+.chat.cinema .vs { font-size: 26px; background: none; box-shadow: none; }
+.chat.cinema .cabo { background: linear-gradient(90deg, var(--dusk2), var(--dusk1)); }
+.chat.cinema .cabo .s { background: linear-gradient(90deg, #d97fa8, var(--love1)); }
+.chat.cinema .msg.sol { background: linear-gradient(110deg, rgba(242,160,198,.26), rgba(246,197,219,.08) 45%, rgba(34,22,34,.88) 75%); border-color: rgba(242,160,198,.4); box-shadow: none; }
+.chat.cinema .msg.lua { background: linear-gradient(110deg, rgba(134,211,173,.22), rgba(63,125,99,.1) 45%, rgba(18,28,24,.9) 75%); border-color: rgba(134,211,173,.38); box-shadow: none; }
+.chat.cinema .msg.sol .av { box-shadow: inset 0 0 0 2.5px var(--love1), 0 0 14px rgba(242,160,198,.42); }
+.chat.cinema .msg.lua .av { box-shadow: inset 0 0 0 2.5px var(--dusk1), 0 0 14px rgba(134,211,173,.38); }
+.chat.cinema .msg.sol .nome { color: var(--love3); } .chat.cinema .msg.lua .nome { color: var(--dusk3); }
+.chat.cinema .msg.sol .marca { background: url(../assets/bolas/love-ball.png) center/contain no-repeat; opacity: .22; image-rendering: pixelated; animation: balanco-marca 7s ease-in-out infinite; }
+.chat.cinema .msg.lua .marca { background: url(../assets/bolas/black-sludge.png) center/contain no-repeat; opacity: .22; image-rendering: pixelated; animation: balanco-marca 7s ease-in-out infinite; }
+.chat.cinema .chip.sol { background: linear-gradient(90deg, #d97fa8, var(--love1)); color: #2a1220; }
+.chat.cinema .chip.lua { background: linear-gradient(90deg, #5fae8a, var(--dusk1)); color: #10241b; }
+.chat.cinema .aviso.sol { background: linear-gradient(90deg, rgba(242,160,198,.4), rgba(246,197,219,.14)); border-color: rgba(242,160,198,.45); }
+.chat.cinema .aviso.lua { background: linear-gradient(90deg, rgba(63,125,99,.6), rgba(134,211,173,.16)); border-color: rgba(134,211,173,.45); }
+.chat.cinema .aviso .ico.sol-ico { background: url(../assets/bolas/love-ball.png) center/contain no-repeat; image-rendering: pixelated; }
+.chat.cinema .aviso .ico.lua-ico { background: url(../assets/bolas/black-sludge.png) center/contain no-repeat; image-rendering: pixelated; }
+.chat.cinema .aviso .ico::before, .chat.cinema .aviso .ico::after { display: none; }
+.chat.cinema.lider-sol .lado.sol .emblema, .chat.cinema.lider-lua .lado.lua .emblema { filter: drop-shadow(0 0 14px rgba(255,255,255,.45)); }
+.moldura.chat.cinema { --anel: conic-gradient(from var(--ang, 0deg), #f2a0c6, #ecd3a0, #86d3ad, #ecd3a0, #f2a0c6); }
+.chat.cinema .vs { color: rgba(255,230,190,.9); opacity: 1; }
+
+/* cineminha: os dois lados sempre do mesmo tamanho */
+.chat.cinema .lado.lua .bola-voto { transform: scale(1.1); }
+.chat.cinema .lado.lua .emblema .bola-voto { animation: none; }
+.chat.cinema.lider-sol .lado.lua, .chat.cinema.lider-lua .lado.sol { opacity: 1; }
+.chat.cinema.lider-sol .lado.sol .emblema, .chat.cinema.lider-lua .lado.lua .emblema { transform: scale(1.08); }
+
+/* ---------- quem comprou filme do cartaz (comentário na lista do Letterboxd): balão de ingresso ---------- */
+.msg.comprador { border-style: dashed; padding-left: 22px; }
+.msg.comprador .picote { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; pointer-events: none;
+  background: radial-gradient(circle at 0 50%, rgba(0,0,0,.55) 4px, transparent 4.5px) 0 0/12px 16px repeat-y,
+              linear-gradient(90deg, rgba(255,226,170,.55), rgba(255,226,170,.15)); }
+.msg .ingresso-tag { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 5px; padding: 3px 10px 3px 6px; border-radius: 6px;
+  font: 600 12px/1.2 var(--display); letter-spacing: .04em; color: #3a2408; background: linear-gradient(90deg, #ffe7b0, #fff3d6);
+  box-shadow: 0 2px 8px rgba(0,0,0,.25); max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.msg .ingresso-tag b { font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.msg.comprador.prox-filme { border-style: solid; border-color: rgba(255,232,180,.95);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.25), 0 0 26px rgba(255,214,140,.35); }
+.msg.comprador.prox-filme::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.22) 48%, transparent 60%); background-size: 260% 100%;
+  animation: brilho-ingresso 5s ease-in-out infinite; }
+@keyframes brilho-ingresso { 0%, 55% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+.chat.cinema .msg .texto { color: #f1ecf0; } .chat.cinema .msg.sol .nome { color: var(--love3); }
+
+/* ---------- o filme de quem comprou está PASSANDO agora (!filme nome): brilho dourado ---------- */
+.msg.comprador.passando { border: 2px solid #e8c879; padding-left: 22px;
+  box-shadow: 0 0 0 1px rgba(255,236,190,.25), 0 0 22px rgba(232,200,121,.35); animation: entrar .55s cubic-bezier(.2,1.3,.4,1) both, ouro-respira 3.2s ease-in-out .6s infinite; }
+@keyframes ouro-respira { 50% { box-shadow: 0 0 0 1px rgba(255,236,190,.4), 0 0 32px rgba(232,200,121,.55); } }
+.chat .msg.comprador.passando .av, .chat.cinema .msg.comprador.passando .av { box-shadow: inset 0 0 0 3px #e8c879, 0 0 18px rgba(232,200,121,.6); }
+.msg.comprador.passando .av::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,240,200,.55) 50%, transparent 65%); background-size: 260% 100%; animation: brilho-ingresso 3.5s ease-in-out infinite; }
+.msg.comprador.passando .picote { background: radial-gradient(circle at 0 50%, rgba(0,0,0,.55) 4px, transparent 4.5px) 0 0/12px 16px repeat-y,
+  linear-gradient(90deg, rgba(232,200,121,.75), rgba(232,200,121,.2)); }
+.msg.comprador.passando .ingresso-tag { background: linear-gradient(90deg, #e8c879, #f6e3b0, #e8c879); background-size: 200% 100%; color: #3a2508; animation: brilho-tag 4s linear infinite; }
+@keyframes brilho-tag { to { background-position: -200% 0; } }
+.msg.comprador.passando .nome { color: #f6e3b0 !important; }
+.msg.comprador.passando::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,230,170,.18) 48%, transparent 60%); background-size: 260% 100%; animation: brilho-ingresso 4s ease-in-out infinite; }
+.chat .msg.comprador.passando, .chat.cinema .msg.comprador.passando { border-color: #f2d27e; border-style: solid; border-width: 2.5px; }
+
+/* ---------- live de teste (!teste): seloznho em cima do chat ---------- */
+.chat.em-teste::after { content: "🧪 Live de teste · nada fica salvo"; position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 9;
+  padding: 5px 14px; border-radius: 999px; white-space: nowrap; pointer-events: none;
+  font: 700 12px/1 var(--display); letter-spacing: .06em; color: #1b1b1b; background: repeating-linear-gradient(-45deg, #f3dc9f 0 10px, #ecebe6 10px 20px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.4); }
