@@ -44,6 +44,69 @@
   }
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  /* ---------- Cartaz "Em breve no CineCDC" (lista do Letterboxd) ----------
+     Nos comentários da lista, a dona escreve o filme e o @ de quem comprou, ex.:
+        The Witches - @karina1009
+     Quem comprou um filme da lista ganha balão especial no chat (e o do próximo filme ganha o mais chique). */
+  const normal = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+  const semAno = (n) => String(n || "").replace(/\s*\(\d{4}\)\s*$/, "");
+  USUM.ligarCompradores = function (filmes, comentarios) {
+    filmes = (filmes || []).map((f) => Object.assign({}, f, { quem: [] }));
+    const nomes = filmes.map((f) => [normal(semAno(f.nome)), normal(f.nome)]);
+    (comentarios || []).forEach((c) => {
+      let num = 0, antes = "";
+      String(c).split(/\n+/).forEach((linha) => {
+        linha = linha.trim(); if (!linha) return;
+        const arrobas = [...linha.matchAll(/@([A-Za-z0-9_]{2,25})/g)].map((x) => x[1].toLowerCase());
+        if (!arrobas.length) { if (/^\d{1,3}[.)º°]?$/.test(linha)) num = parseInt(linha, 10); else antes = linha; return; }
+        let resto = normal(linha.replace(/@[A-Za-z0-9_]+/g, " ").replace(/^\s*\d{1,3}\s*[.)º°-]\s*/, ""));
+        if (!resto) resto = normal(antes);
+        let achou = -1, tam = 0;
+        nomes.forEach(([n, comAno], i) => {
+          if (!n) return;
+          const ok = resto.startsWith(n) || resto.startsWith(comAno) || (resto.length >= 4 && n.startsWith(resto));
+          if (ok && n.length > tam) { achou = i; tam = n.length; }
+        });
+        if (achou < 0 && num >= 1 && num <= filmes.length) achou = num - 1;   // "1" na linha de cima = 1º da lista
+        if (achou >= 0) arrobas.forEach((l) => { if (!filmes[achou].quem.includes(l)) filmes[achou].quem.push(l); });
+        num = 0; antes = "";
+      });
+    });
+    return filmes;
+  };
+  USUM.lerCartaz = () => ler("usum_cartaz", {}).filmes || [];
+  // filme passando agora: !filme nome (fica em usum_cinema.filme) ou o ?filme= da tela de watch party
+  USUM.filmeAgora = () => ler("usum_cinema", {}).filme || USUM.filmePadrao || "";
+  USUM.mesmoFilme = (a, b) => !!normal(semAno(a)) && normal(semAno(a)) === normal(semAno(b));
+  // { filme, pos, agora, prox } de quem comprou um filme da lista
+  USUM.compradorDe = (login) => {
+    const l = String(login || "").toLowerCase(), fs = USUM.lerCartaz(), ag = USUM.filmeAgora();
+    const iAgora = fs.findIndex((f) => USUM.mesmoFilme(f.nome, ag)), iProx = iAgora === 0 ? 1 : 0;
+    for (let i = 0; i < fs.length; i++) if ((fs[i].quem || []).includes(l))
+      return { filme: semAno(fs[i].nome), pos: i, agora: i === iAgora, prox: i === iProx };
+    return null;
+  };
+  // acha o filme da lista pelo que foi digitado (!filme witches → The Witches)
+  USUM.acharFilme = (t) => {
+    const n = normal(t); if (!n) return null;
+    const fs = USUM.lerCartaz();
+    return fs.find((f) => normal(semAno(f.nome)) === n) || fs.find((f) => normal(semAno(f.nome)).startsWith(n))
+      || (n.length >= 4 ? fs.find((f) => normal(f.nome).includes(n)) : null) || null;
+  };
+  let buscandoCartaz = null;
+  USUM.atualizarCartaz = function (forcar) {
+    const url = (window.USUM_CONFIG || {}).cartazLetterboxd;
+    if (!url || buscandoCartaz) return buscandoCartaz || Promise.resolve(USUM.lerCartaz());
+    buscandoCartaz = fetch("http://127.0.0.1:47321/cartaz?u=" + encodeURIComponent(url) + (forcar ? "&forcar=1" : ""), { cache: "no-store" })
+      .then((r) => r.json()).then((j) => {
+        if (j.ok && j.filmes && j.filmes.length) {
+          const filmes = USUM.ligarCompradores(j.filmes, j.comentarios), velho = ler("usum_cartaz", {});
+          if (JSON.stringify(velho.filmes) !== JSON.stringify(filmes)) gravar("usum_cartaz", { t: Date.now(), filmes });
+        }
+      }).catch(() => {}).then(() => { buscandoCartaz = null; return USUM.lerCartaz(); });
+    return buscandoCartaz;
+  };
+
   function textoComEmotes(m) {
     const chars = Array.from(m.texto);
     if (!m.emotes) return { html: esc(m.texto), soEmote: false };
@@ -79,7 +142,19 @@
     opcoes = opcoes || {};
     const max = opcoes.max || CFG.maxMensagens;
     el.classList.add("chat");
-    el.innerHTML = `
+    const cine = !!opcoes.cinema;   // modo cineminha (watch party): Gostei x Não gostei no lugar de Sol x Lua
+    if (cine) el.classList.add("cinema");
+    el.innerHTML = cine ? `
+      <div class="duelo">
+        <div class="lado sol"><div class="emblema"><img class="bola-voto" src="assets/bolas/love-ball.png" alt=""></div>
+          <div class="info"><span class="rot">Gostei</span><b class="ps">0</b></div></div>
+        <div class="vs">🎬</div>
+        <div class="lado lua"><div class="info"><span class="rot">Não gostei</span><b class="pl">0</b></div>
+          <div class="emblema"><img class="bola-voto" src="assets/bolas/black-sludge.png" alt=""></div></div>
+        <div class="cabo"><div class="s"></div><div class="no"></div></div>
+        <div class="dica"><b>!gostei</b> ou <b>!naogostei</b> pra votar no filme · <b>!pokemon</b> nome pro seu parceiro</div>
+      </div>
+      <div class="lista"></div>` : `
       <div class="duelo">
         <div class="lado sol"><div class="emblema"><img class="logo-sol" src="assets/logo-sol.png" alt=""></div>
           <div class="info"><span class="rot">Equipe Sol</span><b class="ps">0</b></div></div>
@@ -91,9 +166,19 @@
       </div>
       <div class="lista"></div>`;
     const lista = el.querySelector(".lista");
+    // só a tela de cinema pergunta pelo cartaz (o programa do PC lê o Letterboxd no máximo 1 vez por hora)
+    if (!opcoes.espelho && opcoes.cinema) { USUM.atualizarCartaz(); setInterval(() => USUM.atualizarCartaz(), 60 * 60e3); }
+    if (!opcoes.espelho && USUM.backup && USUM.backup.testeAtivo) {
+      const selo = () => el.classList.toggle("em-teste", USUM.backup.testeAtivo());
+      selo(); setInterval(selo, 2000);
+    }
 
+    // votos do cineminha: cada pessoa tem 1 voto (pode mudar); "sol" = gostei, "lua" = não gostei
+    const votos = () => { const v = (ler("usum_cinema", {}).votos) || {}, p = { sol: 0, lua: 0 };
+      Object.values(v).forEach((x) => { if (x === "g") p.sol++; else if (x === "n") p.lua++; }); return p; };
+    const corDe = (login) => cine ? ({ g: "sol", n: "lua" }[((ler("usum_cinema", {}).votos) || {})[login]] || "") : (times()[login] || "");
     function atualizarPlacar() {
-      const p = placar(), tot = p.sol + p.lua;
+      const p = cine ? votos() : placar(), tot = p.sol + p.lua;
       const pct = tot ? Math.min(90, Math.max(10, (p.sol / tot) * 100)) : 50;
       el.querySelector(".cabo .s").style.width = pct + "%";
       el.querySelector(".cabo .no").style.left = pct + "%";
@@ -107,7 +192,8 @@
       e.classList.remove("ponto"); void e.offsetWidth; e.classList.add("ponto");
     }
     atualizarPlacar();
-    window.addEventListener("storage", (e) => { if (e.key === "usum_placar") atualizarPlacar(); });
+    window.addEventListener("storage", (e) => { if (e.key === "usum_placar" || e.key === "usum_cinema") atualizarPlacar(); });
+    if (cine) setInterval(atualizarPlacar, 2000);
 
     // avisos de fitas e amizade (vindos de fitas.js)
     if (USUM.aoFitaEvento) USUM.aoFitaEvento((ev) => {
@@ -220,10 +306,72 @@
       // modo espelho (chat no site): comandos não mexem em nada, só quem chamou decide
       if (opcoes.espelho && txt.startsWith("!")) { if (opcoes.aoComando) opcoes.aoComando(m, cmd, txt, aviso); return; }
 
+      // cineminha: votar no filme (funciona em qualquer tela; o placar aparece no chat de cinema)
+      if (cmd === "!gostei" || cmd === "!naogostei" || cmd === "!nãogostei" || (cmd === "!nao" && /^!n[aã]o\s+gostei/i.test(txt))) {
+        const v = cmd === "!gostei" ? "g" : "n";
+        const antes = ((ler("usum_cinema", {}).votos) || {})[m.login];
+        mudar(m, "usum_cinema", (x) => { x.votos = x.votos || {}; x.votos[m.login] = v; });
+        if (cine && antes !== v) {
+          const tudo = ler("usum_cinema", {}); tudo.votos = tudo.votos || {}; tudo.votos[m.login] = v;   // mostra na hora nesta tela
+          setTimeout(atualizarPlacar, 300); pulsar(v === "g" ? "sol" : "lua");
+          aviso(v === "g" ? "sol" : "lua", `<b>${esc(m.nome)}</b> ${v === "g" ? "gostou do filme 💖" : "não curtiu o filme 🖤"}`);
+        }
+        return;
+      }
+      // live de teste: !teste liga (tira uma foto de tudo) · !teste fim apaga tudo que aconteceu e volta como era
+      if (cmd === "!teste" && (m.dono || m.ajudante) && USUM.backup && USUM.backup.comecarTeste) {
+        const fim = /^(fim|off|acabar|acabou|parar|desligar)$/i.test(txt.split(/\s+/)[1] || "");
+        if (fim) {
+          aviso("", `🧪 Fim da live de teste: apagando tudo que aconteceu e voltando como era antes…`);
+          umaVez(m, async () => { const r = await USUM.backup.terminarTeste();
+            if (r === "nao") aviso("", `🧪 Não tinha live de teste ligada.`);
+            if (r === "erro") aviso("", `⚠ Não achei a foto de antes do teste. Nada foi apagado. Abra o backup.html para restaurar na mão.`); });
+        } else {
+          aviso("", `🧪 <b>Live de teste ligada!</b> Pode capturar, trocar, ganhar fita… no fim tudo some. Para apagar: <b>!teste fim</b>`);
+          umaVez(m, async () => { const r = await USUM.backup.comecarTeste();
+            if (r === "ja") aviso("", `🧪 A live de teste já estava ligada.`);
+            if (r === "erro") aviso("", `⚠ Não consegui guardar a foto de antes. O teste NÃO foi ligado: abra o programa de backup do PC e tente de novo.`); });
+        }
+        return;
+      }
+      // !cartaz → relê a lista do Letterboxd agora (mudou a lista ou os @ de quem comprou)
+      if (cmd === "!cartaz" && (m.dono || m.ajudante || m.mod)) {
+        if (cine) aviso("", `🎞 Atualizando o cartaz do Letterboxd…`);
+        umaVez(m, () => USUM.atualizarCartaz(true));
+        return;
+      }
+      // !filme The Witches → é esse que está passando (quem comprou ganha o brilho dourado). Filme diferente zera a votação.
+      if (cmd === "!filme" && (m.dono || m.ajudante || m.mod)) {
+        const arg = txt.slice(cmd.length).trim();
+        if (!arg) { if (cine) aviso("", `🎬 Use <b>!filme nome do filme</b> (ou <b>!filme fim</b>)`); return; }
+        if (/^(fim|limpar|nenhum|parar)$/i.test(arg)) { mudar(m, "usum_cinema", (x) => { delete x.filme; }); if (cine) aviso("", `🎬 Sessão encerrada`); return; }
+        const f = USUM.acharFilme(arg), nome = f ? semAno(f.nome) : arg;
+        const novo = !USUM.mesmoFilme(nome, USUM.filmeAgora());
+        mudar(m, "usum_cinema", (x) => { x.filme = nome; if (novo) x.votos = {}; });
+        if (cine) {
+          setTimeout(atualizarPlacar, 400);
+          const quem = f && (f.quem || []).length ? ` · escolhido por <b>@${f.quem.map(esc).join(", @")}</b> ✨` : "";
+          aviso("", `🎬 Agora passando: <b>${esc(nome)}</b>${quem}${novo ? " · votem com <b>!gostei</b> ou <b>!naogostei</b>" : ""}`);
+        }
+        return;
+      }
+      if (cmd === "!cinema" && (m.dono || m.ajudante || m.mod) && /^(zerar|limpar|novo)$/i.test(txt.split(/\s+/)[1] || "")) {
+        mudar(m, "usum_cinema", (x) => { x.votos = {}; });
+        if (cine) { setTimeout(atualizarPlacar, 400); aviso("", `🎬 Votação zerada: novo filme, votem de novo com <b>!gostei</b> ou <b>!naogostei</b>!`); }
+        return;
+      }
       if (cmd === "!sol" || cmd === "!lua") {
         const time = cmd.slice(1), t = times();
+        // escolheu a equipe nesta live? só pode trocar na próxima
+        const hoje = (ler("pk_sessao", {}) || {}).dia || new Date().toLocaleDateString("sv");
+        const travas = ler("usum_times_dia", {});
+        if (t[m.login] && t[m.login] !== time && travas[m.login] === hoje) {
+          aviso(t[m.login], `<b>${esc(m.nome)}</b>, você já está na Equipe ${t[m.login] === "sol" ? "Sol" : "Lua"} nesta live. Dá para trocar na próxima!`);
+          return;
+        }
         if (t[m.login] !== time) {
           t[m.login] = time; mudar(m, "usum_times", (x) => (x[m.login] = time)); pontuar(time, 3, m.id); pulsar(time);
+          mudar(m, "usum_times_dia", (x) => (x[m.login] = hoje));
           aviso(time, `<b>${esc(m.nome)}</b> entrou para a Equipe ${time === "sol" ? "Sol" : "Lua"}!`);
         }
         atualizarPlacar(); return;
@@ -486,10 +634,10 @@
           : `<b>${esc(m.nome)}</b> está jogando <b>Pokémon ${esc(j.nome)}</b> 🎮` + (temTime ? "" : ` · monte o time com <b>!meutime</b>`));
         return;
       }
-      if (cmd === "!perfil") {
+      if (cmd === "!perfil" || cmd === "!profile") {
         const eu = ler("usum_perfil", {})[m.login] || {}, j = eu.jogo && window.USUM_acharJogo ? USUM_acharJogo(eu.jogo) : null;
         const partes = [eu.genero && { m: "♂", f: "♀", nb: "NB" }[eu.genero], eu.regiao && "🗺️ " + eu.regiao, j && "🎮 " + j.nome].filter(Boolean);
-        aviso(times()[m.login], `<b>${esc(m.nome)}</b> ${partes.join(" · ") || ""}${USUM.pokedexUrl ? ` · perfil completo: <b>${esc(USUM.pokedexUrl.replace(/^https?:\/\//, ""))}</b>` : ""}`);
+        aviso(times()[m.login], `<b>${esc(m.nome)}</b> ${partes.join(" · ") || ""}${USUM.pokedexUrl ? ` · perfil completo: <b>${esc(USUM.pokedexUrl.replace(/^https?:\/\//, "").replace(/\/?$/, "/"))}?u=${esc(m.login)}</b>` : ""}`);
         return;
       }
       if ((cmd === "!mochila" || cmd === "!bolas") && USUM.selvagens) {
@@ -503,7 +651,8 @@
       if (cmd === "!evoluir" && !(m.dono || (USUM.podeParty && (USUM.podeParty(m) || USUM.podeParty(m, "2"))))) {
         aviso(times()[m.login], `<b>${esc(m.nome)}</b>, para evoluir seu parceiro use a recompensa <b>Evoluir meu Pokémon</b> nos pontos do canal`); return;
       }
-      if (/^!capturar\b/.test(low)) return;                       // conta no encontro.html
+      if (/^!capturar\b/.test(low)) return;
+      if (/^!(subs|meta)\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;                       // conta no encontro.html
       if ((m.dono || m.ajudante) && /^!registrar\b/.test(low)) return;
       if ((m.dono || m.ajudante) && /^!selvagem\b/.test(low)) return;
       if (/^!(fita|minhasfitas)\b/.test(low)) return;            // viram aviso pelas fitas
@@ -517,21 +666,32 @@
       if (primeiraVez(m.id + ":c")) {   // conta mensagens para os destaques da tela final
         const d = ler("usum_destaques", {}); d[m.login] = { nome: m.nome, n: ((d[m.login] || {}).n || 0) + 1 }; gravar("usum_destaques", d);
       }
-      pontuar(time, 1, m.id); if (time) pulsar(time); atualizarPlacar();
+      pontuar(time, 1, m.id); if (time && !cine) pulsar(time); atualizarPlacar();
+      const cor = corDe(m.login);   // cor do cartão: equipe (ou o voto, no cineminha)
 
       const { html, soEmote } = textoComEmotes(m);
       const d = document.createElement("div");
       d.dataset.login = m.login; d.dataset.id = m.id || "";
-      d.className = `msg ${time || "neutro"}${m.sub ? " sub" : ""}${m.dono ? " dono" : ""}${soEmote ? " so-emote" : ""}`;
+      d.className = `msg ${cor || "neutro"}${m.sub ? " sub" : ""}${m.dono ? " dono" : ""}${soEmote ? " so-emote" : ""}`;
       let badges = "";
       if (m.dono) badges += '<span class="badge b-dono">Treinador</span>';
       else if (m.mod) badges += '<span class="badge b-mod">Mod</span>';
       if (m.vip) badges += '<span class="badge b-vip">VIP</span>';
       if (m.sub && !m.dono) badges += '<span class="badge b-sub">Sub</span>';
-      const chip = time === "sol" ? '<span class="chip sol">☀ Sol</span>' : time === "lua" ? '<span class="chip lua">☾ Lua</span>' : "";
+      const chip = cine ? (cor === "sol" ? '<span class="chip sol">♥ Gostei</span>' : cor === "lua" ? '<span class="chip lua">✖ Não gostei</span>' : "")
+        : time === "sol" ? '<span class="chip sol">☀ Sol</span>' : time === "lua" ? '<span class="chip lua">☾ Lua</span>' : "";
       d.innerHTML = `<div class="marca"></div>${CFG.mostrarParceiro ? '<div class="av-caixa"><div class="av"></div><div class="encaixe"></div></div>' : ""}
         <div class="corpo"><div class="quem"><span class="nome">${esc(m.nome)}</span>${chip}${badges}</div>${amizadeHtml(m, txt)}<div class="texto">${html}</div></div>`;
       // fita escolhida pendurada no canto direito do cartão
+      // comprou um filme do cartaz (comentário no Letterboxd): balão de ingresso
+      const comp = USUM.compradorDe(m.login);
+      if (comp) {
+        d.classList.add("comprador"); if (comp.agora) d.classList.add("passando"); else if (comp.prox) d.classList.add("prox-filme");
+        const rotulo = comp.agora ? ["🎬", "Passando agora"] : comp.prox ? ["✦", "Próximo filme"] : ["🎟", "Escolheu"];
+        d.querySelector(".quem").insertAdjacentHTML("afterend",
+          `<div class="ingresso-tag"><span>${rotulo[0]}</span>${rotulo[1]} · <b>${esc(comp.filme)}</b></div>`);
+        d.insertAdjacentHTML("afterbegin", '<i class="picote"></i>');
+      }
       const fita = USUM.fitaDe ? USUM.fitaDe(m.login) : "";
       if (fita) { d.classList.add("com-fita"); d.insertAdjacentHTML("beforeend", `<div class="fita-aba">${metal(USUM.urlFita(fita))}</div>`); }
       if (CFG.mostrarParceiro) {
@@ -545,4 +705,27 @@
       adicionar(d);
     });
   };
+
+  /* ---------- Meta de subs da live (pipoquinha no watchparty) ----------
+     Conta sub, resub e cada sub de presente. Começa em CFG metaSubs (10). Bateu a meta? sobe +10.
+     !subs 5 = acerta o número · !meta 15 = muda a meta · !meta zerar = começa de novo (você, Quarty ou mods).
+     Fica guardada durante a live; depois de 8 horas sem mexer, zera sozinha na próxima live. */
+  const META_BASE = Math.max(1, (window.USUM_CONFIG || {}).metaSubs || 10);
+  USUM.lerMetaSubs = () => {
+    const g = ler("usum_subgoal", null);
+    if (!g || Date.now() - (g.t || 0) > 8 * 3600e3) return { n: 0, meta: META_BASE, t: Date.now() };
+    return g;
+  };
+  function mudarMeta(m, fn) { umaVez(m, () => { const g = USUM.lerMetaSubs(); fn(g); g.t = Date.now(); if (g.meta < 1) g.meta = META_BASE; gravar("usum_subgoal", g); }); }
+  if (USUM.aoMensagem && !/github\.io$/.test(location.hostname)) USUM.aoMensagem((m) => {
+    if (m.tipo === "evento" && /^(sub|resub|subgift)$/.test(m.evento || "")) {
+      mudarMeta(m, (g) => { g.n++; g.ultimo = m.nome || m.login || ""; g.ultimoId = m.id; while (g.n >= g.meta) g.meta += 10; });
+      return;
+    }
+    if (m.tipo || !(m.dono || m.ajudante || m.mod)) return;
+    const t = (m.texto || "").trim().toLowerCase(), a = t.split(/\s+/);
+    if (a[0] === "!subs" && /^\d+$/.test(a[1] || "")) mudarMeta(m, (g) => { g.n = +a[1]; g.meta = Math.max(META_BASE, g.meta); while (g.n >= g.meta) g.meta += 10; });
+    else if (a[0] === "!meta" && /^(zerar|limpar|reset)$/.test(a[1] || "")) mudarMeta(m, (g) => { g.n = 0; g.meta = META_BASE; });
+    else if (a[0] === "!meta" && /^\d+$/.test(a[1] || "")) mudarMeta(m, (g) => { g.meta = Math.max(1, +a[1]); });
+  });
 })();
