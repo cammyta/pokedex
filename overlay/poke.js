@@ -15,7 +15,31 @@
   }
 
   // formas conhecidas (número da forma no repositório PMD)
-  const ALOLA = [19, 20, 26, 27, 28, 37, 38, 50, 51, 52, 53, 74, 75, 76, 88, 89, 103, 105];
+  /* Formas regionais: código da pasta no PMD (portrait/NNNN/código) e número da imagem HOME (PokeAPI) */
+  const REGIOES_FORMA = {
+    alola: { nome: "de Alola", pal: ["alola", "alolan", "dealola"],
+      pmd: { 19: "0001", 20: "0001", 26: "0001", 27: "0001", 28: "0001", 37: "0001", 38: "0001", 50: "0001", 51: "0001", 52: "0001", 53: "0001", 74: "0001", 75: "0001", 76: "0001", 88: "0001", 89: "0001", 103: "0001", 105: "0001" },
+      home: { 19: 10091, 20: 10092, 26: 10100, 27: 10101, 28: 10102, 37: 10103, 38: 10104, 50: 10105, 51: 10106, 52: 10107, 53: 10108, 74: 10109, 75: 10110, 76: 10111, 88: 10112, 89: 10113, 103: 10114, 105: 10115 } },
+    galar: { nome: "de Galar", pal: ["galar", "galarian", "degalar"],
+      pmd: { 52: "0002", 77: "0001", 78: "0001", 79: "0001", 80: "0001", 83: "0001", 110: "0001", 122: "0001", 144: "0001", 145: "0001", 146: "0001", 199: "0001", 222: "0001", 263: "0001", 264: "0001", 554: "0001", 555: "0002", 562: "0001", 618: "0001" },
+      home: { 52: 10161, 77: 10162, 78: 10163, 79: 10164, 80: 10165, 83: 10166, 110: 10167, 122: 10168, 144: 10169, 145: 10170, 146: 10171, 199: 10172, 222: 10173, 263: 10174, 264: 10175, 554: 10176, 555: 10177, 562: 10179, 618: 10180 } },
+    hisui: { nome: "de Hisui", pal: ["hisui", "hisuian", "dehisui"],
+      pmd: { 58: "0001", 59: "0001", 100: "0001", 101: "0001", 157: "0001", 211: "0001", 215: "0001", 503: "0001", 549: "0001", 570: "0001", 571: "0001", 628: "0001", 705: "0001", 706: "0001", 713: "0001", 724: "0001" },
+      home: { 58: 10229, 59: 10230, 100: 10231, 101: 10232, 157: 10233, 211: 10234, 215: 10235, 503: 10236, 549: 10237, 570: 10238, 571: 10239, 628: 10240, 705: 10241, 706: 10242, 713: 10243, 724: 10244 } },
+    paldea: { nome: "de Paldea", pal: ["paldea", "paldean", "depaldea"],
+      pmd: { 128: "0001", 194: "0002" }, home: { 128: 10250, 194: 10253 } }
+  };
+  const ALOLA = Object.keys(REGIOES_FORMA.alola.pmd).map(Number);
+  const PALAVRA_REGIAO = {};
+  Object.entries(REGIOES_FORMA).forEach(([r, d]) => d.pal.forEach((w) => (PALAVRA_REGIAO[w] = r)));
+  const regiaoDaForma = (num, forma) => forma ? Object.keys(REGIOES_FORMA).find((r) => REGIOES_FORMA[r].pmd[num] === forma) : null;
+  USUM.REGIOES_FORMA = REGIOES_FORMA;
+  // estamos em Alola: Pokémon da grama/caixa que têm forma de Alola SÃO a forma de Alola
+  USUM.formaRegional = (num) => REGIOES_FORMA.alola.pmd[num] || "";
+  // número da imagem HOME (formas regionais têm número próprio no PokeAPI)
+  USUM.homeId = (num, forma) => { const r = regiaoDaForma(num, forma); return r ? REGIOES_FORMA[r].home[num] || num : num; };
+  USUM.formaPadraoAlola = (p) => { if (p && !p.forma && USUM.formaRegional(p.num)) { p.forma = USUM.formaRegional(p.num); p.nome = USUM.nomeDe(p.num) + " de Alola"; } return p; };
+  USUM.nomeComForma = (num, forma) => { const r = regiaoDaForma(num, forma); return USUM.nomeDe(num) + (r ? " " + REGIOES_FORMA[r].nome : ""); };
   const FORMAS = {
     745: { meianoite: "0001", midnight: "0001", noite: "0001", crepusculo: "0002", dusk: "0002" },
     800: { duskmane: "0001", jubaocrepuscular: "0001", dawnwings: "0002", asasdaaurora: "0002", ultra: "0003" },
@@ -60,9 +84,11 @@
     partes.forEach((p) => {
       const s = sem(p);
       if (s === "shiny" || s === "brilhante") shiny = true;
-      else if (s === "alola" || s === "alolan" || s === "dealola") forma = "alola";
+      else if (PALAVRA_REGIAO[s]) forma = PALAVRA_REGIAO[s];
       else resto.push(p);
     });
+    // "meowth de galar": o "de" sozinho antes/depois da região não é parte do nome
+    if (forma) for (let i = resto.length - 1; i >= 0; i--) if (/^(de|da|do|of)$/i.test(resto[i])) resto.splice(i, 1);
     if (resto.length && resto[resto.length - 1].endsWith("*")) { shiny = true; resto[resto.length - 1] = resto[resto.length - 1].slice(0, -1); }
     let num = 0, extra = "";
     if (/^\d+$/.test(resto[0] || "")) { num = +resto[0]; extra = sem(resto.slice(1).join("")); }
@@ -80,11 +106,12 @@
     }
     if (!num || num > 1025) return null;
     let codForma = "";
-    if (forma === "alola" && ALOLA.includes(num)) codForma = "0001";
-    else if (extra && FORMAS[num] && FORMAS[num][extra]) codForma = FORMAS[num][extra];
+    if (forma && REGIOES_FORMA[forma].pmd[num]) codForma = REGIOES_FORMA[forma].pmd[num];
+    else if (forma) return null;   // esse Pokémon não tem forma dessa região
+    if (extra && FORMAS[num] && FORMAS[num][extra]) codForma = FORMAS[num][extra];
     else if (extra) return null; // sobrou palavra que não é forma (ex: apelido)
     const nome = USUM.nomeDe(num);
-    return { num, forma: codForma, shiny, nome: nome + (codForma && forma === "alola" ? " de Alola" : "") };
+    return { num, forma: codForma, shiny, nome: nome + (forma ? " " + REGIOES_FORMA[forma].nome : "") };
   };
 
   /* Pokébolas: "love", "love ball", "amor"... -> "love" */
@@ -131,7 +158,7 @@
       urls.push(raiz + caminho + "/Normal.png");
       if (p.shiny || p.forma) urls.push(raiz + base.split("/")[0] + "/Normal.png");
     });
-    urls.push(P.pastaHOME + (p.shiny ? "shiny/" : "") + p.num + ".png");
+    urls.push(P.pastaHOME + (p.shiny ? "shiny/" : "") + USUM.homeId(p.num, p.forma) + ".png");
     return urls;
   };
 
