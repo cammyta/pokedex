@@ -879,8 +879,10 @@
   const forcaDe = (iv) => Math.round((iv.reduce((a, b) => a + b, 0) / 186) * 100);
   const notaDe = (f) => (f >= 100 ? "Perfeito ✦" : f >= 90 ? "Incrível" : f >= 75 ? "Ótimo" : f >= 50 ? "Bom" : f >= 25 ? "Razoável" : "Fraco");
   const classeForca = (f) => (f >= 100 ? "f-perf" : f >= 90 ? "f-inc" : f >= 75 ? "f-oti" : f >= 50 ? "f-bom" : f >= 25 ? "f-raz" : "f-fra");
+  const NATUREZAS = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty",
+    "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t, a]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "" }; })
+    return (e[2] || []).map(([cod, sh, t, a, n]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "" }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
   }
   function fichaPokemon(u, n) {
@@ -892,7 +894,7 @@
       <div class="ficha-topo"><img src="${home(n, e[1] > 0)}" alt=""><div><small>#${String(n).padStart(3, "0")}</small><h3>${esc(nome(n))}</h3>
         <span>${e[0]} ${e[0] === 1 ? "capturado" : "capturados"}${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
       ${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}">
-        <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
+        <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${x.n || notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
       </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}
