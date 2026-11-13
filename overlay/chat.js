@@ -44,6 +44,48 @@
   }
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+
+  /* ---------- Filtro de apelidos: nada racista, preconceituoso, de ódio ou sexual ----------
+     Compara sem acento, sem espaço e desfazendo truques (n1gg4 → nigga, v!ado → viado, letras repetidas).
+     Para bloquear mais alguma palavra: config.js → apelidosProibidos: ["palavra", ...] */
+  const PROIBIDO_PEDACO = [
+    // racismo
+    "nigg", "nigr", "negrinh", "neguinh", "macaco", "macaca", "crioul", "senzala", "escrav", "chink", "gook", "beaner", "wetback",
+    "raghead", "towelhead", "bugre", "cabelodebombril", "cabeloruim", "pixaim", "tiziu", "picuma", "mulambo", "favelad",
+    // nazismo e ódio
+    "nazi", "hitler", "fuhrer", "fuehrer", "siegheil", "heilhitler", "holocaust", "auschwitz", "kukluxklan", "whitepower", "supremac", "suastica",
+    "terroris", "taliban", "matapreto", "matagay", "matagays",
+    // homofobia, transfobia, misoginia
+    "viado", "viadinho", "veadinho", "boiola", "baitola", "sapatao", "sapatona", "traveco", "faggot", "tranny", "shemale",
+    "vagabunda", "vadia", "whore", "slut", "bitch", "cunt",
+    // capacitismo
+    "retardad", "retard", "mongol", "aleijad", "debilmental",
+    // sexual e palavrão pesado
+    "estupr", "pedof", "pedophil", "incest", "porn", "xvideo", "onlyfans", "buceta", "boceta", "xoxota", "xereca", "piroca", "caralho",
+    "penis", "vagina", "foder", "fodase", "fudid", "punheta", "siririca", "boquete", "gozad", "sexo", "orgia", "nude", "cuzao", "cuzinho",
+    "arrombad", "fdp", "filhodaputa", "vsf", "vtnc", "pqp", "putinha",
+    // morte e autoagressão
+    "suicid", "semata", "killyourself", "massacre"
+  ];
+  // estas só valem como palavra inteira (para não pegar "computador", "raccoon", "bichano"...)
+  const PROIBIDO_PALAVRA = ["cu", "fag", "kkk", "cp", "kys", "rape", "spic", "coon", "puta", "bicha", "nega", "nego", "tnc", "dyke", "nigga", "niga"];
+  const normApelido = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[0@4]/g, (c) => ({ 0: "o", "@": "a", 4: "a" }[c])).replace(/[1!|]/g, "i").replace(/3/g, "e").replace(/[5$]/g, "s").replace(/7/g, "t").replace(/8/g, "b")
+    .replace(/(.)\1+/g, "$1");
+  USUM.apelidoProibido = function (t) {
+    const extra = ((window.USUM_CONFIG || {}).apelidosProibidos || []).map((x) => normApelido(x).replace(/[^a-z]/g, ""));
+    const bruto = String(t || "").toLowerCase();
+    if (/1488|\b88\b|卐|卍/.test(bruto)) return true;
+    const junto = normApelido(t).replace(/[^a-z]/g, "");
+    const semRepetir = String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[0@4]/g, (c) => ({ 0: "o", "@": "a", 4: "a" }[c]))
+      .replace(/[1!|]/g, "i").replace(/3/g, "e").replace(/[5$]/g, "s").replace(/7/g, "t").replace(/[^a-z]/g, "");
+    const palavras = normApelido(t).replace(/[^a-z ]/g, " ").split(/\s+/).filter(Boolean);
+    const pedacos = PROIBIDO_PEDACO.map((x) => normApelido(x).replace(/[^a-z0-9]/g, "")).concat(extra);
+    if (pedacos.some((x) => x && (junto.includes(x) || semRepetir.includes(x)))) return true;
+    if (palavras.some((w) => PROIBIDO_PALAVRA.includes(w))) return true;
+    return junto.length > 0 && PROIBIDO_PALAVRA.includes(junto);
+  };
+
   /* ---------- Cartaz "Em breve no CineCDC" (lista do Letterboxd) ----------
      Nos comentários da lista, a dona escreve o filme e o @ de quem comprou, ex.:
         The Witches - @karina1009
@@ -245,6 +287,17 @@
         if (lista.querySelector(`.cheia[data-l="${CSS.escape(ev.login)}"]`)) return;
         d.className = "aviso cheia"; d.dataset.l = ev.login;
         d.innerHTML = `<span class="t">📦 <b>${esc(ev.nome)}</b>, você já tem ${ev.limite} ${esc(ev.pnome || "")} (o máximo de cada Pokémon). Solte o mais fraco com <b>!release ${esc((ev.pnome || "nome").toLowerCase())}</b> para capturar outro</span>`;
+      } else if (ev.tipo === "surto") {
+        d.className = "aviso surto";
+        d.innerHTML = ev.modo === "rapido"
+          ? `<span class="t">🌿⚡ <b>Surto de Pokémon!</b> Por ${ev.min} min eles aparecem na grama <b>60% mais rápido</b></span>`
+          : `<span class="t">🗺️ <b>Surto de ${esc(ev.nome)}!</b> Por ${ev.min} min, Pokémon de ${esc(ev.nome)} aparecem <b>60% mais</b> na grama</span>`;
+      } else if (ev.tipo === "surtofim") {
+        d.className = "aviso";
+        d.innerHTML = `<span class="t">🌿 ${ev.modo === "regiao" ? `O surto de ${esc(ev.nome || "")} acabou` : ev.modo === "rapido" ? "O surto rápido acabou" : "Os surtos acabaram"}. Tudo volta ao normal</span>`;
+      } else if (ev.tipo === "surtoajuda") {
+        d.className = "aviso";
+        d.innerHTML = `<span class="t">Surtos de 1 hora: <b>!surto rapido</b> (aparecem 60% mais rápido) · <b>!surto kanto</b> (johto, hoenn, sinnoh, unova, kalos, alola) · <b>!surto fim</b></span>`;
       } else if (ev.tipo === "chamou") {
         d.className = "aviso"; d.innerHTML = `<span class="ico sol-ico"></span><span class="t"><b>${esc(ev.nome)}</b> balançou a grama… 🌿</span>`;
       } else if (ev.tipo === "registrando") {
@@ -334,8 +387,9 @@
         }
         return;
       }
-      // !cartaz → relê a lista do Letterboxd agora (mudou a lista ou os @ de quem comprou)
-      if (cmd === "!cartaz" && (m.dono || m.ajudante || m.mod)) {
+      // !atualizarcartaz → relê a lista do Letterboxd agora (mudou a lista ou os @ de quem comprou)
+      // (o !cartaz normal é do bot da live, para o povo ver o cartaz: não mexemos nele)
+      if (cmd === "!atualizarcartaz" && (m.dono || m.ajudante || m.mod)) {
         if (cine) aviso("", `🎞 Atualizando o cartaz do Letterboxd…`);
         umaVez(m, () => USUM.atualizarCartaz(true));
         return;
@@ -380,14 +434,34 @@
         const p = USUM.lerPokemon(txt.slice(cmd.length));
         if (p) {
           const SV = USUM.selvagens, livre = m.dono || USUM.modoDemo || !SV;
-          // só iniciais, Pikachu, Eevee ou Pokémon que a pessoa capturou; shiny só se capturou shiny
+          // só iniciais de Alola, Pikachu, Eevee, Clefairy ou Pokémon que a pessoa capturou; shiny só se capturou shiny
           if (!livre && !SV.pode(m.login, p.num, false)) {
             aviso(times()[m.login], `<b>${esc(m.nome)}</b>, você ainda não capturou ${esc(p.nome)}! Capture quando aparecer na grama 🌿`, Object.assign({}, p, { shiny: false }));
             return;
           }
-          p.shiny = !!(p.shiny && (livre || SV.pode(m.login, p.num, true)));
+          // iniciais (Rowlet, Litten, Popplio, Pikachu, Eevee, Clefairy): 10% de vir shiny. O sorteio é fixo por pessoa e por
+          // Pokémon (não adianta repetir o comando) e dá o mesmo resultado em todas as telas do OBS
+          const chanceIni = ((window.USUM_CONFIG || {}).selvagens || {}).chanceShinyInicial ?? 0.1;
+          const sorteado = !!(SV && SV.iniciais.has(p.num) && (hash(m.login + ":" + p.num + ":inicial") % 1000) < chanceIni * 1000);
+          p.shiny = !!((p.shiny && (livre || SV.pode(m.login, p.num, true))) || sorteado);
           const novo = { num: p.num, forma: p.forma, shiny: p.shiny }; mudar(m, "usum_parceiros", (x) => (x[m.login] = novo));
-          aviso(times()[m.login], `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
+          // o inicial escolhido vai para a Pokédex da pessoa (com status sorteados), uma vez só por espécie
+          let ganhou = false;
+          if (SV && SV.iniciais.has(p.num) && !SV.individuos(m.login, p.num).length && !((ler("usum_iniciais_ganhos", {})[m.login] || []).includes(p.num))) {
+            ganhou = true;
+            umaVez(m, () => {
+              const g = ler("usum_iniciais_ganhos", {}); g[m.login] = g[m.login] || [];
+              if (g[m.login].includes(p.num) || SV.individuos(m.login, p.num).length) return;
+              g[m.login].push(p.num); gravar("usum_iniciais_ganhos", g);
+              SV.guardar(m.login, m.nome, p.num, p.shiny);
+            });
+          }
+          if (ganhou) setTimeout(() => {
+            const ind = SV.individuos(m.login, p.num)[0];
+            if (ind) aviso(times()[m.login], `📘 ${esc(p.nome)}${p.shiny ? " ✦" : ""} entrou na Pokédex de <b>${esc(m.nome)}</b> · força ${SV.forcaIV(ind.iv)}% (${SV.nota(SV.forcaIV(ind.iv))})`, p);
+          }, 900);
+          aviso(times()[m.login], sorteado ? `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)} e ele veio ✨ <b>SHINY</b>! (só ${Math.round(chanceIni * 100)}% de chance)`
+            : `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
         } else if (txt.slice(cmd.length).trim()) {
           aviso(times()[m.login], `<b>${esc(m.nome)}</b>, não achei esse Pokémon 🤔 confere o nome em inglês (ex: !pokemon popplio)`, parceiroDe(m.login));
         }
@@ -452,8 +526,8 @@
           umaVez(m, () => {
             const a1 = SV.tirarUm(pd.de, pd.dou.num, pd.dou.shiny, pd.dou.qual), a2 = SV.tirarUm(m.login, quero.num, quero.shiny, quero.qual);
             if (!a1 || !a2) return;
-            SV.guardar(m.login, m.nome, recebeEu, !!a1.ind.s, a1.ind.iv);   // o Pokémon chega com os mesmos status
-            SV.guardar(pd.de, nomeEle, recebeEle, !!a2.ind.s, a2.ind.iv);
+            SV.guardar(m.login, m.nome, recebeEu, !!a1.ind.s, a1.ind.iv, a1.ind.a);   // o Pokémon chega com os mesmos status (e o apelido)
+            SV.guardar(pd.de, nomeEle, recebeEle, !!a2.ind.s, a2.ind.iv, a2.ind.a);
             const pa = ler("usum_parceiros", {});   // se deu o último da espécie que era o parceiro, vira ovo
             if (a1.acabou && pa[pd.de] && pa[pd.de].num === pd.dou.num) delete pa[pd.de];
             if (a2.acabou && pa[m.login] && pa[m.login].num === quero.num) delete pa[m.login];
@@ -505,6 +579,45 @@
         return;
       }
       /* ---- release: solta um Pokémon (o mais fraco, um número da lista do site, ou todos da espécie) ---- */
+      // !showname / !mostrarnome → mostra o apelido do parceiro embaixo da fotinha · !hidename / !escondernome → esconde
+      if (["!showname", "!mostrarnome", "!hidename", "!escondernome"].includes(cmd) || (cmd === "!showname" && /off|nao|não/i.test(txt))) {
+        const mostrar = (cmd === "!showname" || cmd === "!mostrarnome") && !/\b(off|nao|não|desligar)\b/i.test(txt);
+        mudarPerfil(m, (e) => { if (mostrar) e.mn = 1; else delete e.mn; });
+        aviso(times()[m.login], mostrar ? `<b>${esc(m.nome)}</b>, agora o apelido do seu parceiro aparece na sua fotinha 🏷️ (para esconder: <b>!hidename</b>)`
+          : `<b>${esc(m.nome)}</b>, o apelido do seu parceiro não aparece mais na fotinha`);
+        return;
+      }
+      /* ---- apelido dos Pokémon capturados: !apelido pikachu Faísca · !apelido pikachu 2 Faísca · !apelido pikachu limpar
+         (o !apelido 3 Nome, com número primeiro, continua sendo o da party da live) */
+      if ((cmd === "!apelido" || cmd === "!nome" || cmd === "!nick") && USUM.selvagens && !/^\d/.test(txt.split(/\s+/)[1] || "")) {
+        const SV = USUM.selvagens, t = times()[m.login], tk = txt.split(/\s+/).slice(1);
+        const ajuda = `Use <b>!apelido pikachu Faísca</b> (ou <b>!apelido pikachu 2 Faísca</b> para o nº 2 da lista do site) · para tirar: <b>!apelido pikachu limpar</b>`;
+        // o nome do Pokémon pode ter até 3 palavras (mr mime, tapu koko): pega o maior pedaço que a pessoa tem
+        let p = null, usou = 0;
+        for (let k = Math.min(3, tk.length - 1); k >= 1 && !p; k--) {
+          const x = USUM.lerPokemon(tk.slice(0, k).join(" ").replace(/\*$/, ""));
+          if (x && SV.individuos(m.login, x.num).length) { p = x; usou = k; }
+        }
+        if (!p) {
+          const x = tk.length ? USUM.lerPokemon(tk[0]) : null;
+          aviso(t, x ? `<b>${esc(m.nome)}</b>, você não tem ${esc(x.nome)} na sua Pokédex` : ajuda); return;
+        }
+        let resto = tk.slice(usou), pos = 1, shiny = !!p.shiny;   // "!apelido pikachu shiny Nome" ou "pikachu*"
+        if (/^shiny$/i.test(resto[0] || "")) { shiny = true; resto = resto.slice(1); }
+        if (/^#?\d{1,2}$/.test(resto[0] || "")) { pos = parseInt(resto[0].replace("#", ""), 10); resto = resto.slice(1); }
+        const lista = SV.individuos(m.login, p.num);
+        if (shiny) { const i = lista.findIndex((x) => x.s); if (i < 0) { aviso(t, `<b>${esc(m.nome)}</b>, você não tem ${esc(p.nome)} shiny`); return; } pos = i + 1; }
+        if (!lista[pos - 1]) { aviso(t, `<b>${esc(m.nome)}</b>, você só tem ${lista.length} ${esc(p.nome)} (veja a lista no site)`); return; }
+        const novo = resto.join(" ").replace(/[^\p{L}\p{N} '.\-✦♥]/gu, "").replace(/\s+/g, " ").trim();
+        const apagar = !novo || /^(limpar|apagar|tirar|nenhum)$/i.test(novo);
+        if (!apagar && [...novo].length > 12) { aviso(t, `<b>${esc(m.nome)}</b>, o apelido pode ter no máximo 12 letras`); return; }
+        if (!apagar && USUM.apelidoProibido(novo)) { aviso(t, `🚫 <b>${esc(m.nome)}</b>, esse apelido não é permitido aqui. Escolha outro nome 💚`); return; }
+        umaVez(m, () => SV.apelidar(m.login, p.num, pos, apagar ? "" : novo));
+        const ind = lista[pos - 1], qualTxt = lista.length > 1 ? ` nº ${pos}` : "";
+        aviso(t, apagar ? `<b>${esc(m.nome)}</b> tirou o apelido do seu ${esc(p.nome)}${qualTxt}`
+          : `<b>${esc(m.nome)}</b> deu o nome <b>“${esc(novo)}”</b> ao seu ${esc(p.nome)}${qualTxt}${ind.s ? " ✦" : ""} 🏷️`, { num: p.num, forma: "", shiny: !!ind.s });
+        return;
+      }
       if ((cmd === "!release" || cmd === "!soltar") && USUM.selvagens) {
         const SV = USUM.selvagens, arg = txt.slice(cmd.length).trim(), t = times()[m.login];
         const pend = ler("usum_release", {});
@@ -655,6 +768,8 @@
       if (/^!(subs|meta)\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;                       // conta no encontro.html
       if ((m.dono || m.ajudante) && /^!registrar\b/.test(low)) return;
       if ((m.dono || m.ajudante) && /^!selvagem\b/.test(low)) return;
+      if ((m.dono || m.ajudante) && /^!surto\b/.test(low)) return;
+      if (m.dono && /^!citra\b/.test(low)) return;
       if (/^!(fita|minhasfitas)\b/.test(low)) return;            // viram aviso pelas fitas
       if ((m.dono || m.ajudante) && /^!(evento|darfita)\b/.test(low)) return;
       if (m.mod && /^!evento\b/.test(low)) return;
@@ -691,6 +806,11 @@
         d.querySelector(".quem").insertAdjacentHTML("afterend",
           `<div class="ingresso-tag"><span>${rotulo[0]}</span>${rotulo[1]} · <b>${esc(comp.filme)}</b></div>`);
         d.insertAdjacentHTML("afterbegin", '<i class="picote"></i>');
+      }
+      // apelido do parceiro (o Pokémon da fotinha): escondido por padrão, aparece se a pessoa usou !showname
+      if (CFG.mostrarParceiro && USUM.selvagens && USUM.selvagens.apelidoDe && (ler("usum_perfil", {})[m.login] || {}).mn) {
+        const pc = parceiroDe(m.login), ap = pc.num ? USUM.selvagens.apelidoDe(m.login, pc.num, pc.shiny) : "";
+        if (ap) d.querySelector(".av-caixa").insertAdjacentHTML("beforeend", `<span class="apelido-parc">${esc(ap)}</span>`);
       }
       const fita = USUM.fitaDe ? USUM.fitaDe(m.login) : "";
       if (fita) { d.classList.add("com-fita"); d.insertAdjacentHTML("beforeend", `<div class="fita-aba">${metal(USUM.urlFita(fita))}</div>`); }
