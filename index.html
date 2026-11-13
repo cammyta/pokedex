@@ -275,6 +275,7 @@
   .escrever .quem-tw a { color: #bf94ff; }
   .escrever .aviso-tw { color: #ffb3b3; opacity: 1; }
   .chat-abas { display: flex; gap: 6px; }
+  .chat-acoes { display: flex; gap: 6px; }
   .chat-abas button { opacity: .6; }
   .chat-abas button.on { opacity: 1; background: rgba(255,255,255,.25) !important; }
   @media (min-width: 1300px) { body.com-chat .wrap { margin-right: 440px; } }
@@ -328,6 +329,9 @@
     if (h.get("access_token")) {
       try { localStorage.setItem(TW, JSON.stringify({ token: h.get("access_token") })); sessionStorage.setItem("pokedex_abrir_chat", "1"); } catch (e) {}
       history.replaceState(null, "", location.pathname + location.search);
+      // o login começou no chat desprendido (janela separada): volta para ele
+      try { const v = JSON.parse(localStorage.getItem("pokedex_volta_chat") || "null"); localStorage.removeItem("pokedex_volta_chat");
+        if (v && Date.now() - v.t < 10 * 60e3) { sessionStorage.removeItem("pokedex_abrir_chat"); location.replace(v.url); } } catch (e) {}
     }
   })();
   const TOTAL = 807;
@@ -527,7 +531,7 @@
 
       <h2 id="j-selvagens">Pokémon selvagens</h2>
       <div class="passos">
-        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>10 a 20 minutos</b>.</div>
+        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>4, 8, 10 ou 16 minutos</b>.</div>
         <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>12 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
         <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
         <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Quase sempre aparece a forma básica: a forma do meio tem 1% de chance, a última evolução 0,5% e lendários 2%. Shinies: 0,3%. Pokémon de Alola aparecem com mais frequência. Cada pessoa pode ter até 5 de cada Pokémon.</div>
@@ -563,7 +567,7 @@
       </table>
 
       <h2 id="j-status">Status e força</h2>
-      <p class="sub">Cada Pokémon que você captura nasce com <b>6 status sorteados</b> (PS, Ataque, Defesa, Ataque Especial, Defesa Especial e Velocidade), de 0 a 31, como nos jogos. A <b>força</b> é a soma deles: 100% é um Pokémon <b>perfeito</b>, com tudo em 31. Dois Pikachu nunca são iguais, então vale capturar de novo para achar um melhor!</p>
+      <p class="sub">Cada Pokémon que você captura nasce com <b>6 status sorteados</b> (HP, Ataque, Defesa, Ataque Especial, Defesa Especial e Velocidade), de 0 a 31, como nos jogos. A <b>força</b> é a soma deles: 100% é um Pokémon <b>perfeito</b>, com tudo em 31. Dois Pikachu nunca são iguais, então vale capturar de novo para achar um melhor!</p>
       <table class="tabela">
         <tr><th>Força</th><th>Nota</th></tr>
         <tr><td>100%</td><td>Perfeito ✦ (raríssimo)</td></tr><tr><td>90% a 99%</td><td>Incrível</td></tr><tr><td>75% a 89%</td><td>Ótimo</td></tr>
@@ -875,7 +879,7 @@
   }
 
   /* ---------- status dos Pokémon (força) ---------- */
-  const ROT_IV = ["PS", "Ataque", "Defesa", "Atq. Esp.", "Def. Esp.", "Velocidade"];
+  const ROT_IV = ["HP", "Ataque", "Defesa", "Atq. Esp.", "Def. Esp.", "Velocidade"];
   const forcaDe = (iv) => Math.round((iv.reduce((a, b) => a + b, 0) / 186) * 100);
   const notaDe = (f) => (f >= 100 ? "Perfeito ✦" : f >= 90 ? "Incrível" : f >= 75 ? "Ótimo" : f >= 50 ? "Bom" : f >= 25 ? "Razoável" : "Fraco");
   const classeForca = (f) => (f >= 100 ? "f-perf" : f >= 90 ? "f-inc" : f >= 75 ? "f-oti" : f >= 50 ? "f-bom" : f >= 25 ? "f-raz" : "f-fra");
@@ -912,7 +916,7 @@
     if (!canal || canal === "seucanal") return;
     const b = document.createElement("button"); b.className = "chat-btn"; b.textContent = "💬 Chat da live";
     const p = document.createElement("aside"); p.className = "chat-painel modo-overlay";
-    p.innerHTML = `<header><div class="chat-abas"><button data-a="overlay" class="on">✨ Chat da live</button><button data-a="twitch">Twitch</button></div><button class="fechar">Fechar</button></header>
+    p.innerHTML = `<header><div class="chat-abas"><button data-a="overlay" class="on">✨ Chat da live</button><button data-a="twitch">Twitch</button></div><div class="chat-acoes"><button class="soltar" title="Abrir o chat numa janela separada (no celular, em tela cheia)">⧉ Desprender</button><button class="fechar">Fechar</button></div></header>
       <iframe class="f-overlay" title="Chat da live"></iframe>
       <div class="barra-twitch"><button class="crescer" title="Abrir mais (emotes)">▲</button><iframe class="f-twitch" title="Escrever no chat"></iframe></div>`;
     let carregado = false, timer = null;
@@ -939,6 +943,15 @@
       clearInterval(timer); if (on) timer = setInterval(atualizar, 75000);   // chat aberto: dados (e avisos) novos a cada 75 s
     };
     b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
+    // desprender: abre o chat numa janelinha própria, para deixar a live numa tela e o chat em outra (ou do lado)
+    p.querySelector(".soltar").onclick = () => {
+      const url = `chat.html?canal=${encodeURIComponent(canal)}&g=${encodeURIComponent(GIST)}${TWITCH_CLIENT_ID ? "&cid=" + TWITCH_CLIENT_ID : ""}&janela=1`;
+      // no celular: abre o chat na aba inteira (com botão de tela cheia); no computador: janelinha separada
+      const celular = matchMedia("(pointer: coarse)").matches || innerWidth < 820;
+      if (celular) { location.href = url; return; }
+      const w = window.open(url, "chat_canaldocamaleao", "popup=yes,width=460,height=860");
+      if (w) { w.focus(); abrir(false); } else location.href = url;   // se o navegador bloquear a janela, abre na mesma aba
+    };
     if (TWITCH_CLIENT_ID) p.classList.add("com-login");   // a caixa de escrever fica dentro do próprio chat do overlay
     try { if (sessionStorage.getItem("pokedex_abrir_chat")) { sessionStorage.removeItem("pokedex_abrir_chat"); setTimeout(() => abrir(true), 300); } } catch (e) {}
     p.querySelectorAll(".chat-abas button").forEach((x) => (x.onclick = () => mostrar(x.dataset.a)));
