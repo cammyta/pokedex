@@ -600,12 +600,63 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .dex-alola .dex-pk.nao img { filter: brightness(0) opacity(.45); }
 .dex-alola .dex-pk.nao .nm { color: rgba(255,255,255,.4); }
 
-/* ---------- !info: ficha do Pokémon na frente da tela ---------- */
-.ficha-pk { position: fixed; left: 50%; top: 50%; width: 860px; z-index: 100; transform: translate(-50%, -46%) scale(.92); opacity: 0;
-  transition: opacity .5s ease, transform .7s cubic-bezier(.25,1.4,.45,1); border-radius: 28px; overflow: hidden;
-  background: #1a1424; box-shadow: 0 0 0 4px #e04050, 0 0 0 7px rgba(255,255,255,.18), 0 30px 70px rgba(0,0,0,.6); color: #fff; font-family: var(--body); }
-.ficha-pk.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+/* ---------- !info: ficha do Pokémon na frente da tela (sai do Rotom) ---------- */
+.ficha-palco { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+.ficha-pk { position: absolute; left: 50%; top: 50%; width: 860px; margin: -270px 0 0 -430px; border-radius: 28px; overflow: visible;
+  background: #1a1424; box-shadow: 0 0 0 4px #e04050, 0 0 0 7px rgba(255,255,255,.18), 0 30px 70px rgba(0,0,0,.6); color: #fff; font-family: var(--body);
+  transform-origin: 96% 2%; transform: translate(60px, -40px) scale(.05) rotate(8deg); opacity: 0; filter: brightness(2.2);
+  transition: transform .75s cubic-bezier(.2,1.55,.35,1), opacity .25s ease, filter .6s ease; }
+.ficha-pk.on { transform: none; opacity: 1; filter: none; }
+.ficha-palco.fecha .ficha-pk { transition: transform .5s cubic-bezier(.6,-0.4,.8,.3), opacity .45s ease .1s; }
 .ficha-pk.shiny { box-shadow: 0 0 0 4px #ffd36a, 0 0 0 7px rgba(255,243,176,.4), 0 0 50px rgba(255,220,120,.45), 0 30px 70px rgba(0,0,0,.6); }
+/* brilho de holograma passando quando abre */
+.ficha-pk::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 0%, rgba(140,220,255,.28) 48%, rgba(255,255,255,.5) 50%, rgba(140,220,255,.28) 52%, transparent 100%);
+  background-size: 100% 260%; background-position: 0 -130%; opacity: 0; }
+.ficha-pk.on::after { animation: fp-scan 1.1s ease-out .35s; }
+@keyframes fp-scan { 0% { opacity: 1; background-position: 0 -130%; } 100% { opacity: 0; background-position: 0 230%; } }
+/* as partes entram uma depois da outra */
+.ficha-pk .fp-esq > *, .ficha-pk .fp-info > div, .ficha-pk .fp-stats .fl, .ficha-pk .fp-golpes .gp { opacity: 0; transform: translateY(10px); }
+.ficha-pk.on .fp-esq > *, .ficha-pk.on .fp-info > div, .ficha-pk.on .fp-stats .fl, .ficha-pk.on .fp-golpes .gp { animation: fp-entra .45s cubic-bezier(.2,1.4,.4,1) forwards; }
+.ficha-pk.on .fp-esq > :nth-child(1) { animation-delay: .35s; } .ficha-pk.on .fp-esq > :nth-child(2) { animation-delay: .45s; }
+.ficha-pk.on .fp-esq > :nth-child(3) { animation-delay: .52s; } .ficha-pk.on .fp-esq > :nth-child(4) { animation-delay: .6s; } .ficha-pk.on .fp-esq > :nth-child(5) { animation-delay: .68s; }
+.ficha-pk.on .fp-info > div:nth-child(1) { animation-delay: .45s; } .ficha-pk.on .fp-info > div:nth-child(2) { animation-delay: .5s; }
+.ficha-pk.on .fp-info > div:nth-child(3) { animation-delay: .55s; } .ficha-pk.on .fp-info > div:nth-child(4) { animation-delay: .6s; }
+.ficha-pk.on .fp-info > div:nth-child(5) { animation-delay: .65s; } .ficha-pk.on .fp-info > div:nth-child(6) { animation-delay: .7s; }
+.ficha-pk.on .fp-info > div:nth-child(7) { animation-delay: .75s; } .ficha-pk.on .fp-info > div:nth-child(8) { animation-delay: .8s; }
+.ficha-pk.on .fp-stats .fl:nth-child(1) { animation-delay: .7s; } .ficha-pk.on .fp-stats .fl:nth-child(2) { animation-delay: .76s; }
+.ficha-pk.on .fp-stats .fl:nth-child(3) { animation-delay: .82s; } .ficha-pk.on .fp-stats .fl:nth-child(4) { animation-delay: .88s; }
+.ficha-pk.on .fp-stats .fl:nth-child(5) { animation-delay: .94s; } .ficha-pk.on .fp-stats .fl:nth-child(6) { animation-delay: 1s; } .ficha-pk.on .fp-stats .fl:nth-child(7) { animation-delay: 1.06s; }
+.ficha-pk.on .fp-golpes .gp:nth-child(1) { animation-delay: 1.1s; } .ficha-pk.on .fp-golpes .gp:nth-child(2) { animation-delay: 1.18s; }
+.ficha-pk.on .fp-golpes .gp:nth-child(3) { animation-delay: 1.26s; } .ficha-pk.on .fp-golpes .gp:nth-child(4) { animation-delay: 1.34s; }
+@keyframes fp-entra { to { opacity: 1; transform: none; } }
+.fp-stats .b i, .fp-hp i b { transition: width 1s cubic-bezier(.2,1.1,.3,1); }
+.ficha-pk.on .fp-img img { animation: fp-pula .7s cubic-bezier(.3,1.6,.5,1) .5s both; }
+@keyframes fp-pula { 0% { transform: scale(.3) translateY(30px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+/* Rotom: chega voando em zigue-zague, flutua no canto da ficha e vai embora */
+.fp-rotom { position: absolute; left: calc(50% + 380px); top: calc(50% - 330px); width: 150px; height: 150px; opacity: 0; transform: translate(700px, -200px) rotate(25deg) scale(.6); }
+.fp-rotom-corpo { position: absolute; inset: 0; display: grid; place-items: center; }
+.fp-rotom-corpo img { width: 150px; height: 150px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 0 14px rgba(255,170,60,.65)) drop-shadow(0 10px 18px rgba(0,0,0,.5)); }
+.fp-rotom-corpo img.pmd { width: 110px; height: 110px; border-radius: 50%; box-shadow: 0 0 0 4px #ff8a3d, 0 0 22px rgba(255,140,60,.7); }
+.ficha-palco.rotom-chega .fp-rotom { animation: rotom-chega .8s cubic-bezier(.2,.9,.3,1.2) forwards; }
+@keyframes rotom-chega { 0% { opacity: 0; transform: translate(700px, -200px) rotate(25deg) scale(.6); }
+  35% { opacity: 1; transform: translate(320px, 60px) rotate(-12deg) scale(.9); } 65% { transform: translate(90px, -50px) rotate(10deg) scale(1.1); }
+  100% { opacity: 1; transform: none; } }
+.ficha-palco.abre .fp-rotom .fp-rotom-corpo { animation: rotom-flutua 2.4s ease-in-out .3s infinite; }
+@keyframes rotom-flutua { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+.fp-raio { position: absolute; font-size: 30px; opacity: 0; filter: drop-shadow(0 0 8px #ffe066); }
+.fp-raio.r1 { left: -14px; top: 30px; } .fp-raio.r2 { right: -10px; bottom: 26px; }
+.ficha-palco.rotom-chega .fp-raio { animation: raio-pisca .9s steps(1) 3; } .ficha-palco.abre .fp-raio { animation: raio-pisca 1.6s steps(1) infinite; }
+.ficha-palco .fp-raio.r2 { animation-delay: .45s !important; }
+@keyframes raio-pisca { 0%, 100% { opacity: 0; } 15%, 35% { opacity: 1; } 50% { opacity: 0; } 60% { opacity: 1; } }
+/* faísca no momento em que a ficha sai do Rotom */
+.ficha-palco.abre::before { content: ""; position: absolute; left: calc(50% + 420px); top: calc(50% - 270px); width: 40px; height: 40px; margin: -20px; border-radius: 50%;
+  background: radial-gradient(circle, #fff, rgba(255,220,120,.9) 30%, rgba(255,140,60,0) 70%); animation: fp-faisca .6s ease-out forwards; }
+@keyframes fp-faisca { 0% { transform: scale(.2); opacity: 1; } 100% { transform: scale(9); opacity: 0; } }
+.fp-fala { position: absolute; right: 120px; top: -6px; white-space: nowrap; padding: 8px 14px; border-radius: 16px 16px 4px 16px; background: #fff; color: #1a1424;
+  font: 700 15px/1 var(--display); box-shadow: 0 6px 16px rgba(0,0,0,.35); opacity: 0; transform: scale(.6) translateY(10px); transform-origin: 100% 100%; transition: opacity .3s, transform .4s cubic-bezier(.2,1.6,.4,1); }
+.ficha-palco.fala .fp-fala { opacity: 1; transform: none; }
+.ficha-palco.rotom-sai .fp-rotom { animation: rotom-sai .8s cubic-bezier(.5,-0.3,.8,.4) forwards; }
+@keyframes rotom-sai { 0% { opacity: 1; transform: none; } 30% { transform: translate(-40px, 20px) rotate(-10deg) scale(1.1); } 100% { opacity: 0; transform: translate(800px, -300px) rotate(30deg) scale(.5); } }
 .fp-topo { position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 22px; background: linear-gradient(90deg, #d8323f, #f0566a); }
 .fp-dex { font: 700 16px/1 var(--display); padding: 5px 10px; border-radius: 8px; background: rgba(0,0,0,.25); }
 .fp-tit { font: 600 18px/1 var(--display); letter-spacing: .03em; }
@@ -646,3 +697,60 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .fp-info div:first-child { grid-column: span 2; }
 .fp-stats .fl { grid-template-columns: 108px 46px 1fr 34px 36px; }
 .fp-stats .fl.cab .b { background: none; }
+
+/* eletricidade azul do Rotom na borda da ficha do !info */
+.ficha-pk .fp-topo { border-radius: 28px 28px 0 0; }
+.ficha-pk::after { border-radius: 28px; }
+.fp-eletrico { position: absolute; left: -20px; top: -20px; pointer-events: none; z-index: 3; overflow: visible; opacity: 0; transition: opacity .4s ease; }
+.ficha-pk.on .fp-eletrico { opacity: 1; transition-delay: .5s; }
+.fp-eletrico rect { fill: none; }
+.fp-eletrico .e-brilho { stroke: rgba(110,200,255,.75); stroke-width: 10; animation: e-pulsa 1.2s ease-in-out infinite; }
+.fp-eletrico .e-raio { stroke: #8fe3ff; stroke-width: 3.5; stroke-dasharray: 140 30 60 50; animation: e-corre 1.4s linear infinite; }
+.fp-eletrico .e-raio.fino { stroke: #f2fcff; stroke-width: 1.4; stroke-dasharray: 40 70 15 45; animation-duration: .9s; animation-direction: reverse; }
+@keyframes e-corre { to { stroke-dashoffset: -440; } }
+@keyframes e-pulsa { 50% { stroke: rgba(160,225,255,.95); stroke-width: 14; } }
+.fp-eletrico .e-raio.grosso { stroke: #5cc4ff; stroke-width: 7; }
+
+/* ---------- bordas da fotinha do chat (5/10/15/20 capturas da espécie, ou uma com força 100%) ---------- */
+.msg .av-caixa.borda::before { content: ""; position: absolute; left: 0; top: 0; width: 84px; height: 84px; border-radius: 22px; padding: 4px; z-index: 4; pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.msg .av-caixa.borda::after { content: ""; position: absolute; left: 0; top: 0; width: 84px; height: 84px; border-radius: 22px; z-index: 3; pointer-events: none; }
+.msg .av-caixa.borda .av { box-shadow: none !important; border: 0 !important; outline: 0 !important; }
+/* bronze */
+.msg .av-caixa.borda-bronze::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #f0b07a, #9a5a2c 30%, #e8a46c 50%, #7a4220 75%, #d99060); animation: metal-brilho 3.2s linear infinite; }
+.msg .av-caixa.borda-bronze::after { box-shadow: 0 0 12px rgba(205,127,50,.45); }
+/* prata */
+.msg .av-caixa.borda-prata::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #ffffff, #9aa3ad 30%, #eef2f6 50%, #7d8590 75%, #dfe5ea); animation: metal-brilho 2.8s linear infinite; }
+.msg .av-caixa.borda-prata::after { box-shadow: 0 0 14px rgba(220,230,240,.5); }
+/* ouro */
+.msg .av-caixa.borda-ouro::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #fff3b0, #d4a017 30%, #ffe680 50%, #a87a0a 75%, #ffd84a); animation: metal-brilho 2.4s linear infinite; }
+.msg .av-caixa.borda-ouro::after { box-shadow: 0 0 16px rgba(255,210,80,.6); animation: borda-brilho 2.4s ease-in-out infinite; }
+/* esmeralda */
+.msg .av-caixa.borda-esmeralda::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #c8ffe6, #10a36a 30%, #6ff0b8 50%, #0a6e48 75%, #3fd894); animation: metal-brilho 2.2s linear infinite; }
+.msg .av-caixa.borda-esmeralda::after { box-shadow: 0 0 18px rgba(40,220,140,.6), inset 0 0 10px rgba(120,255,190,.25); animation: borda-brilho 2s ease-in-out infinite; }
+/* arco-íris neon (força 100%) */
+.msg .av-caixa.borda-arcoiris::before { background: conic-gradient(from var(--ang, 0deg), #ff4d6d, #ffb347, #fff275, #4dff88, #4dd2ff, #9b6bff, #ff4dd8, #ff4d6d); animation: girar 3s linear infinite; padding: 4.5px; }
+.msg .av-caixa.borda-arcoiris::after { box-shadow: 0 0 14px rgba(255,90,200,.55), 0 0 26px rgba(90,200,255,.45); animation: borda-neon 3s linear infinite; }
+@keyframes borda-brilho { 50% { filter: brightness(1.5); } }
+@keyframes borda-neon { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+.aviso.borda-nova.b-bronze { border-color: #d99060; } .aviso.borda-nova.b-prata { border-color: #dfe5ea; } .aviso.borda-nova.b-ouro { border-color: #ffd84a; }
+.aviso.borda-nova.b-esmeralda { border-color: #3fd894; } .aviso.borda-nova.b-arcoiris { border-color: #ff4dd8; box-shadow: 0 0 16px rgba(255,90,200,.45); }
+.msg .av-caixa.borda { --reflexo: linear-gradient(110deg, transparent 42%, rgba(255,255,255,.95) 50%, transparent 58%); }
+@keyframes metal-brilho { 0% { background-position: 150% 0, 0 0; } 60%, 100% { background-position: -60% 0, 0 0; } }
+/* estrelinha que pisca no canto das bordas mais altas */
+.msg .av-caixa.borda-ouro .encaixe::after, .msg .av-caixa.borda-esmeralda .encaixe::after, .msg .av-caixa.borda-arcoiris .encaixe::after {
+  content: "✦"; position: absolute; right: -52px; top: -58px; font-size: 14px; color: #fff; text-shadow: 0 0 8px #fff; animation: borda-estrela 2s ease-in-out infinite; }
+@keyframes borda-estrela { 0%, 100% { opacity: 0; transform: scale(.4) rotate(0deg); } 50% { opacity: 1; transform: scale(1.1) rotate(45deg); } }
+
+/* borda Shiny (capturou um shiny da espécie): perolada dourada-clara */
+.msg .av-caixa.borda-shiny::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #fffbe0, #ffe27a 25%, #fff 45%, #ffd1f0 65%, #b9e6ff 85%, #fff3b0); animation: metal-brilho 2s linear infinite; }
+.msg .av-caixa.borda-shiny::after { box-shadow: 0 0 16px rgba(255,236,150,.7), 0 0 28px rgba(255,200,240,.35); animation: borda-brilho 1.8s ease-in-out infinite; }
+.aviso.borda-nova.b-shiny { border-color: #ffe27a; box-shadow: 0 0 16px rgba(255,226,122,.45); }
+/* parceiro shiny: estrelinhas piscando em volta da foto (com qualquer borda) */
+.msg .av-caixa .sh-brilho { position: absolute; left: 0; top: 0; width: 84px; height: 84px; z-index: 5; pointer-events: none; }
+.msg .av-caixa .sh-brilho i { position: absolute; font-style: normal; color: #fff6c9; text-shadow: 0 0 6px #ffe27a, 0 0 12px #fff; opacity: 0; animation: sh-pisca 2.2s ease-in-out infinite; }
+.msg .av-caixa .sh-brilho i:nth-child(1) { left: -6px; top: -6px; font-size: 16px; }
+.msg .av-caixa .sh-brilho i:nth-child(2) { right: -5px; top: 8px; font-size: 12px; animation-delay: .55s; }
+.msg .av-caixa .sh-brilho i:nth-child(3) { right: 6px; bottom: -6px; font-size: 14px; animation-delay: 1.1s; }
+.msg .av-caixa .sh-brilho i:nth-child(4) { left: 24px; top: -8px; font-size: 11px; animation-delay: 1.65s; }
+@keyframes sh-pisca { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 40%, 60% { opacity: 1; transform: scale(1.15) rotate(30deg); } }
