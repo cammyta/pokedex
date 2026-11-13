@@ -324,6 +324,10 @@
         if (lista.querySelector(`.cheia[data-l="${CSS.escape(ev.login)}"]`)) return;
         d.className = "aviso cheia"; d.dataset.l = ev.login;
         d.innerHTML = `<span class="t">📦 <b>${esc(ev.nome)}</b>, você já tem ${ev.limite} ${esc(ev.pnome || "")} (o máximo de cada Pokémon). Solte o mais fraco com <b>!release ${esc((ev.pnome || "nome").toLowerCase())}</b> para capturar outro</span>`;
+      } else if (ev.tipo === "borda") {
+        d.className = "aviso borda-nova b-" + (ev.borda || "");
+        const im = USUM.imgPokemon({ num: ev.num, forma: "", shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
+        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
       } else if (ev.tipo === "surto") {
         d.className = "aviso surto";
         d.innerHTML = ev.modo === "rapido"
@@ -618,6 +622,27 @@
         return;
       }
       /* ---- release: solta um Pokémon (o mais fraco, um número da lista do site, ou todos da espécie) ---- */
+      // !borda → mostra as bordas liberadas do parceiro atual · !borda prata → usa essa · !borda nenhuma → sem borda · !borda auto → a mais rara
+      if (cmd === "!borda" && USUM.selvagens && USUM.selvagens.bordasLiberadas) {
+        const SV = USUM.selvagens, t = times()[m.login], pc = parceiroDe(m.login);
+        if (!pc.num) { aviso(t, `<b>${esc(m.nome)}</b>, escolha um parceiro com <b>!pokemon</b> primeiro`); return; }
+        const pn = USUM.nomeDe(pc.num), lib = SV.bordasLiberadas(m.login, pc.num);
+        const arg = txt.split(/\s+/).slice(1).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
+        const NOMES = { bronze: "bronze", prata: "prata", silver: "prata", ouro: "ouro", gold: "ouro", esmeralda: "esmeralda", emerald: "esmeralda",
+          arcoiris: "arcoiris", rainbow: "arcoiris", shiny: "shiny", brilhante: "shiny", neon: "arcoiris", arcoirisneon: "arcoiris", nenhuma: "nenhuma", nenhum: "nenhuma", sem: "nenhuma", off: "nenhuma", tirar: "nenhuma",
+          auto: "auto", automatica: "auto", melhor: "auto" };
+        const alvo = NOMES[arg];
+        if (!arg || !alvo) {
+          aviso(t, lib.length ? `<b>${esc(m.nome)}</b>, bordas de ${esc(pn)}: ${lib.map((b) => "<b>" + b.nome + "</b>").join(", ")} · use <b>!borda prata</b>, <b>!borda nenhuma</b> ou <b>!borda auto</b>`
+            : `<b>${esc(m.nome)}</b>, você ainda não liberou bordas de ${esc(pn)}. Capture 5 na grama para a Bronze!`);
+          return;
+        }
+        if (alvo !== "nenhuma" && alvo !== "auto" && !lib.some((b) => b.id === alvo)) { aviso(t, `<b>${esc(m.nome)}</b>, você ainda não liberou essa borda de ${esc(pn)}`); return; }
+        mudarPerfil(m, (e) => { e.bordas = e.bordas || {}; if (alvo === "auto") delete e.bordas[pc.num]; else e.bordas[pc.num] = alvo; });
+        aviso(t, alvo === "nenhuma" ? `<b>${esc(m.nome)}</b> tirou a borda de ${esc(pn)}` : alvo === "auto" ? `<b>${esc(m.nome)}</b> volta a usar a borda mais rara de ${esc(pn)}`
+          : `<b>${esc(m.nome)}</b> agora usa a borda <b>${esc(lib.find((b) => b.id === alvo).nome)}</b> em ${esc(pn)} ✨`, pc);
+        return;
+      }
       // !showname / !mostrarnome → mostra o apelido do parceiro embaixo da fotinha · !hidename / !escondernome → esconde
       if (["!showname", "!mostrarnome", "!hidename", "!escondernome"].includes(cmd) || (cmd === "!showname" && /off|nao|não/i.test(txt))) {
         const mostrar = (cmd === "!showname" || cmd === "!mostrarnome") && !/\b(off|nao|não|desligar)\b/i.test(txt);
@@ -846,6 +871,13 @@
         d.querySelector(".quem").insertAdjacentHTML("afterend",
           `<div class="ingresso-tag"><span>${rotulo[0]}</span>${rotulo[1]} · <b>${esc(comp.filme)}</b></div>`);
         d.insertAdjacentHTML("afterbegin", '<i class="picote"></i>');
+      }
+      // borda da fotinha conquistada com aquela espécie (bronze, prata, ouro, esmeralda ou arco-íris neon)
+      if (CFG.mostrarParceiro && USUM.selvagens && USUM.selvagens.bordaDe) {
+        const pc = parceiroDe(m.login), b = pc.num ? (USUM.selvagens.bordaUsada || USUM.selvagens.bordaDe)(m.login, pc.num) : null;
+        if (b && b.id) d.querySelector(".av-caixa").classList.add("borda", "borda-" + b.id);
+        // parceiro shiny: estrelinhas brilhando em volta da foto, com qualquer borda (ou sem borda)
+        if (pc.num && pc.shiny) { const cx = d.querySelector(".av-caixa"); cx.classList.add("parc-shiny"); cx.insertAdjacentHTML("beforeend", '<span class="sh-brilho"><i>✦</i><i>✧</i><i>✦</i><i>✧</i></span>'); }
       }
       // apelido do parceiro (o Pokémon da fotinha): escondido por padrão, aparece se a pessoa usou !showname
       if (CFG.mostrarParceiro && USUM.selvagens && USUM.selvagens.apelidoDe && (ler("usum_perfil", {})[m.login] || {}).mn) {
