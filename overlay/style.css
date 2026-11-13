@@ -58,6 +58,8 @@ body.solo { width: 100vw; height: 100vh; }
   font: 600 19px/1 var(--display); letter-spacing: .06em; text-transform: uppercase;
 }
 .etiqueta .mini-orb { width: 26px; height: 26px; }
+.etiqueta .eti-logo { height: 34px; width: auto; margin: -6px 0; filter: drop-shadow(0 1px 3px rgba(0,0,0,.6)); }
+.etiqueta .eti-item { width: 30px; height: 30px; image-rendering: pixelated; filter: drop-shadow(0 0 1px rgba(255,190,90,.9)); }
 .etiqueta.direita { left: auto; right: 28px; }
 
 /* Cantinhos: sol num canto, lua no oposto */
