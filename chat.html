@@ -2,11 +2,23 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140c24">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Chat da live</title>
 <link rel="stylesheet" href="overlay/style.css">
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #140c24; }
+  html, body { margin: 0; width: 100% !important; height: 100%; height: 100dvh; overflow: hidden; background: #140c24; }
+  /* chat desprendido: barrinha em cima com "tela cheia" e "voltar ao site" */
+  .barra-janela { display: none; }
+  body.janela .barra-janela { display: flex; position: fixed; left: 0; right: 0; top: 0; z-index: 30; height: 40px; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 0 10px; padding-top: env(safe-area-inset-top); background: #1d1233; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 600 13px "Fredoka", "Poppins", sans-serif; color: #fff; }
+  body.janela .barra-janela button, body.janela .barra-janela a { border: 0; border-radius: 10px; padding: 6px 12px; background: rgba(255,255,255,.12); color: #fff;
+    font: inherit; text-decoration: none; cursor: pointer; }
+  body.janela #chat { top: calc(48px + env(safe-area-inset-top)); bottom: calc(10px + env(safe-area-inset-bottom)); }
+  body.janela.cheia .barra-janela .tela-cheia { display: none; }
+  @media (pointer: fine) { body.janela .barra-janela .voltar { display: none; } }
   body.solo { width: 100%; height: 100%; }
   #chat { left: 10px; top: 10px; right: 10px; bottom: 10px; }
   /* no celular / painel estreito: tudo um pouco menor */
@@ -35,7 +47,20 @@
 </style>
 </head>
 <body class="solo">
+  <div class="barra-janela"><a class="voltar" href="./">← Site</a><span>💬 Chat da live</span><button class="tela-cheia" type="button">⛶ Tela cheia</button></div>
   <div id="chat" class="moldura vidro"></div>
+<script>
+  // chat desprendido (?janela=1): no celular abre na aba inteira e dá para pôr em tela cheia
+  (function () {
+    if (!/[?&]janela=1/.test(location.search)) return;
+    document.body.classList.add("janela");
+    const b = document.querySelector(".tela-cheia"), raiz = document.documentElement;
+    const pode = raiz.requestFullscreen || raiz.webkitRequestFullscreen;
+    if (!pode) b.style.display = "none";   // iPhone: sem tela cheia em site; dá para "Adicionar à Tela de Início"
+    b.onclick = () => { try { (raiz.requestFullscreen || raiz.webkitRequestFullscreen).call(raiz, { navigationUI: "hide" }); } catch (e) {} };
+    document.addEventListener("fullscreenchange", () => document.body.classList.toggle("cheia", !!document.fullscreenElement));
+  })();
+</script>
 <script>
   // Configuração só do site: as imagens vêm direto da internet (não tem a pasta do PC aqui)
   window.USUM_CONFIG = {
@@ -164,7 +189,12 @@
     let eu = null, ws = null, fila = [], img = null, emoAtual = "";
     const topo = (() => { try { return window.top; } catch (e) { return window; } })();
     function entrar() {
-      const volta = topo.location.origin + topo.location.pathname;
+      let volta = topo.location.origin + topo.location.pathname;
+      // chat desprendido (janela própria): o login volta para o site e o site manda de volta para cá
+      if (topo === window && /chat\.html$/.test(location.pathname)) {
+        volta = location.origin + location.pathname.replace(/chat\.html$/, "");
+        try { localStorage.setItem("pokedex_volta_chat", JSON.stringify({ url: location.href, t: Date.now() })); } catch (e) {}
+      }
       const u = new URL("https://id.twitch.tv/oauth2/authorize");
       u.search = new URLSearchParams({ response_type: "token", client_id: CLIENT, redirect_uri: volta, scope: "chat:read chat:edit",
         state: Math.random().toString(36).slice(2) }).toString();
