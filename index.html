@@ -524,9 +524,9 @@
       </div>
       <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 1 ou 2 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
       <div class="atalhos">
-        <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a>
+        <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a><a href="#j-bordas">🖼️ Bordas</a>
         <a href="#j-status">💪 Força</a><a href="#j-trocas">🔁 Trocas</a><a href="#j-equipes">☀️ Equipes</a><a href="#j-carinhas">😆 Carinhas</a><a href="#j-perfil">🪪 Perfil</a>
-        <a href="#j-reputacao">🏅 Reputação</a><a href="#j-site">💬 Chat no site</a><a href="#j-faq">❓ Dúvidas</a>
+        <a href="#j-reputacao">🏅 Reputação</a><a href="#j-live">📺 Na live</a><a href="#j-site">💬 Chat no site</a><a href="#j-faq">❓ Dúvidas</a>
       </div>
 
       <h2 id="j-selvagens">Pokémon selvagens</h2>
@@ -564,7 +564,26 @@
         ${linha("!caixa", "Resumo no chat de quantos Pokémon você já capturou")}
         ${linha("!release magikarp", "Solta o seu Magikarp <b>mais fraco</b>. <code>!release magikarp 2</code> solta o #2 da lista (veja os números clicando nele na sua Pokédex) e <code>!release magikarp todos</code> solta todos. Se não sobrar nenhum e ele era o seu parceiro, você <b>perde a fotinha</b> e volta a ser um ovo. O chat pede confirmação: <code>!release sim</code> em até 1 minuto. Não tem volta")}
         ${linha("!pokedex", "Link desta página já aberta no seu perfil")}
+        ${linha("!apelido pikachu Faísca", "Dá um nome (até 12 letras) ao seu Pikachu nº 1. <code>!apelido pikachu 2 Faísca</code> para o nº 2, <code>!apelido pikachu shiny Brilho</code> para o shiny e <code>!apelido pikachu limpar</code> para tirar. Nomes ofensivos são bloqueados")}
+        ${linha("!showname / !hidename", "Mostra (ou esconde) o apelido do seu parceiro embaixo da sua fotinha no chat. Por padrão fica escondido")}
       </table>
+      <p class="sub secao"><b>Iniciais:</b> quem ainda não capturou nada pode escolher Rowlet, Litten, Popplio, Pikachu, Eevee ou Clefairy. O inicial escolhido
+      <b>entra na sua Pokédex</b> (com força e natureza) e tem <b>10% de chance de vir shiny</b>, um sorteio só seu e fixo: repetir o comando não muda.</p>
+
+      <h2 id="j-bordas">Bordas da fotinha</h2>
+      <p class="sub">Capturando na grama a mesma espécie várias vezes, você libera bordas para a sua fotinha. Elas aparecem quando esse Pokémon é o seu parceiro.</p>
+      <table class="tabela">
+        <tr><th>Borda</th><th>Como liberar</th></tr>
+        <tr><td>🥉 Bronze</td><td>Capturar 5 vezes a espécie</td></tr><tr><td>🥈 Prata</td><td>Capturar 10 vezes</td></tr>
+        <tr><td>🥇 Ouro</td><td>Capturar 15 vezes</td></tr><tr><td>💚 Esmeralda</td><td>Capturar 20 vezes</td></tr>
+        <tr><td>✨ Shiny</td><td>Capturar um shiny da espécie</td></tr><tr><td>🌈 Arco-íris neon</td><td>Capturar um com força 100%</td></tr>
+      </table>
+      <table class="tabela">
+        ${linha("!borda", "Mostra as bordas que você já liberou com o seu parceiro atual")}
+        ${linha("!borda prata", "Usa essa borda (bronze, prata, ouro, esmeralda, shiny ou arcoiris). Cada espécie guarda a sua escolha")}
+        ${linha("!borda nenhuma", "Fica sem borda. <code>!borda auto</code> volta a usar a mais rara")}
+      </table>
+      <p class="sub secao">Conta o total de capturas na grama (soltar e capturar de novo também conta); trocas, evoluções e o inicial não contam. Parceiro <b>shiny</b> ganha estrelinhas piscando em volta da foto, com qualquer borda.</p>
 
       <h2 id="j-status">Status e força</h2>
       <p class="sub">Cada Pokémon que você captura nasce com <b>6 status sorteados</b> (HP, Ataque, Defesa, Ataque Especial, Defesa Especial e Velocidade), de 0 a 31, como nos jogos. A <b>força</b> é a soma deles: 100% é um Pokémon <b>perfeito</b>, com tudo em 31. Dois Pikachu nunca são iguais, então vale capturar de novo para achar um melhor!</p>
@@ -576,6 +595,7 @@
       <p class="sub secao">Na sua Pokédex aqui no site, cada Pokémon mostra a força do seu melhor; <b>clique nele</b> para ver todos os que você tem, numerados do mais forte (#1) para o mais fraco, com as barrinhas de cada status.
       Use esses números no chat: <code>!release pikachu</code> solta o mais fraco, <code>!release pikachu 3</code> solta o #3 e <code>!release pikachu todos</code> solta todos. Na troca, <code>!trade @ana pikachu 1 por eevee</code> oferece o seu melhor Pikachu (sem número, vai o mais fraco).
       Quem recebe numa troca ganha o Pokémon com os mesmos status, e quem evolui o parceiro leva os status do seu melhor.</p>
+      <p class="sub secao"><b>Natureza e força na grama:</b> quando o Pokémon sai da grama, a tela já mostra a <b>força</b> e a <b>natureza</b> dele (ex: Força 72% · Jolly). Todo mundo que capturar leva esse mesmo Pokémon, com a mesma força e natureza. Quando ele é <b>igual ao do jogo da Cammy</b>, a força e a natureza são as do Pokémon do jogo dela.</p>
 
       <h2 id="j-trocas">Trocas</h2>
       <p class="sub">Troque Pokémon com outras pessoas do chat. Cada troca deixa vocês mais amigos: <b>+5 pontos de amizade</b> (responder alguém vale só 1).</p>
@@ -658,8 +678,15 @@
       </table>
       <p class="sub secao"><b>Não confunda:</b> o <code>!pokemon</code> é a fotinha do chat (precisa ter capturado). O <code>!meutime</code> e o <code>!favorito</code> são do seu perfil e não mudam a fotinha.</p>
 
+      <h2 id="j-live">Comandos da live para todo mundo</h2>
+      <table class="tabela">
+        ${linha("!info 1", "Abre na tela da live a ficha completa do Pokémon do quadrado 1 da party da Cammy (de 1 a 6): nível, natureza, habilidade, item, IVs, EVs, golpes e mais. Uma ficha por vez, no máximo a cada 20 s")}
+        ${linha("!gostei / !naogostei", "No cineminha (watch party): vota se gostou do filme")}
+      </table>
+      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 4, 8, 10 ou 16 minutos e fica 12 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando a Cammy joga no emulador, às vezes aparece o mesmo Pokémon que apareceu para ela no jogo.</p>
+
       <h2 id="j-site">Chat aqui no site</h2>
-      <p class="sub">O botão <b>💬 Chat da live</b> (canto de baixo) abre o chat da live com as fotinhas, equipes e fitas, igual aparece na stream. Embaixo fica a barra da Twitch para você escrever direto daqui; o <b>▲</b> abre mais espaço para escolher emotes. Para escrever, você precisa estar logado na Twitch neste navegador. A aba <b>Twitch</b> mostra o chat comum.</p>
+      <p class="sub">O botão <b>💬 Chat da live</b> (canto de baixo) abre o chat da live com as fotinhas, equipes e fitas, igual aparece na stream. Embaixo fica a barra da Twitch para você escrever direto daqui; o <b>▲</b> abre mais espaço para escolher emotes. Para escrever, você precisa estar logado na Twitch neste navegador. A aba <b>Twitch</b> mostra o chat comum. Use <b>⧉ Desprender</b> para abrir o chat numa janela separada (no computador) ou em tela cheia (no celular), e deixar a live em outra tela.</p>
 
       <h2 id="j-faq">Dúvidas comuns</h2>
       ${pergunta("Digitei !pokemon e a fotinha não mudou", "Confira três coisas: o nome está <b>em inglês</b> (ex: <i>popplio</i>, não <i>pinguim</i>); você <b>já capturou</b> esse Pokémon (ou é um inicial, Pikachu ou Eevee); e, se pediu shiny, você capturou ele <b>shiny</b>. Quando dá certo, aparece um aviso no chat dizendo quem você escolheu.")}
@@ -674,6 +701,8 @@
       ${pergunta("Posso trocar de equipe?", "Pode, quando quiser, com <code>!sol</code> ou <code>!lua</code>. Os pontos que você já deu ficam com a equipe antiga.")}
       ${pergunta("Quanto falta para o próximo coração de amizade?", "Abra o seu perfil aqui no site, na aba <b>Amigos</b>: cada amizade mostra uma barrinha e quantas interações faltam. Cada resposta ou @ vale 1 ponto, até 1 a cada 45 segundos por dupla.")}
       ${pergunta("Como ganho fitas?", "Participando! Cada fita tem a sua regra, e algumas são de eventos especiais. Veja a lista completa em <a href='?p=fitas'>Fitas</a>.")}
+      ${pergunta("Como libero uma borda para a minha fotinha?", "Capture na grama a mesma espécie 5, 10, 15 ou 20 vezes (Bronze, Prata, Ouro e Esmeralda), um shiny dela (Shiny) ou um com força 100% (Arco-íris neon). A borda aparece quando esse Pokémon é o seu parceiro. Escolha qual usar com <code>!borda</code>.")}
+      ${pergunta("Meu inicial veio shiny?", "Cada inicial tem 10% de chance de vir shiny para você, num sorteio fixo. Se veio, o chat avisa quando você escolhe com <code>!pokemon</code>.")}
       ${pergunta("Por que meus comandos não aparecem no chat da stream?", "Os comandos do jogo não aparecem como mensagem normal, para não poluir o chat. Quando funcionam, aparece um aviso curtinho confirmando.")}`;
     if (location.hash) { const alvo = document.querySelector(location.hash); if (alvo) alvo.scrollIntoView(); }
   }
