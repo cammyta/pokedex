@@ -229,4 +229,34 @@
   };
 
 
+
+  /* ---------- Pokémon da memória do jogo (Citra): decifra igual ao PKHeX / CitraRNG (Gen 6 e 7) ---------- */
+  const POS = [0,1,2,3,0,1,3,2,0,2,1,3,0,3,1,2,0,2,3,1,0,3,2,1,1,0,2,3,1,0,3,2,2,0,1,3,3,0,1,2,2,0,3,1,3,0,2,1,1,2,0,3,1,3,0,2,2,1,0,3,3,1,0,2,2,3,0,1,3,2,0,1,1,2,3,0,1,3,2,0,2,1,3,0,3,1,2,0,2,3,1,0,3,2,1,0];
+  const BOLA_ID = { 1: "master", 2: "ultra", 3: "great", 4: "poke", 5: "safari", 6: "net", 7: "dive", 8: "nest", 9: "repeat", 10: "timer",
+    11: "luxury", 12: "premier", 13: "dusk", 14: "heal", 15: "quick", 16: "cherish", 17: "fast", 18: "level", 19: "lure", 20: "heavy",
+    21: "love", 22: "friend", 23: "moon", 24: "sport", 25: "dream", 26: "beast" };
+  const u16 = (d, o) => d[o] | (d[o + 1] << 8), u32 = (d, o) => (d[o] | d[o + 1] << 8 | d[o + 2] << 16 | d[o + 3] << 24) >>> 0;
+  USUM.decifrarPK7 = function (enc) {   // 232 bytes do Pokémon + 22 dos status de batalha, embaralhados pelo jogo
+    const pv = u32(enc, 0), sv = (pv >>> 13) & 31, x = new Uint8Array(enc.length - 8);
+    const passo = (ini, fim) => { let sd = pv; for (let i = ini; i < fim; i += 2) { sd = (Math.imul(sd, 0x41C64E6D) + 0x6073) >>> 0; const k = sd >>> 16; x[i - 8] = enc[i] ^ (k & 0xFF); x[i - 7] = enc[i + 1] ^ (k >>> 8); } };
+    passo(8, 232); if (enc.length > 232) passo(232, enc.length);
+    const out = new Uint8Array(enc.length); out.set(enc.subarray(0, 8), 0);
+    for (let b = 0; b < 4; b++) { const st = 56 * POS[b + sv * 4]; out.set(x.subarray(st, st + 56), 8 + b * 56); }
+    out.set(x.subarray(224), 232);
+    return out;
+  };
+  USUM.lerPK7 = function (d) {
+    const especie = u16(d, 8);
+    if (!especie || especie > 807) return null;
+    let soma = 0; for (let i = 8; i < 0xE8; i += 2) soma = (soma + u16(d, i)) & 0xFFFF;
+    if (soma !== u16(d, 6)) return null;                       // dado inválido ou lugar vazio
+    const pid = u32(d, 0x18), tid = u16(d, 0xC), sid = u16(d, 0xE), iv = u32(d, 0x74);
+    const ovo = !!(iv & 0x40000000), temApelido = !!(iv & 0x80000000);
+    const forma = d[0x1D] >> 3;
+    let apelido = ""; for (let i = 0x40; i < 0x40 + 24; i += 2) { const c = u16(d, i); if (!c) break; apelido += String.fromCharCode(c); }
+    const hpAtual = d.length > 0xF3 ? u16(d, 0xF0) : 0, hpMax = d.length > 0xF3 ? u16(d, 0xF2) : 0;
+    return { especie, forma, ec: u32(d, 0), ovo, shiny: ((pid >>> 16) ^ (pid & 0xFFFF) ^ tid ^ sid) < 16, bola: BOLA_ID[d[0xDC]] || "poke",
+      apelido: temApelido ? apelido.replace(/[\uE000-\uF8FF]/g, "").trim() : "", nivel: d.length > 0xEC ? d[0xEC] : 0, hpAtual, hpMax };
+  };
+  USUM.hexParaBytes = (h) => { const b = new Uint8Array(h.length / 2); for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16); return b; };
 })();
