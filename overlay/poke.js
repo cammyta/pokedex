@@ -259,7 +259,28 @@
     const hpAtual = d.length > 0xF3 ? u16(d, 0xF0) : 0, hpMax = d.length > 0xF3 ? u16(d, 0xF2) : 0;
     return { especie, forma, ec: u32(d, 0), ovo, shiny: ((pid >>> 16) ^ (pid & 0xFFFF) ^ tid ^ sid) < 16, bola: BOLA_ID[d[0xDC]] || "poke",
       apelido: temApelido ? apelido.replace(/[\uE000-\uF8FF]/g, "").trim() : "", nivel: d.length > 0xEC ? d[0xEC] : 0, hpAtual, hpMax,
+      ivs: [iv & 31, (iv >>> 5) & 31, (iv >>> 10) & 31, (iv >>> 20) & 31, (iv >>> 25) & 31, (iv >>> 15) & 31],   // PS, Atq, Def, AtqE, DefE, Vel
       natureza: d[0x1C] % 25, status: statusDe(d.length > 0xEB ? u32(d, 0xE8) : 0) };
   };
   USUM.hexParaBytes = (h) => { const b = new Uint8Array(h.length / 2); for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16); return b; };
+  // tudo do Pokémon para o !info (menos o PID): status, IVs, EVs, golpes, habilidade, item, treinador original, TID...
+  USUM.infoPK7 = function (d) {
+    const k = USUM.lerPK7(d); if (!k) return null;
+    const I = window.USUM_INFO || {}, nomeDe = (lista, i) => ((I[lista] || [])[i]) || "";
+    const txt16 = (o, n) => { let t = ""; for (let i = 0; i < n; i++) { const c = u16(d, o + i * 2); if (!c) break; t += String.fromCharCode(c); } return t.replace(/[\uE000-\uF8FF]/g, "").trim(); };
+    const tid = u16(d, 0xC), sid = u16(d, 0xE), handler = d[0x93];
+    const ev = [d[0x1E], d[0x1F], d[0x20], d[0x22], d[0x23], d[0x21]];          // PS, Atq, Def, AtqE, DefE, Vel
+    const st = d.length > 0xFD ? [u16(d, 0xF2), u16(d, 0xF4), u16(d, 0xF6), u16(d, 0xFA), u16(d, 0xFC), u16(d, 0xF8)] : [];
+    const iv = k.ivs, hp = Math.floor(((iv[0] & 1) + (iv[1] & 1) * 2 + (iv[2] & 1) * 4 + (iv[5] & 1) * 8 + (iv[3] & 1) * 16 + (iv[4] & 1) * 32) * 15 / 63);
+    return Object.assign(k, {
+      genero: (d[0x1D] >> 1) & 3,                                        // 0 macho, 1 fêmea, 2 sem gênero
+      habilidade: nomeDe("habilidades", d[0x14]), habOculta: d[0x15] === 4,
+      item: d[0x0A] | (d[0x0B] << 8) ? nomeDe("itens", u16(d, 0x0A)) : "",
+      golpes: [0, 1, 2, 3].map((i) => ({ nome: nomeDe("golpes", u16(d, 0x5A + i * 2)), pp: d[0x62 + i] })).filter((g) => g.nome && g.nome !== "None"),
+      evs: ev, stats: st, exp: u32(d, 0x10),
+      ot: txt16(0xB0, 12), tid7: String(((sid << 16 | tid) >>> 0) % 1000000).padStart(6, "0"), tid, sid,
+      amizade: handler ? d[0xA2] : d[0xCA], nivelEncontro: d[0xDD] & 0x7F,
+      poderOculto: nomeDe("poderOculto", hp)
+    });
+  };
 })();
