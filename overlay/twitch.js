@@ -38,6 +38,8 @@
       bits: parseInt(tags.bits || "0", 10),
       respostaPara: (tags["reply-parent-user-login"] || "").toLowerCase(),
       respostaNome: tags["reply-parent-display-name"] || "",
+      respostaId: tags["reply-parent-msg-id"] || "",
+      respostaTexto: (tags["reply-parent-msg-body"] || "").replace(/\\s/g, " ").replace(/\\:/g, ";").replace(/\\\\/g, "\\"),
       recompensa: tags["custom-reward-id"] || ""   // resgate de pontos do canal (com texto)
     };
   }
