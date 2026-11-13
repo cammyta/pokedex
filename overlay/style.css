@@ -525,3 +525,51 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .slot.desmaiado .nome { opacity: .6; text-decoration: line-through; text-decoration-thickness: 1.5px; }
 .slot.hp-baixo .moldura-ret { animation: hp-baixo 1.6s ease-in-out infinite; }
 @keyframes hp-baixo { 50% { box-shadow: 0 0 0 2.5px rgba(255,110,110,.85), 0 0 16px rgba(255,90,90,.5); } }
+
+/* ---------- problemas de status na party (pelo Citra) ---------- */
+.slot .efeito-st { position: absolute; inset: 0; pointer-events: none; z-index: 2; border-radius: inherit; overflow: hidden; }
+.slot .efeito-st i { position: absolute; font-style: normal; pointer-events: none; }
+.slot .selo-st { position: absolute; top: 6px; right: 6px; z-index: 5; padding: 2px 6px; border-radius: 6px; font: 700 11px/1.1 var(--display);
+  letter-spacing: .06em; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+/* envenenado: roxo pulsando + bolhinhas subindo */
+.slot.st-envenenado .selo-st { background: #a24fc4; }
+.slot.st-envenenado .efeito-st { background: radial-gradient(circle at 50% 70%, rgba(170,70,210,.38), transparent 70%); animation: st-pulsa 1.8s ease-in-out infinite; }
+.slot.st-envenenado .efeito-st i { bottom: -12px; left: calc(12% + var(--i) * 17%); width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f0c8ff, #a24fc4 60%); animation: st-bolha 2.4s ease-in infinite; animation-delay: calc(var(--i) * .45s); }
+@keyframes st-bolha { 0% { transform: translateY(0) scale(.6); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-110px) scale(1.1); opacity: 0; } }
+/* queimado: brilho laranja de baixo pra cima + fagulhas */
+.slot.st-queimado .selo-st { background: #e8662f; }
+.slot.st-queimado .efeito-st { background: linear-gradient(0deg, rgba(255,110,40,.55), rgba(255,170,60,.18) 45%, transparent 75%); animation: st-fogo .9s ease-in-out infinite alternate; }
+.slot.st-queimado .efeito-st i { bottom: -6px; left: calc(8% + var(--i) * 15%); width: 6px; height: 10px; border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 50% 70%, #fff3a0, #ff8a2a 55%, transparent 70%); animation: st-fagulha 1.6s ease-out infinite; animation-delay: calc(var(--i) * .27s); }
+@keyframes st-fogo { to { opacity: .65; } }
+@keyframes st-fagulha { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-70px) translateX(6px); opacity: 0; } }
+/* paralisado: tremidinha + flash amarelo + raios */
+.slot.st-paralisado .selo-st { background: #d9b300; color: #2a2200; }
+.slot.st-paralisado .moldura-ret img { animation: st-treme 1.8s steps(2) infinite; }
+.slot.st-paralisado .efeito-st { animation: st-flash 1.8s steps(1) infinite; }
+.slot.st-paralisado .efeito-st i { font-size: 22px; filter: drop-shadow(0 0 6px #fff36a); animation: st-raio 1.8s steps(1) infinite; }
+.slot.st-paralisado .efeito-st i:nth-child(1) { left: 8%; top: 10%; } .slot.st-paralisado .efeito-st i:nth-child(2) { right: 8%; bottom: 14%; animation-delay: .9s; }
+@keyframes st-treme { 0%, 70%, 100% { transform: none; } 75% { transform: translateX(-3px); } 85% { transform: translateX(3px); } }
+@keyframes st-flash { 0%, 70%, 100% { background: transparent; } 78% { background: rgba(255,240,90,.4); } 88% { background: transparent; } 92% { background: rgba(255,240,90,.3); } }
+@keyframes st-raio { 0%, 68%, 100% { opacity: 0; } 72%, 95% { opacity: 1; } }
+/* dormindo: mais escurinho + zzz subindo */
+.slot.st-dormindo .selo-st { background: #7d86a6; }
+.slot.st-dormindo .moldura-ret img { filter: brightness(.85) saturate(.8); }
+.slot.st-dormindo .efeito-st i { right: 14%; top: 40%; font: 700 18px/1 var(--display); color: #e8ecff; text-shadow: 0 2px 4px rgba(0,0,0,.5);
+  animation: st-zzz 3s ease-in infinite; animation-delay: calc(var(--i) * 1s); opacity: 0; }
+@keyframes st-zzz { 0% { transform: translate(0, 0) scale(.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(18px, -60px) scale(1.3); opacity: 0; } }
+/* congelado: azul gelado + floquinhos */
+.slot.st-congelado .selo-st { background: #5fb6e0; color: #08283a; }
+.slot.st-congelado .efeito-st { background: linear-gradient(160deg, rgba(200,240,255,.45), rgba(120,190,240,.25)); box-shadow: inset 0 0 0 3px rgba(225,248,255,.7), inset 0 0 22px rgba(255,255,255,.6); }
+.slot.st-congelado .efeito-st i { color: #fff; font-size: 14px; top: calc(10% + var(--i) * 28%); left: calc(10% + var(--i) * 30%); animation: st-pulsa 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * .5s); }
+@keyframes st-pulsa { 50% { opacity: .55; } }
+
+/* ---------- nome comprido na party: letreiro que passa devagar ---------- */
+.slot .nome .txt { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; }
+.slot .nome .txt b { display: inline-block; font-weight: inherit; }
+.slot .nome.rola { justify-content: flex-start; }
+.slot .nome.rola .txt { flex: 1 1 auto;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 5px, #000 calc(100% - 7px), transparent); mask: linear-gradient(90deg, transparent, #000 5px, #000 calc(100% - 7px), transparent); }
+.slot .nome.rola .txt b { padding-left: 3px; animation: nome-passa var(--tempo, 6s) ease-in-out infinite; }
+@keyframes nome-passa { 0%, 18% { transform: translateX(0); } 50%, 68% { transform: translateX(var(--desloc, 0)); } 100% { transform: translateX(0); } }
