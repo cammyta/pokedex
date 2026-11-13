@@ -282,6 +282,7 @@
   @media (max-width: 640px) { .time6 { grid-template-columns: repeat(3, 1fr); } .tags { justify-content: center; } }
   footer { margin-top: 40px; color: var(--txt2); font-size: 13px; text-align: center; }
   @media (max-width: 640px) { .perfil { grid-template-columns: 1fr; } .perfil .foto { max-width: 220px; margin: 0 auto; } .perfil .nome { justify-content: center; } }
+  .ind-cab .apelido { font-weight: 700; font-style: italic; color: #f6c75a; }
 </style>
 </head>
 <body>
@@ -514,7 +515,7 @@
       <div class="passos">
         <div><b>1</b>Fale qualquer coisa no chat da live. Você aparece com um <b>ovo</b> 🥚 ao lado do nome até escolher seu parceiro.</div>
         <div><b>2</b>Escolha sua equipe com <code>!sol</code> ou <code>!lua</code>. Suas mensagens passam a dar pontos para ela.</div>
-        <div><b>3</b>Escolha um parceiro inicial: <code>!pokemon rowlet</code> (qualquer inicial das gerações 1 a 7, Pikachu ou Eevee).</div>
+        <div><b>3</b>Escolha um parceiro inicial: <code>!pokemon rowlet</code> (Rowlet, Litten, Popplio, Pikachu, Eevee ou Clefairy).</div>
         <div><b>4</b>Quando a grama aparecer na live, digite <code>!capturar</code> e comece a sua coleção!</div>
       </div>
       <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 1 ou 2 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
@@ -529,7 +530,7 @@
         <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>10 a 20 minutos</b>.</div>
         <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>10 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
         <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
-        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Lendários aparecem com 2% de chance e shinies com 0,4%. Cada pessoa pode ter até 5 de cada Pokémon.</div>
+        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Quase sempre aparece a forma básica: a forma do meio tem 1% de chance, a última evolução 0,5% e lendários 2%. Shinies: 0,3%. Pokémon de Alola aparecem com mais frequência. Cada pessoa pode ter até 5 de cada Pokémon.</div>
       </div>
       <p class="sub secao"><b>Quanto mais raro, mais difícil.</b> A chance segue a taxa de captura dos jogos: um Magikarp com Poké Ball sai em cerca de 2 a cada 3 tentativas, um Pikachu em mais ou menos metade, um inicial em cerca de 1 a cada 8 e um lendário quase nunca (por isso existe a Master Ball). Bolas melhores ajudam muito (veja abaixo).
       Se o Pokémon escapar, não tem segunda tentativa naquele encontro: espere o próximo.</p>
@@ -552,7 +553,7 @@
 
       <h2 id="j-parceiro">Seu parceiro e evolução</h2>
       <table class="tabela">
-        ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live. Use o <b>nome em inglês</b> (se errar uma letra, ele tenta adivinhar). Você pode escolher <b>qualquer Pokémon que já capturou</b>, além dos iniciais das gerações 1 a 7, Pikachu e Eevee, que todo mundo já tem")}
+        ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live. Use o <b>nome em inglês</b> (se errar uma letra, ele tenta adivinhar). Você pode escolher <b>qualquer Pokémon que já capturou</b>, além de Rowlet, Litten, Popplio, Pikachu, Eevee e Clefairy, que todo mundo já tem")}
         ${linha("!pokemon rowlet shiny", "Versão shiny: só se você capturou ele shiny. Também vale <code>!pokemon rowlet*</code>")}
         ${linha("!pokemon vulpix alola", "Forma de Alola, para quem tem")}
         ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada. Se ele não evolui mais, o aviso aparece no chat e a streamer pode devolver os pontos")}
@@ -658,7 +659,7 @@
 
       <h2 id="j-faq">Dúvidas comuns</h2>
       ${pergunta("Digitei !pokemon e a fotinha não mudou", "Confira três coisas: o nome está <b>em inglês</b> (ex: <i>popplio</i>, não <i>pinguim</i>); você <b>já capturou</b> esse Pokémon (ou é um inicial, Pikachu ou Eevee); e, se pediu shiny, você capturou ele <b>shiny</b>. Quando dá certo, aparece um aviso no chat dizendo quem você escolheu.")}
-      ${pergunta("Por que meu Pokémon é um ovo?", "Você ainda não escolheu parceiro. Use <code>!pokemon</code> com um inicial, Pikachu, Eevee ou um Pokémon que você capturou.")}
+      ${pergunta("Por que meu Pokémon é um ovo?", "Você ainda não escolheu parceiro. Use <code>!pokemon</code> com Rowlet, Litten, Popplio, Pikachu, Eevee, Clefairy ou um Pokémon que você capturou.")}
       ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada minuto. Se acabou de falar, espere um pouco e recarregue a página.")}
       ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada minuto. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
       ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 10 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
@@ -879,7 +880,7 @@
   const notaDe = (f) => (f >= 100 ? "Perfeito ✦" : f >= 90 ? "Incrível" : f >= 75 ? "Ótimo" : f >= 50 ? "Bom" : f >= 25 ? "Razoável" : "Fraco");
   const classeForca = (f) => (f >= 100 ? "f-perf" : f >= 90 ? "f-inc" : f >= 75 ? "f-oti" : f >= 50 ? "f-bom" : f >= 25 ? "f-raz" : "f-fra");
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv) }; })
+    return (e[2] || []).map(([cod, sh, t, a]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "" }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
   }
   function fichaPokemon(u, n) {
@@ -891,11 +892,11 @@
       <div class="ficha-topo"><img src="${home(n, e[1] > 0)}" alt=""><div><small>#${String(n).padStart(3, "0")}</small><h3>${esc(nome(n))}</h3>
         <span>${e[0]} ${e[0] === 1 ? "capturado" : "capturados"}${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
       ${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}">
-        <div class="ind-cab"><b>#${i + 1}</b>${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
+        <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
       </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}
-      <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code></p>
+      <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code> Para dar um nome: <code>!apelido ${esc(nome(n).toLowerCase())} 1 Nome</code> (até 12 letras).</p>
     </div>`;
     const fechar = () => fundo.remove();
     fundo.onclick = (ev) => { if (ev.target === fundo) fechar(); };
