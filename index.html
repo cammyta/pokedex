@@ -528,7 +528,7 @@
       <h2 id="j-selvagens">Pokémon selvagens</h2>
       <div class="passos">
         <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>10 a 20 minutos</b>.</div>
-        <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>10 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
+        <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>12 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
         <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
         <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Quase sempre aparece a forma básica: a forma do meio tem 1% de chance, a última evolução 0,5% e lendários 2%. Shinies: 0,3%. Pokémon de Alola aparecem com mais frequência. Cada pessoa pode ter até 5 de cada Pokémon.</div>
       </div>
@@ -662,7 +662,7 @@
       ${pergunta("Por que meu Pokémon é um ovo?", "Você ainda não escolheu parceiro. Use <code>!pokemon</code> com Rowlet, Litten, Popplio, Pikachu, Eevee, Clefairy ou um Pokémon que você capturou.")}
       ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada minuto. Se acabou de falar, espere um pouco e recarregue a página.")}
       ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada minuto. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
-      ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 10 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
+      ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 12 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
       ${pergunta("Comprei uma bola e ela não aparece", "Ela já fica equipada na hora. Veja com <code>!mochila</code>. Se você trocou para outra com <code>!ball</code>, use <code>!ball</code> com o nome dela para voltar.")}
       ${pergunta("Por que não consigo capturar mais um Pikachu?", "Cada pessoa pode ter no máximo <b>" + ((D && D.lim) || 5) + " de cada Pokémon</b>, para ninguém monopolizar. Com " + ((D && D.lim) || 5) + ", o <code>!capturar</code> daquele Pokémon não funciona: solte o mais fraco com <code>!release pikachu</code> e capture outro (quem sabe um mais forte!).")}
       ${pergunta("Capturei um Pokémon que não queria. Dá para tirar?", "Dá: <code>!release nome</code> solta o mais fraco daquela espécie (ou <code>!release nome 2</code> para escolher pelo número que aparece ao clicar nele na sua Pokédex) e depois <code>!release sim</code> para confirmar.")}
