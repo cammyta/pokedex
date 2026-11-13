@@ -38,7 +38,7 @@
   USUM.formaRegional = (num) => REGIOES_FORMA.alola.pmd[num] || "";
   // número da imagem HOME (formas regionais têm número próprio no PokeAPI)
   USUM.homeId = (num, forma) => { const r = regiaoDaForma(num, forma); return r ? REGIOES_FORMA[r].home[num] || num : num; };
-  USUM.formaPadraoAlola = (p) => { if (p && !p.forma && USUM.formaRegional(p.num)) { p.forma = USUM.formaRegional(p.num); p.nome = USUM.nomeDe(p.num) + " de Alola"; } return p; };
+  USUM.formaPadraoAlola = (p) => { if (p && !p.forma && !p.kanto && USUM.formaRegional(p.num)) { p.forma = USUM.formaRegional(p.num); p.nome = USUM.nomeDe(p.num) + " de Alola"; } return p; };
   USUM.nomeComForma = (num, forma) => { const r = regiaoDaForma(num, forma); return USUM.nomeDe(num) + (r ? " " + REGIOES_FORMA[r].nome : ""); };
   const FORMAS = {
     745: { meianoite: "0001", midnight: "0001", noite: "0001", crepusculo: "0002", dusk: "0002" },
@@ -79,16 +79,17 @@
   USUM.lerPokemon = function (texto) {
     if (!indice) montarIndice();
     const partes = texto.trim().split(/[\s_-]+/).filter(Boolean);
-    let shiny = false, forma = "";
+    let shiny = false, forma = "", kanto = false;
     const resto = [];
     partes.forEach((p) => {
       const s = sem(p);
       if (s === "shiny" || s === "brilhante") shiny = true;
       else if (PALAVRA_REGIAO[s]) forma = PALAVRA_REGIAO[s];
+      else if (s === "kanto" || s === "dekanto") kanto = true;   // "muk kanto": a forma original, mesmo em Alola
       else resto.push(p);
     });
     // "meowth de galar": o "de" sozinho antes/depois da região não é parte do nome
-    if (forma) for (let i = resto.length - 1; i >= 0; i--) if (/^(de|da|do|of)$/i.test(resto[i])) resto.splice(i, 1);
+    if (forma || kanto) for (let i = resto.length - 1; i >= 0; i--) if (/^(de|da|do|of)$/i.test(resto[i])) resto.splice(i, 1);
     if (resto.length && resto[resto.length - 1].endsWith("*")) { shiny = true; resto[resto.length - 1] = resto[resto.length - 1].slice(0, -1); }
     let num = 0, extra = "";
     if (/^\d+$/.test(resto[0] || "")) { num = +resto[0]; extra = sem(resto.slice(1).join("")); }
@@ -111,7 +112,7 @@
     if (extra && FORMAS[num] && FORMAS[num][extra]) codForma = FORMAS[num][extra];
     else if (extra) return null; // sobrou palavra que não é forma (ex: apelido)
     const nome = USUM.nomeDe(num);
-    return { num, forma: codForma, shiny, nome: nome + (forma ? " " + REGIOES_FORMA[forma].nome : "") };
+    return { num, forma: codForma, shiny, nome: nome + (forma ? " " + REGIOES_FORMA[forma].nome : ""), kanto: kanto || undefined };
   };
 
   /* Pokébolas: "love", "love ball", "amor"... -> "love" */
@@ -138,7 +139,7 @@
                            Joyous: "Happy", Shouting: "Angry", Dizzy: "Surprised", Determined: "Happy", Worried: "Sad" };
 
   // retratos que o canal fez e que não existem no PMD (ficam em Pokemon Assets/portrait no PC e em assets/retratos no site)
-  USUM.RETRATOS_PROPRIOS = ["0019/0001"];
+  USUM.RETRATOS_PROPRIOS = ["0019/0001", "0089", "0068", "0045"];
 
   /* Lista de endereços em ordem de preferência */
   USUM.urlsRetrato = function (p, emocao) {
