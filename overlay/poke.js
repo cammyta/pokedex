@@ -135,11 +135,14 @@
   USUM.nomeDe = (num) => ((window.USUM_DEX || [])[num - 1] || "#" + num).replace(/_/g, " ").replace(/ F$/, "♀").replace(/ M$/, "♂");
 
   // nem todo Pokémon tem todas as carinhas: usa a mais parecida antes de cair no Normal
-  USUM.EMOCAO_PARECIDA = { Pain: "Angry", Sigh: "Sad", Stunned: "Surprised", "Teary-Eyed": "Happy", Crying: "Sad", Inspired: "Happy",
-                           Joyous: "Happy", Shouting: "Angry", Dizzy: "Surprised", Determined: "Happy", Worried: "Sad" };
+  // carinha que falta -> tenta estas, na ordem (as carinhas feitas pelo canal nem sempre têm todas)
+  USUM.EMOCAO_PARECIDA = { Pain: ["Worried", "Angry"], Sigh: ["Sad", "Worried"], Stunned: ["Surprised", "Shouting"], "Teary-Eyed": ["Crying", "Sad"],
+                           Crying: ["Teary-Eyed", "Sad"], Sad: ["Teary-Eyed", "Crying", "Worried"], Inspired: ["Determined", "Joyous", "Happy"],
+                           Joyous: ["Happy"], Shouting: ["Surprised", "Angry"], Surprised: ["Stunned", "Shouting"], Dizzy: ["Pain", "Surprised"],
+                           Determined: ["Inspired", "Happy"], Worried: ["Sad", "Pain"], Happy: ["Joyous"] };
 
   // retratos que o canal fez e que não existem no PMD (ficam em Pokemon Assets/portrait no PC e em assets/retratos no site)
-  USUM.RETRATOS_PROPRIOS = ["0019/0001", "0089", "0068", "0045"];
+  USUM.RETRATOS_PROPRIOS = ["0019/0001", "0089", "0068", "0045", "0047", "0053/0001", "0088/0001", "0075/0001", "0076/0001", "0089/0001", "0020/0001", "0051/0001"];
 
   /* Lista de endereços em ordem de preferência */
   USUM.urlsRetrato = function (p, emocao) {
@@ -153,8 +156,7 @@
     raizes.forEach((raiz) => {
       if (emocao && emocao !== "Normal") {
         urls.push(raiz + caminho + "/" + emocao + ".png");
-        const par = USUM.EMOCAO_PARECIDA[emocao];
-        if (par) urls.push(raiz + caminho + "/" + par + ".png");
+        (USUM.EMOCAO_PARECIDA[emocao] || []).forEach((par) => urls.push(raiz + caminho + "/" + par + ".png"));
       }
       urls.push(raiz + caminho + "/Normal.png");
       if (p.shiny || p.forma) urls.push(raiz + base.split("/")[0] + "/Normal.png");
@@ -187,13 +189,15 @@
     const raiz = P.pastaPropria && img.src.indexOf(P.pastaPropria) >= 0 ? P.pastaPropria : img.src.indexOf("raw.githubusercontent") >= 0 ? P.pmdOnline : P.pastaPMD;
     // nem todo Pokémon tem todas as carinhas: tenta uma parecida antes de desistir
     const PARECIDA = USUM.EMOCAO_PARECIDA;
-    const tentar = (e) => {
+    const fila = [emocao].concat(PARECIDA[emocao] || []);
+    const tentar = (i) => {
+      if (i >= fila.length) return;
       const teste = new Image();
       teste.onload = () => { img.src = teste.src; };
-      teste.onerror = () => { if (PARECIDA[e] && PARECIDA[e] !== e) tentar(PARECIDA[e]); };
-      teste.src = raiz + caminho + "/" + e + ".png";
+      teste.onerror = () => tentar(i + 1);
+      teste.src = raiz + caminho + "/" + fila[i] + ".png";
     };
-    tentar(emocao);
+    tentar(0);
   };
 
   /* Emoção a partir do texto da mensagem */
