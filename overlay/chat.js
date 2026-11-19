@@ -362,6 +362,15 @@
         const NOMES_EV = { filme: "Live de filme", conversa: "Just Chatting", dupla: "Live em dupla", zerou: "Zeramos o jogo!", aniversario: "Aniversário do canal", shiny: "Apareceu um shiny!", especial: "Live especial" };
         d.className = "aviso fita-nova evento-on";
         d.innerHTML = `${metal(USUM.urlFita(ev.id), "fita-ico")}<span class="t"><span class="ev-tit">🎉 Evento: ${esc(NOMES_EV[ev.nome] || f.nome || ev.id)}</span>Quem falar no chat nesta live ganha a <b>${esc(f.nome || ev.id)}</b>!${ev.presentes ? ` <small>(${ev.presentes} já ${ev.presentes === 1 ? "ganhou" : "ganharam"})</small>` : ""}</span>`;
+      } else if (ev.tipo === "zerarpedido") {
+        const o = { fitas: "as <b>fitas e amizades</b>", bordas: "as <b>bordas</b> (capturas por espécie)", tudo: "<b>fitas, amizades e bordas</b>",
+          geral: "<b>TUDO</b>: Pokémon capturados, parceiros, times, dinheiro, mochila, Pokédex, fitas, amizades, bordas e placar" }[ev.oque];
+        d.className = "aviso"; d.innerHTML = `<span class="t">⚠️ Isso apaga ${o} de <b>todo mundo</b>. Para confirmar, digite <b>${ev.oque === "geral" ? "!zerartudo" : "!zerarconquistas"} confirmo</b> em até 60 segundos</span>`;
+      } else if (ev.tipo === "zerarexpirou") {
+        d.className = "aviso"; d.innerHTML = `<span class="t">Nada foi apagado: o pedido expirou. Comece de novo</span>`;
+      } else if (ev.tipo === "zerado") {
+        const o = { fitas: "Fitas e amizades zeradas", bordas: "Bordas zeradas", tudo: "Fitas, amizades e bordas zeradas", geral: "Tudo zerado" }[ev.oque];
+        d.className = "aviso"; d.innerHTML = `<span class="t">🔄 <b>${o}</b> para todo mundo. Começa tudo de novo!</span>`;
       } else if (ev.tipo === "eventooff") {
         d.className = "aviso"; d.innerHTML = `<span class="t">Evento encerrado. Obrigado a todo mundo que participou! 💜</span>`;
       } else return;
