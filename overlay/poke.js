@@ -275,7 +275,7 @@
     21: "love", 22: "friend", 23: "moon", 24: "sport", 25: "dream", 26: "beast" };
   const u16 = (d, o) => d[o] | (d[o + 1] << 8), u32 = (d, o) => (d[o] | d[o + 1] << 8 | d[o + 2] << 16 | d[o + 3] << 24) >>> 0;
   USUM.decifrarPK7 = function (enc) {   // 232 bytes do Pokémon + 22 dos status de batalha, embaralhados pelo jogo
-    const pv = u32(enc, 0), sv = (pv >>> 13) & 31, x = new Uint8Array(enc.length - 8);
+    const pv = u32(enc, 0), sv = ((pv >>> 13) & 31) % 24, x = new Uint8Array(enc.length - 8);
     const passo = (ini, fim) => { let sd = pv; for (let i = ini; i < fim; i += 2) { sd = (Math.imul(sd, 0x41C64E6D) + 0x6073) >>> 0; const k = sd >>> 16; x[i - 8] = enc[i] ^ (k & 0xFF); x[i - 7] = enc[i + 1] ^ (k >>> 8); } };
     passo(8, 232); if (enc.length > 232) passo(232, enc.length);
     const out = new Uint8Array(enc.length); out.set(enc.subarray(0, 8), 0);
