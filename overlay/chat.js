@@ -356,6 +356,8 @@
       } else if (ev.tipo === "naoevolui") {
         d.className = "aviso";
         d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, ${ev.motivo === "semparceiro" ? "escolha um parceiro com !pokemon antes de evoluir" : ev.motivo === "cheio" ? "você já tem " + (ev.limite || 5) + " " + esc(ev.pnome || "") + ", solte um antes de evoluir" : esc(ev.pnome || "") + " não evolui mais"} (o streamer pode devolver os pontos)</span>`;
+      } else if (ev.tipo === "tempowild") {
+        d.className = "aviso"; d.innerHTML = `<span class="t">${ev.so ? "Tempo para capturar" : "Agora o selvagem fica"}: <b>${ev.seg} s</b> na tela</span>`;
       } else if (ev.tipo === "autooff" || ev.tipo === "autoon") {
         d.className = "aviso"; d.innerHTML = `<span class="t">Pokémon selvagens automáticos ${ev.tipo === "autoon" ? "ligados" : "desligados"}</span>`;
       } else if (ev.tipo === "eventoon") {
