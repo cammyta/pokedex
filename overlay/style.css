@@ -523,7 +523,7 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .aviso.surto { background: linear-gradient(90deg, rgba(120,200,120,.55), rgba(255,214,120,.35)); border-color: rgba(190,240,170,.7); }
 
 /* ---------- party pelo Citra: desmaiado fica apagadinho, HP baixo pisca um vermelho de leve ---------- */
-.slot.desmaiado .moldura-ret { filter: grayscale(.85) brightness(.75); }
+.slot.desmaiado .moldura-ret, .slot.desmaiado .moldura-ret img { filter: grayscale(1) brightness(.7) !important; }
 .slot.desmaiado .nome { opacity: .6; text-decoration: line-through; text-decoration-thickness: 1.5px; }
 .slot.hp-baixo .moldura-ret { animation: hp-baixo 1.6s ease-in-out infinite; }
 @keyframes hp-baixo { 50% { box-shadow: 0 0 0 2.5px rgba(255,110,110,.85), 0 0 16px rgba(255,90,90,.5); } }
