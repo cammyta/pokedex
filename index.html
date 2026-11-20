@@ -541,7 +541,7 @@
 
       <h2 id="j-selvagens">Pokémon selvagens</h2>
       <div class="passos">
-        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>4, 8, 10 ou 16 minutos</b>.</div>
+        <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>1, 4, 5, 7 ou 9 minutos</b>.</div>
         <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>12 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
         <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
         <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Quase sempre aparece a forma básica: a forma do meio tem 1% de chance, a última evolução 0,5% e lendários 2%. Shinies: 0,3%. Pokémon de Alola aparecem com mais frequência. Cada pessoa pode ter até 5 de cada Pokémon.</div>
@@ -557,7 +557,7 @@
         ${(window.USUM_BOLAS_LOJA || []).map((b) => bola(b.id, esc(b.nome), esc(b.efeito))).join("")}
       </table>
       <table class="tabela" style="margin-top:12px">
-        ${linha("Comprar", "Resgate a bola nos pontos do canal. Ela entra na sua mochila e <b>já fica equipada</b>")}
+        ${linha("Comprar", "Resgate a bola nos pontos do canal. Ela entra na sua mochila; para usar, equipe com <code>!ball nome</code>")}
         ${linha("!ball ultra", "Troca a bola equipada (só funciona com as que você tem na mochila). <code>!ball poke</code> volta para a Poké Ball e guarda as outras")}
         ${linha("!mochila", "Mostra quantas bolas de cada tipo você tem")}
         ${linha("Gasto", "Cada <code>!capturar</code> gasta 1 bola equipada, acertando ou não (menos a Heal Ball, que não gasta se o Pokémon escapar). Quando acaba, você volta para a Poké Ball sozinho")}
@@ -693,7 +693,7 @@
         ${linha("!info 1", "Abre na tela da live a ficha completa do Pokémon do quadrado 1 da party do Cammy (de 1 a 6): nível, natureza, habilidade, item, IVs, EVs, golpes e mais. Uma ficha por vez, no máximo a cada 20 s")}
         ${linha("!gostei / !naogostei", "No cineminha (watch party): vota se gostou do filme")}
       </table>
-      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 4, 8, 10 ou 16 minutos e fica 12 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando o Cammy joga no emulador, às vezes aparece o mesmo Pokémon que apareceu para ele no jogo.</p>
+      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 1, 4, 5, 7 ou 9 minutos e fica 12 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando o Cammy joga no emulador, às vezes aparece o mesmo Pokémon que apareceu para ele no jogo.</p>
 
       <h2 id="j-site">Chat aqui no site</h2>
       <p class="sub">O botão <b>💬 Chat da live</b> (canto de baixo) abre o chat da live com as fotinhas, equipes e fitas, igual aparece na stream. Embaixo fica a barra da Twitch para você escrever direto daqui; o <b>▲</b> abre mais espaço para escolher emotes. Para escrever, você precisa estar logado na Twitch neste navegador. A aba <b>Twitch</b> mostra o chat comum. Use <b>⧉ Desprender</b> para abrir o chat numa janela separada (no computador) ou em tela cheia (no celular), e deixar a live em outra tela.</p>
@@ -704,7 +704,7 @@
       ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada minuto. Se acabou de falar, espere um pouco e recarregue a página.")}
       ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada minuto. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
       ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 12 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
-      ${pergunta("Comprei uma bola e ela não aparece", "Ela já fica equipada na hora. Veja com <code>!mochila</code>. Se você trocou para outra com <code>!ball</code>, use <code>!ball</code> com o nome dela para voltar.")}
+      ${pergunta("Comprei uma bola e ela não aparece", "Ela vai para a mochila, mas não é equipada sozinha. Veja com <code>!mochila</code> e equipe com <code>!ball</code> e o nome dela (ex: <code>!ball ultra</code>).")}
       ${pergunta("Por que não consigo capturar mais um Pikachu?", "Cada pessoa pode ter no máximo <b>" + ((D && D.lim) || 5) + " de cada Pokémon</b>, para ninguém monopolizar. Com " + ((D && D.lim) || 5) + ", o <code>!capturar</code> daquele Pokémon não funciona: solte o mais fraco com <code>!release pikachu</code> e capture outro (quem sabe um mais forte!).")}
       ${pergunta("Capturei um Pokémon que não queria. Dá para tirar?", "Dá: <code>!release nome</code> solta o mais fraco daquela espécie (ou <code>!release nome 2</code> para escolher pelo número que aparece ao clicar nele na sua Pokédex) e depois <code>!release sim</code> para confirmar.")}
       ${pergunta("Mandei !trade e a pessoa não conseguiu aceitar", "A proposta dura 2 minutos e cada pessoa só pode ter uma esperando resposta. Confira se os dois ainda têm os Pokémon e se o nome está em inglês. Quem recebe responde só <code>!trade aceitar</code>.")}
@@ -730,7 +730,7 @@
       <div class="passos">
         <div><b>1</b>Na live${canal ? ` em <a href="https://twitch.tv/${esc(canal)}" target="_blank" rel="noopener">twitch.tv/${esc(canal)}</a>` : ""}, clique no ícone de <b>pontos do canal</b> embaixo da caixa de mensagem do chat.</div>
         <div><b>2</b>Escolha a recompensa da bola que você quer (ex: <b>Ultra Ball</b>), escreva qualquer coisa no campo de texto (ex: ok) e resgate.</div>
-        <div><b>3</b>A bola vai para a sua mochila e <b>já fica equipada</b>. No próximo Pokémon selvagem, é só digitar <code>!capturar</code>.</div>
+        <div><b>3</b>A bola vai para a sua mochila. Equipe com <code>!ball nome</code> (ex: <code>!ball ultra</code>) e, no próximo Pokémon selvagem, digite <code>!capturar</code>.</div>
         <div><b>4</b>Cada <code>!capturar</code> gasta 1 bola. Quando acaba, você volta para a Poké Ball sozinho.</div>
       </div>
       <table class="tabela" style="margin-top:14px">
