@@ -132,7 +132,9 @@
   };
   USUM.urlBola = (k) => "assets/bolas/" + (BOLAS[k] ? k : "poke") + "-ball.png";
 
-  USUM.nomeDe = (num) => ((window.USUM_DEX || [])[num - 1] || "#" + num).replace(/_/g, " ").replace(/ F$/, "♀").replace(/ M$/, "♂");
+  // nomes com pontuação (Mr. Mime, Mime Jr., Farfetch'd, Ho-Oh, Type: Null...) escritos certinho
+  const NOME_CERTO = { 29: "Nidoran♀", 32: "Nidoran♂", 83: "Farfetch'd", 122: "Mr. Mime", 250: "Ho-Oh", 439: "Mime Jr.", 474: "Porygon-Z", 669: "Flabébé", 772: "Type: Null", 782: "Jangmo-o", 783: "Hakamo-o", 784: "Kommo-o", 865: "Sirfetch'd", 866: "Mr. Rime", 1001: "Wo-Chien", 1002: "Chien-Pao", 1003: "Ting-Lu", 1004: "Chi-Yu" };
+  USUM.nomeDe = (num) => NOME_CERTO[num] || ((window.USUM_DEX || [])[num - 1] || "#" + num).replace(/_/g, " ").trim();
 
   // nem todo Pokémon tem todas as carinhas: usa a mais parecida antes de cair no Normal
   // carinha que falta -> tenta estas, na ordem (as carinhas feitas pelo canal nem sempre têm todas)
@@ -284,7 +286,8 @@
     return out;
   };
   // problema de status (igual aos jogos): dormindo, envenenado, queimado, congelado, paralisado
-  const statusDe = (st) => (st & 7 ? "dormindo" : st & 0x88 ? "envenenado" : st & 0x10 ? "queimado" : st & 0x20 ? "congelado" : st & 0x40 ? "paralisado" : "");
+  // Gen 7 guarda o status como número: 1 paralisado, 2 dormindo, 3 congelado, 4 queimado, 5 envenenado (6 = muito envenenado)
+  const statusDe = (st) => ({ 1: "paralisado", 2: "dormindo", 3: "congelado", 4: "queimado", 5: "envenenado", 6: "envenenado" }[st & 0xFF] || "");
   USUM.lerPK7 = function (d) {
     const especie = u16(d, 8);
     if (!especie || especie > 807) return null;
