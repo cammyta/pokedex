@@ -140,6 +140,7 @@
   .filtros input[type=search] { flex: 1; min-width: 160px; font: 14px "Poppins"; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda); border-radius: 999px; padding: 7px 14px; }
 
   .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .pk.reg img { opacity: .55; filter: saturate(.6); }
   .pk { position: relative; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 8px 8px 10px; text-align: center; }
   .pk img { width: 100%; aspect-ratio: 1; object-fit: contain; }
   .pk .n { font-size: 11px; color: var(--txt2); }
@@ -350,7 +351,8 @@
     return SPR + "other/home/" + (s ? "shiny/" : "") + id + ".png";
   };
   const mini = (n) => SPR + n + ".png";
-  const nome = (n) => (window.USUM_DEX || [])[n - 1] || "#" + n;
+  const NOME_CERTO = { 29: "Nidoran♀", 32: "Nidoran♂", 83: "Farfetch'd", 122: "Mr. Mime", 250: "Ho-Oh", 439: "Mime Jr.", 474: "Porygon-Z", 669: "Flabébé", 772: "Type: Null", 782: "Jangmo-o", 783: "Hakamo-o", 784: "Kommo-o", 865: "Sirfetch'd", 866: "Mr. Rime", 1001: "Wo-Chien", 1002: "Chien-Pao", 1003: "Ting-Lu", 1004: "Chi-Yu" };
+  const nome = (n) => NOME_CERTO[n] || ((window.USUM_DEX || [])[n - 1] || "#" + n).replace(/_/g, " ").trim();
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const nivel = (n) => "♥".repeat(n) + "♡".repeat(5 - n);
   const app = document.getElementById("app");
@@ -397,7 +399,7 @@
   }
   function stats(u) {
     const c = u.c || {}, ks = Object.keys(c);
-    return { esp: ks.length, total: ks.reduce((a, k) => a + c[k][0], 0), shiny: ks.filter((k) => c[k][1]).length,
+    return { esp: ks.length + (u.rg || []).filter((n) => !c[n]).length, total: ks.reduce((a, k) => a + c[k][0], 0), shiny: ks.filter((k) => c[k][1]).length,
       lend: ks.filter((k) => LEND.has(+k)).length, fitas: (u.f || []).length, amigos: (u.am || []).filter((a) => a[1] >= 5).length };
   }
 
@@ -900,14 +902,17 @@
 
   function grade(u) {
     const c = u.c || {}, q = busca.trim().toLowerCase();
-    let nums = filtro === "todos" ? Array.from({ length: TOTAL }, (_, i) => i + 1) : Object.keys(c).map(Number).sort((a, b) => a - b);
+    const reg = new Set(u.rg || []);   // já teve (evoluiu, trocou ou soltou): conta na Pokédex
+    let nums = filtro === "todos" ? Array.from({ length: TOTAL }, (_, i) => i + 1) : [...new Set([...Object.keys(c).map(Number), ...reg])].sort((a, b) => a - b);
     if (filtro === "shiny") nums = nums.filter((n) => c[n] && c[n][1]);
     if (q) nums = nums.filter((n) => nome(n).toLowerCase().includes(q) || String(n) === q);
     const g = document.getElementById("grade");
     if (!nums.length) { g.innerHTML = `<p class="vazio">${filtro === "cap" && !q ? "Nenhum Pokémon capturado ainda. Fique de olho na grama durante a live e digite !capturar!" : "Nada por aqui."}</p>`; return; }
     g.innerHTML = nums.map((n) => {
-      const e = c[n], tem = !!e, sh = tem && e[1] > 0;
-      const img = tem ? home(n, sh) : mini(n);
+      const e = c[n], tem = !!e, sh = tem && e[1] > 0, foi = !tem && reg.has(n);
+      const img = tem || foi ? home(n, sh) : mini(n);
+      if (foi) return `<div class="pk reg" data-n="${n}" title="Já teve: evoluiu, trocou ou soltou"><span class="q">📘</span>
+        <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b><span class="fz f-raz">registrado</span></div>`;
       const melhor = tem ? Math.max(0, ...individuos(e).map((x) => x.f)) : 0;
       return `<div class="pk ${tem ? "tem" : "falta"} ${sh ? "shiny" : ""} ${LEND.has(n) && tem ? "lend" : ""}" data-n="${n}">
         ${tem && e[0] > 1 ? `<span class="q">×${e[0]}</span>` : ""}
