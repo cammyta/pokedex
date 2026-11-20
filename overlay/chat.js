@@ -348,7 +348,7 @@
         d.className = "aviso"; d.innerHTML = `<span class="t">Recompensa <b>${esc(ev.nomeRecompensa || "")}</b> registrada ✓</span>`;
       } else if (ev.tipo === "comprou") {
         d.className = "aviso " + (times()[ev.login] || "");
-        d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(ev.bola)}"><span class="t"><b>${esc(ev.nome)}</b> comprou uma ${USUM.BOLAS[ev.bola]}! (tem ${ev.qtd}, já equipada)</span>`;
+        d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(ev.bola)}"><span class="t"><b>${esc(ev.nome)}</b> comprou uma ${USUM.BOLAS[ev.bola]}! (tem ${ev.qtd} · para usar: <b>!ball ${esc(ev.bola)}</b>)</span>`;
       } else if (ev.tipo === "evoluiu") {
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
@@ -365,7 +365,7 @@
       } else if (ev.tipo === "zerarpedido") {
         const o = { fitas: "as <b>fitas e amizades</b>", bordas: "as <b>bordas</b> (capturas por espécie)", tudo: "<b>fitas, amizades e bordas</b>",
           geral: "<b>TUDO</b>: Pokémon capturados, parceiros, times, dinheiro, mochila, Pokédex, fitas, amizades, bordas e placar" }[ev.oque];
-        d.className = "aviso"; d.innerHTML = `<span class="t">⚠️ Isso apaga ${o} de <b>todo mundo</b>. Para confirmar, digite <b>${ev.oque === "geral" ? "!zerartudo" : "!zerarconquistas"} confirmo</b> em até 60 segundos</span>`;
+        d.className = "aviso"; d.innerHTML = `<span class="t">⚠️ Isso apaga ${o} de <b>todo mundo</b>. Para confirmar, mande <b>${ev.oque === "geral" ? "!zerartudo" : "!zerarconquistas" + (ev.oque === "fitas" ? "" : " " + ev.oque)}</b> de novo em até 60 segundos</span>`;
       } else if (ev.tipo === "zerarexpirou") {
         d.className = "aviso"; d.innerHTML = `<span class="t">Nada foi apagado: o pedido expirou. Comece de novo</span>`;
       } else if (ev.tipo === "zerado") {
