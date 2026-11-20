@@ -115,6 +115,13 @@
       if (u.t) times[l] = u.t;
       if (u.eq) bolas[l] = u.eq;
     });
+    // quem trocou de parceiro aqui há pouco: vale a escolha nova até os dados da live alcançarem (no máximo 20 min)
+    const novos = ler("usum_parc_local", {}), agora = Date.now();
+    Object.entries(novos).forEach(([l, x]) => {
+      const pub = parc[l], igual = pub && pub.num === x.p.num && !!pub.shiny === !!x.p.shiny;
+      if (igual || agora - x.t > 20 * 60e3) delete novos[l]; else parc[l] = x.p;
+    });
+    gravar("usum_parc_local", novos);
     gravar("usum_parceiros", parc); gravar("usum_times", times); gravar("usum_bolas", bolas);
     if (D.pl) gravar("usum_placar", D.pl);
     // quem comprou filme do cartaz (balão de ingresso): [nome, [logins], posição na lista]
@@ -166,7 +173,9 @@
       const cx = usuario(m.login).c || {}, tem = cx[p.num];
       if (!m.dono && !INICIAIS.has(p.num) && !tem) return;
       p.shiny = !!(p.shiny && (m.dono || (tem && tem[1])));
-      const todos = ler("usum_parceiros", {}); todos[m.login] = p.kanto ? { num: p.num, forma: "", shiny: p.shiny, kanto: true } : { num: p.num, forma: p.forma, shiny: p.shiny }; gravar("usum_parceiros", todos);
+      const novo = p.kanto ? { num: p.num, forma: "", shiny: p.shiny, kanto: true } : { num: p.num, forma: p.forma, shiny: p.shiny };
+      const todos = ler("usum_parceiros", {}); todos[m.login] = novo; gravar("usum_parceiros", todos);
+      const loc = ler("usum_parc_local", {}); loc[m.login] = { p: novo, t: Date.now() }; gravar("usum_parc_local", loc);
       aviso(ler("usum_times", {})[m.login], `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
     }
   }
