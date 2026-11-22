@@ -356,6 +356,8 @@
       } else if (ev.tipo === "naoevolui") {
         d.className = "aviso";
         d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, ${ev.motivo === "semparceiro" ? "escolha um parceiro com !pokemon antes de evoluir" : ev.motivo === "cheio" ? "você já tem " + (ev.limite || 5) + " " + esc(ev.pnome || "") + ", solte um antes de evoluir" : esc(ev.pnome || "") + " não evolui mais"} (o streamer pode devolver os pontos)</span>`;
+      } else if (ev.tipo === "vitoria") {
+        d.className = "aviso " + ev.venc; d.innerHTML = `<span class="t">🏆 Equipe <b>${ev.venc === "sol" ? "Sol" : "Lua"}</b> venceu a live (${ev.sol} × ${ev.lua})! Quem é da equipe ganhou a Fita Memória de Batalha</span>`;
       } else if (ev.tipo === "tempowild") {
         d.className = "aviso"; d.innerHTML = `<span class="t">${ev.so ? "Tempo para capturar" : "Agora o selvagem fica"}: <b>${ev.seg} s</b> na tela</span>`;
       } else if (ev.tipo === "autooff" || ev.tipo === "autoon") {
@@ -851,7 +853,12 @@
       if (/^!(fita|minhasfitas)\b/.test(low)) return;            // viram aviso pelas fitas
       if ((m.dono || m.ajudante) && /^!(evento|darfita)\b/.test(low)) return;
       if (m.mod && /^!evento\b/.test(low)) return;
-      if (cmd === "!zerar" && (m.dono || m.ajudante)) { gravar("usum_placar", { sol: 0, lua: 0 }); gravar("usum_destaques", {}); atualizarPlacar(); return; }
+      if (cmd === "!zerar" && (m.dono || m.ajudante)) {
+        // guarda o placar final antes de zerar: as fitas da equipe vencedora (fitas.js) são dadas a partir dele
+        const pf = ler("usum_placar", { sol: 0, lua: 0 });
+        if ((pf.sol || pf.lua) && !(ler("usum_placar_final", {}).id === m.id)) gravar("usum_placar_final", { sol: pf.sol || 0, lua: pf.lua || 0, id: m.id, t: Date.now() });
+        gravar("usum_placar", { sol: 0, lua: 0 }); gravar("usum_destaques", {}); atualizarPlacar(); return;
+      }
       if (/^!(slot|party|time|tirar|trocar|ball|bola|pokebola|evoluir|apelido|shiny)2?\b/.test(low) && (m.dono || (USUM.podeParty && (USUM.podeParty(m) || USUM.podeParty(m, "2"))))) return;
       if (CFG.esconderComandos && txt.startsWith("!")) return;
 
