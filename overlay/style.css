@@ -353,7 +353,7 @@ canvas.estrelas { position: absolute; inset: 0; width: 100%; height: 100%; point
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%); }
 .fita-aba img { position: absolute; left: 50%; top: 7px; width: 40px; height: 40px; transform: translateX(-50%); object-fit: contain;
   filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); animation: fita-balanca 5s ease-in-out infinite; transform-origin: 50% 0; }
-@keyframes fita-balanca { 0%, 100% { transform: translateX(-50%) rotate(-4deg); } 50% { transform: translateX(-50%) rotate(4deg); } }
+@keyframes fita-balanca { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(2px); } }
 .msg.com-fita .corpo { padding-right: 62px; }
 .msg.com-fita .marca { right: 40px; opacity: .12; }
 
@@ -714,9 +714,9 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .fp-eletrico .e-raio.grosso { stroke: #5cc4ff; stroke-width: 7; }
 
 /* ---------- bordas da fotinha do chat (5/10/15/20 capturas da espécie, ou uma com força 100%) ---------- */
-.msg .av-caixa.borda::before { content: ""; position: absolute; left: 0; top: 0; width: 84px; height: 84px; border-radius: 22px; padding: 4px; z-index: 4; pointer-events: none;
+.msg .av-caixa.borda::before { content: ""; position: absolute; left: 0; top: 0; width: var(--av-lado, 84px); height: var(--av-lado, 84px); border-radius: var(--av-raio, 22px); padding: 4px; z-index: 4; pointer-events: none;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
-.msg .av-caixa.borda::after { content: ""; position: absolute; left: 0; top: 0; width: 84px; height: 84px; border-radius: 22px; z-index: 3; pointer-events: none; }
+.msg .av-caixa.borda::after { content: ""; position: absolute; left: 0; top: 0; width: var(--av-lado, 84px); height: var(--av-lado, 84px); border-radius: var(--av-raio, 22px); z-index: 3; pointer-events: none; }
 .msg .av-caixa.borda .av { box-shadow: none !important; border: 0 !important; outline: 0 !important; }
 /* bronze */
 .msg .av-caixa.borda-bronze::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #f0b07a, #9a5a2c 30%, #e8a46c 50%, #7a4220 75%, #d99060); animation: metal-brilho 3.2s linear infinite; }
@@ -749,7 +749,7 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .msg .av-caixa.borda-shiny::after { box-shadow: 0 0 16px rgba(255,236,150,.7), 0 0 28px rgba(255,200,240,.35); animation: borda-brilho 1.8s ease-in-out infinite; }
 .aviso.borda-nova.b-shiny { border-color: #ffe27a; box-shadow: 0 0 16px rgba(255,226,122,.45); }
 /* parceiro shiny: estrelinhas piscando em volta da foto (com qualquer borda) */
-.msg .av-caixa .sh-brilho { position: absolute; left: 0; top: 0; width: 84px; height: 84px; z-index: 5; pointer-events: none; }
+.msg .av-caixa .sh-brilho { position: absolute; left: 0; top: 0; width: var(--av-lado, 84px); height: var(--av-lado, 84px); z-index: 5; pointer-events: none; }
 .msg .av-caixa .sh-brilho i { position: absolute; font-style: normal; color: #fff6c9; text-shadow: 0 0 6px #ffe27a, 0 0 12px #fff; opacity: 0; animation: sh-pisca 2.2s ease-in-out infinite; }
 .msg .av-caixa .sh-brilho i:nth-child(1) { left: -6px; top: -6px; font-size: 16px; }
 .msg .av-caixa .sh-brilho i:nth-child(2) { right: -5px; top: 8px; font-size: 12px; animation-delay: .55s; }
