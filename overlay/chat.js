@@ -639,7 +639,7 @@
       if (cmd === "!borda" && USUM.selvagens && USUM.selvagens.bordasLiberadas) {
         const SV = USUM.selvagens, t = times()[m.login], pc = parceiroDe(m.login);
         if (!pc.num) { aviso(t, `<b>${esc(m.nome)}</b>, escolha um parceiro com <b>!pokemon</b> primeiro`); return; }
-        const pn = USUM.nomeDe(pc.num), lib = SV.bordasLiberadas(m.login, pc.num);
+        const pn = USUM.nomeDe(pc.num), lib = SV.bordasLiberadas(m.login, pc.num, !!pc.shiny);
         const arg = txt.split(/\s+/).slice(1).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
         const NOMES = { bronze: "bronze", prata: "prata", silver: "prata", ouro: "ouro", gold: "ouro", esmeralda: "esmeralda", emerald: "esmeralda",
           arcoiris: "arcoiris", rainbow: "arcoiris", shiny: "shiny", brilhante: "shiny", neon: "arcoiris", arcoirisneon: "arcoiris", nenhuma: "nenhuma", nenhum: "nenhuma", sem: "nenhuma", off: "nenhuma", tirar: "nenhuma",
@@ -887,7 +887,7 @@
       }
       // borda da fotinha conquistada com aquela espécie (bronze, prata, ouro, esmeralda ou arco-íris neon)
       if (CFG.mostrarParceiro && USUM.selvagens && USUM.selvagens.bordaDe) {
-        const pc = parceiroDe(m.login), b = pc.num ? (USUM.selvagens.bordaUsada || USUM.selvagens.bordaDe)(m.login, pc.num) : null;
+        const pc = parceiroDe(m.login), b = pc.num ? (USUM.selvagens.bordaUsada || USUM.selvagens.bordaDe)(m.login, pc.num, !!pc.shiny) : null;
         if (b && b.id) d.querySelector(".av-caixa").classList.add("borda", "borda-" + b.id);
         // parceiro shiny: estrelinhas brilhando em volta da foto, com qualquer borda (ou sem borda)
         if (pc.num && pc.shiny) { const cx = d.querySelector(".av-caixa"); cx.classList.add("parc-shiny"); cx.insertAdjacentHTML("beforeend", '<span class="sh-brilho"><i>✦</i><i>✧</i><i>✦</i><i>✧</i></span>'); }
