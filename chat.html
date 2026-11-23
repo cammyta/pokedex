@@ -44,7 +44,17 @@
   .compor .pe { display: flex; justify-content: space-between; margin: 5px 6px 0; font: 11px "Poppins", sans-serif; color: rgba(255,255,255,.5); }
   .compor .pe a { color: rgba(255,255,255,.6); }
   .compor .erro { color: #ffb3b3; }
-  .compor .rapidos { display: flex; gap: 6px; margin: 0 0 6px; overflow-x: auto; scrollbar-width: none; }
+  .compor .rapidos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0 0 6px; }
+  .compor .rapidos button { padding: 6px 4px !important; font-size: 12.5px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .compor .acao2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
+  .compor .acao2 button { border: 0; cursor: pointer; height: 46px; border-radius: 14px; font: 700 16px "Fredoka", "Poppins", sans-serif; color: #fff; letter-spacing: .3px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.35), inset 0 -3px 0 rgba(0,0,0,.2); }
+  .compor .acao2 .cap-b { background: linear-gradient(180deg, #ff5a5f, #d92b3a); }
+  .compor .acao2 .raid-b { background: linear-gradient(180deg, #ff9b3d, #e0582a); }
+  .compor .acao2 button:active { transform: translateY(1px); }
+  .compor .acao2 button:disabled { opacity: .55; cursor: wait; }
+  .compor .acao2 button.ok { animation: ok-b .4s ease-out; }
+  .compor .rapidos .tr-b.tem::after { content: "1"; display: inline-grid; place-items: center; margin-left: 4px; width: 16px; height: 16px; border-radius: 50%; background: #ff3b6b; font-size: 10px; }
   .compor .rapidos button { flex: none; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 999px; font: 600 13px "Fredoka", "Poppins", sans-serif; color: #fff;
     background: rgba(20,12,40,.75); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
   .compor .rapidos button.raid-b { background: linear-gradient(90deg, #ff3b6b, #ff8a3d); }
@@ -77,6 +87,33 @@
   .compor .topo-ed button { border: 0; cursor: pointer; padding: 6px 12px; border-radius: 999px; font: 600 12px "Fredoka", sans-serif; color: #fff; background: rgba(255,255,255,.14); margin-left: 4px; }
   .compor .nao-achou { margin-top: 8px; } .compor .nao-achou button { border: 0; cursor: pointer; padding: 6px 12px; border-radius: 999px; font: 600 12px "Fredoka", sans-serif; color: #fff; background: linear-gradient(90deg, #ffb347, #b07cff); }
   .compor .nao-achou small { color: rgba(255,255,255,.6); }
+  .compor .grade.mini { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); max-height: 190px; overflow: auto; }
+  .compor .grade.mini .slot img { width: 36px; height: 36px; }
+  .compor .tr-gente { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .compor .tr-gente button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; border: 0; cursor: pointer; padding: 8px 10px; border-radius: 12px; color: #fff; text-align: left;
+    background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.1); font: 600 13px "Fredoka", sans-serif; }
+  .compor .tr-gente small { font-weight: 400; color: rgba(255,255,255,.55); font-size: 11px; }
+  .compor .tr-jan { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin: 4px 0 10px; padding: 10px; border-radius: 14px;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.08), transparent 70%), rgba(40,80,160,.25); box-shadow: inset 0 0 0 1.5px rgba(140,190,255,.35); }
+  .compor .tr-card { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+  .compor .tr-card img { width: 64px; height: 64px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,.35); }
+  .compor .tr-card b { font: 600 13px "Fredoka", sans-serif; } .compor .tr-card small { color: rgba(255,255,255,.6); font-size: 11px; }
+  .compor .tr-vazio { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 14px; border: 1.5px dashed rgba(255,255,255,.3); font-size: 22px; color: rgba(255,255,255,.4); }
+  .compor .tr-seta { font-size: 22px; color: #9fd0ff; }
+  .compor .tr-acoes { display: flex; gap: 6px; margin: 0 0 8px; }
+  .compor .tr-acoes button { flex: 1; border: 0; cursor: pointer; padding: 9px 12px; border-radius: 12px; font: 600 13px "Fredoka", sans-serif; color: #fff; background: rgba(255,255,255,.12); }
+  .compor .tr-acoes button.prim { background: linear-gradient(90deg, #4fa3ff, #8a6bff); } .compor .tr-acoes button:disabled { opacity: .45; cursor: default; }
+  .compor .tr-aviso { margin: 4px 0 6px; color: rgba(255,255,255,.7); font-size: 12px; }
+  .compor .tr-ok { text-align: center; font: 600 15px "Fredoka", sans-serif; margin: 0 0 8px; opacity: 0; animation: tr-aparece .4s ease-out 1.7s forwards; } .compor .tr-ok small { display: block; font-weight: 400; font-size: 11px; color: rgba(255,255,255,.6); }
+  /* animaçãozinha: os dois Pokémon entram na Pokébola, a bola gira no meio e eles saem trocados de lado */
+  .compor .tr-jan.anim .tr-card:first-child { animation: tr-vai 1.8s ease-in-out forwards; }
+  .compor .tr-jan.anim .tr-card:last-child { animation: tr-vem 1.8s ease-in-out forwards; }
+  .compor .tr-bola { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, #fff 0 22%, #222 23% 32%, transparent 33%), linear-gradient(#ff4b5c 0 46%, #222 46% 54%, #f4f4f4 54%);
+    box-shadow: 0 0 0 2px #222, 0 0 14px rgba(255,255,255,.5); animation: tr-gira 1.8s ease-in-out forwards; }
+  @keyframes tr-vai { 0% { transform: none; } 30% { transform: translateX(40%) scale(.2); opacity: .2; } 70% { transform: translateX(160%) scale(.2); opacity: .2; } 100% { transform: translateX(calc(100% + 54px)) scale(1); opacity: 1; } }
+  @keyframes tr-vem { 0% { transform: none; } 30% { transform: translateX(-40%) scale(.2); opacity: .2; } 70% { transform: translateX(-160%) scale(.2); opacity: .2; } 100% { transform: translateX(calc(-100% - 54px)) scale(1); opacity: 1; } }
+  @keyframes tr-gira { 0% { transform: scale(.6); } 35%, 65% { transform: scale(1.35) rotate(540deg); box-shadow: 0 0 0 2px #222, 0 0 26px #fff6a0; } 100% { transform: scale(1) rotate(720deg); } }
+  @keyframes tr-aparece { to { opacity: 1; } }
   .compor .painel input.busca { position: sticky; top: 36px; z-index: 2; width: 100%; margin: 0 0 8px; padding: 6px 10px; border: 0; border-radius: 10px; background: rgba(255,255,255,.1); color: #fff; font: 13px "Poppins", sans-serif; }
   @keyframes ok-b { 40% { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(143,211,106,.7); } }
 </style>
@@ -186,6 +223,7 @@
 
   // comandos: só os que dão pra mostrar na hora sem estragar nada (o overlay da live é quem manda de verdade)
   function aoComando(m, cmd, txt, aviso) {
+    if (/^!(trade|troca|trocar)$/.test(cmd) && USUM.__aoTrade) { try { USUM.__aoTrade(m, txt); } catch (e) {} }
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     if (cmd === "!sol" || cmd === "!lua") {
       const t = ler("usum_times", {}), time = cmd.slice(1);
@@ -275,7 +313,7 @@
       const it = ((usuario(eu).rn || {}).it) || {}, mel = Math.max(0, (it.mel || 0) - melGasto), hiper = Math.max(0, (it["hiper-mel"] || 0) - hiperGasto);
       const usa = mel ? "!mel" : hiper ? "!hipermel" : "";
       b.dataset.t = usa || "!mel"; b.dataset.semMel = usa ? "" : "1";
-      b.textContent = usa === "!hipermel" ? `🍯 Hiper Mel (${hiper})` : `🍯 Usar Mel (${mel})`;
+      b.textContent = usa === "!hipermel" ? `🍯 Hiper (${hiper})` : `🍯 Mel (${mel})`;
       b.disabled = !usa; b.title = usa ? "" : "Sem Mel na mochila: ele vem do apiário do rancho";
     }
     USUM.__atualizarMel = atualizarMel;
@@ -298,8 +336,9 @@
         el.innerHTML = `<button class="entrar">🔑 Entrar com a Twitch para conversar aqui</button>`;
         el.querySelector(".entrar").onclick = entrar; return;
       }
-      el.innerHTML = `<div class="rapidos"><button type="button" data-t="!capturar">🎯 Capturar</button><button type="button" data-t="!atacar" class="raid-b">⚔️ Atacar na Raid</button><button type="button" data-t="!mel" class="mel-b">🍯 Usar Mel</button><button type="button" data-t="!itens">🎒 Itens</button><button type="button" class="abre" data-p="time">⭐ Time</button><button type="button" class="abre" data-p="bola">🔴 Bola</button><button type="button" class="abre" data-p="bolha">🫧 Bolha</button></div>
-        <div class="painel" hidden></div>
+      el.innerHTML = `<div class="painel" hidden></div>
+        <div class="rapidos"><button type="button" class="abre" data-p="time">⭐ Time</button><button type="button" class="abre" data-p="bola">🔴 Bola</button><button type="button" class="abre tr-b" data-p="trade">🔁 Trocar</button><button type="button" data-t="!mel" class="mel-b">🍯 Mel</button><button type="button" data-t="!itens">🎒 Itens</button><button type="button" class="abre" data-p="bolha">🫧 Bolha</button></div>
+        <div class="acao2"><button type="button" data-t="!capturar" class="cap-b">🎯 Capturar</button><button type="button" data-t="!atacar" class="raid-b">⚔️ Atacar</button></div>
         <form class="caixa"><div class="mini-av"></div><div class="meio"><span class="rot"></span>
           <input maxlength="500" placeholder="Mandar mensagem como ${eu}…" autocomplete="off"></div><button class="enviar" title="Enviar">➤</button></form>
         <div class="pe"><span>conversando como <b>${eu}</b> · <a href="#" class="sair">sair</a></span><span class="erro"></span></div>`;
@@ -340,6 +379,7 @@
             Object.keys(tem).filter((k) => USUM.BOLAS[k] && (k === "poke" || tem[k] > 0)).map((k) => `<button type="button" class="slot bola ${k === eq ? "atual" : ""}" data-bola="${k}"><img src="assets/bolas/${k}-ball.png" alt=""><span>${esc(USUM.BOLAS[k].replace(" Ball", ""))}</span><em>${k === "poke" ? "∞" : "×" + tem[k]}</em></button>`).join("") + `</div>`;
           return;
         }
+        if (qual === "trade") { desenharTroca(); return; }
         if (qual === "bolha") {
           const BO = { "": ["☀️🌙", "Equipe", "a da sua equipe Sol ou Lua"], rancho: ["🌱", "Rancho", "amizade perfeita no rancho"], cinefilo: ["🎬", "Cinéfilo", "ficar num filme até o fim"], neon: ["✨", "Neon", "capturar 50 shiny"], raid: ["⚔️", "Raid", "lutar em 10 Raids"] };
           const bh = u.bh || [[], ""], tem = new Set([""].concat(bh[0] || [])), usa = bh[1] || "";
@@ -370,9 +410,86 @@
             return `<div class="slot ${at ? "atual" : ""}"><button type="button" class="vira" data-parc="${n}" data-sh="${sh ? 1 : 0}">${fotinha(n, sh)}<span>${esc(nomeP(n))}${sh ? " ✦" : ""}</span>${at ? "<em>parceiro</em>" : ""}</button><button type="button" class="lapis" data-edita="${i}" title="Trocar">✏️</button></div>`; }).join("") + `</div>`;
         porFotinhas();
       }
+      /* ---- Troca: escolhe a pessoa, o seu Pokémon e (se quiser) o dela; quem recebe vê a oferta e aceita aqui ---- */
+      let troca = null;   // { modo: pessoa|montar|enviada|recebida|feita|recusou, com, nomeCom, dou:[n,sh], quero:[n,sh]|null }
+      const cartaoPk = (x, rot) => `<div class="tr-card">${x ? fotinha(x[0], x[1]) + `<b>${esc(nomeP(x[0]))}${x[1] ? " ✦" : ""}</b>` : `<span class="tr-vazio">?</span><b>—</b>`}<small>${rot}</small></div>`;
+      const janelinha = (a, b, ra, rb) => `<div class="tr-jan">${cartaoPk(a, ra)}<span class="tr-seta">⇄</span>${cartaoPk(b, rb)}</div>`;
+      const gradeCaixa = (login, sel, attr) => { const cx = usuario(login).c || {}, l = Object.keys(cx).map(Number).sort((a, b) => nomeP(a).localeCompare(nomeP(b)));
+        return l.length ? `<div class="grade mini">${l.map((n) => `<button type="button" class="slot ${sel && sel[0] === n ? "atual" : ""}" ${attr}="${n}" data-nome="${esc(nomeP(n).toLowerCase())}">${fotinha(n, cx[n][1] > 0 && cx[n][0] === cx[n][1])}<span>${esc(nomeP(n))}</span></button>`).join("")}</div>` : `<p class="tr-aviso">Sem Pokémon na caixa (ou ainda não apareceu no site).</p>`; };
+      const cmdPk = (x) => nomeP(x[0]).toLowerCase() + (x[1] ? " shiny" : "");
+      function desenharTroca() {
+        const t = troca;
+        if (!t || t.modo === "pessoa") {
+          const gente = Object.entries((D && D.t) || {}).filter(([l, x]) => l !== eu && x.c && Object.keys(x.c).length).sort((a, b) => (b[1].ul || 0) - (a[1].ul || 0)).slice(0, 60);
+          painel.innerHTML = `<h4>Trocar Pokémon <small>com quem?</small></h4><input class="busca" placeholder="Procurar pessoa"><div class="tr-gente">${gente.map(([l, x]) => `<button type="button" data-tr-pessoa="${esc(l)}" data-nome="${esc((x.n || l).toLowerCase())}"><b>${esc(x.n || l)}</b><small>${Object.keys(x.c).length} espécies</small></button>`).join("")}</div>`;
+          const bu = painel.querySelector(".busca"); bu.oninput = () => painel.querySelectorAll("[data-tr-pessoa]").forEach((b) => (b.style.display = b.dataset.nome.includes(bu.value.toLowerCase().trim()) || b.dataset.trPessoa.includes(bu.value.toLowerCase().trim()) ? "" : "none"));
+          return;
+        }
+        if (t.modo === "montar") {
+          painel.innerHTML = `<div class="topo-ed"><b>Troca com ${esc(t.nomeCom)}</b><span><button type="button" data-tr-voltar>← Pessoa</button></span></div>
+            ${janelinha(t.dou, t.quero, "você dá", "você quer")}
+            <div class="tr-acoes"><button type="button" class="prim" data-tr-propor ${t.dou ? "" : "disabled"}>Propor troca</button></div>
+            <h4>Você dá</h4>${gradeCaixa(eu, t.dou, "data-tr-dou")}
+            <h4>Você quer de ${esc(t.nomeCom)} <small>opcional: se não escolher, ela escolhe ao aceitar</small></h4>${gradeCaixa(t.com, t.quero, "data-tr-quero")}`;
+          porFotinhas(); return;
+        }
+        if (t.modo === "recebida") {
+          painel.innerHTML = `<h4>🔁 ${esc(t.nomeCom)} quer trocar com você!</h4>${janelinha(t.dou, t.quero, esc(t.nomeCom) + " dá", "você dá")}
+            ${t.quero ? "" : `<p class="tr-aviso">Escolha qual Pokémon seu vai na troca:</p>${gradeCaixa(eu, t.quero, "data-tr-meu")}`}
+            <div class="tr-acoes"><button type="button" class="prim" data-tr-aceitar ${t.quero ? "" : "disabled"}>Aceitar troca</button><button type="button" data-tr-recusar>Recusar</button></div>`;
+          porFotinhas(); return;
+        }
+        if (t.modo === "enviada") {
+          painel.innerHTML = `<h4>Troca enviada <small>esperando ${esc(t.nomeCom)} aceitar…</small></h4>${janelinha(t.dou, t.quero, "você dá", "você recebe")}
+            <div class="tr-acoes"><button type="button" data-tr-cancelar>Cancelar troca</button></div>`;
+          porFotinhas(); return;
+        }
+        if (t.modo === "recusou") {
+          painel.innerHTML = `<h4>${esc(t.nomeCom)} recusou a troca 😕</h4>${janelinha(t.dou, t.quero, "você dá", "você recebe")}<div class="tr-acoes"><button type="button" data-tr-nova>Nova troca</button></div>`;
+          porFotinhas(); return;
+        }
+        if (t.modo === "feita") {
+          painel.innerHTML = `<h4>🔁 Trocando…</h4><div class="tr-jan anim">${cartaoPk(t.dou, "")}<span class="tr-bola"></span>${cartaoPk(t.quero, "")}</div><p class="tr-ok">Troca feita! ✨ <small>a live confirma no chat</small></p><div class="tr-acoes"><button type="button" data-tr-nova>Nova troca</button></div>`;
+          porFotinhas(); return;
+        }
+      }
+      const abrirTroca = () => { if (painel.dataset.p !== "trade") abrirPainel("trade"); else desenharTroca(); };
+      // mensagens de troca que chegam no chat (de outras pessoas)
+      USUM.__aoTrade = (m, txt) => {
+        if (!eu || m.login === eu) return;
+        const arg = txt.replace(/^!\S+\s*/, "").trim(), acao = (arg.split(/\s+/)[0] || "").toLowerCase();
+        const pk = (x) => { const k = (x || "").trim().match(/^(.*?)(?:\s+(\d+))?$/), p = k && USUM.lerPokemon(k[1]); return p ? [p.num, p.shiny ? 1 : 0] : null; };
+        if (troca && troca.com === m.login && troca.modo === "enviada") {
+          if (/^(aceitar|aceito|sim|ok)$/.test(acao)) { if (!troca.quero) troca.quero = pk(arg.split(/\s+/).slice(1).join(" ")); troca.modo = "feita"; abrirTroca(); return; }
+          if (/^(recusar|recuso|nao|não|n)$/.test(acao)) { troca.modo = "recusou"; abrirTroca(); return; }
+        }
+        const mm = arg.match(/^@?(\w+)\s+(.+)$/);
+        if (mm && mm[1].toLowerCase() === eu) {
+          const [a, b] = mm[2].split(/\s+(?:por|pelo|pela|for)\s+/i), dou = pk(a);
+          if (!dou) return;
+          troca = { modo: "recebida", com: m.login, nomeCom: m.nome, dou, quero: b ? pk(b) : null, semPor: !b };
+          el.querySelector(".tr-b").classList.add("tem"); abrirTroca();
+        }
+        if (troca && troca.com === m.login && troca.modo === "recebida" && /^(cancelar|cancela)$/.test(acao)) { troca = null; el.querySelector(".tr-b").classList.remove("tem"); if (painel.dataset.p === "trade") desenharTroca(); }
+      };
       painel.addEventListener("click", (e) => {
         const b = e.target.closest("button"); if (!b) return;
         const u = eu_();
+        const d = b.dataset;
+        if (d.trPessoa) { troca = { modo: "montar", com: d.trPessoa, nomeCom: usuario(d.trPessoa).n || d.trPessoa, dou: null, quero: null }; desenharTroca(); painel.scrollTop = 0; return; }
+        if (d.trVoltar != null || d.trNova != null) { troca = null; el.querySelector(".tr-b").classList.remove("tem"); desenharTroca(); return; }
+        if (d.trDou) { const n = +d.trDou, cx = u.c || {}; troca.dou = [n, cx[n] && cx[n][1] > 0 && cx[n][0] === cx[n][1] ? 1 : 0]; desenharTroca(); return; }
+        if (d.trQuero) { const n = +d.trQuero, cx = usuario(troca.com).c || {}; troca.quero = troca.quero && troca.quero[0] === n ? null : [n, cx[n] && cx[n][1] > 0 && cx[n][0] === cx[n][1] ? 1 : 0]; desenharTroca(); return; }
+        if (d.trMeu) { const n = +d.trMeu, cx = u.c || {}; troca.quero = [n, cx[n] && cx[n][1] > 0 && cx[n][0] === cx[n][1] ? 1 : 0]; desenharTroca(); return; }
+        if (d.trPropor != null && troca.dou) { mandar(`!trade @${troca.com} ${cmdPk(troca.dou)}${troca.quero ? " por " + cmdPk(troca.quero) : ""}`); troca.modo = "enviada"; desenharTroca(); return; }
+        if (d.trCancelar != null) { mandar("!trade cancelar"); troca = null; desenharTroca(); return; }
+        if (d.trRecusar != null) { mandar("!trade recusar"); troca = null; el.querySelector(".tr-b").classList.remove("tem"); abrirPainel(""); return; }
+        if (d.trAceitar != null && troca.quero) {
+          mandar("!trade aceitar" + (troca.semPor ? " " + cmdPk(troca.quero) : ""));
+          troca.modo = "feita"; el.querySelector(".tr-b").classList.remove("tem");
+          // quem recebe mostra: o que ganha (dou do outro) ⇄ o que dá
+          desenharTroca(); return;
+        }
         if (b.dataset.bolha) { const id = b.dataset.bolha; mandar("!bolha " + id); u.bh = [(u.bh || [[]])[0] || [], id === "equipe" ? "" : id];
           const lb = ler("usum_bolhas", {}); lb[eu] = { tem: u.bh[0], usa: u.bh[1] }; gravar("usum_bolhas", lb); desenharPainel("bolha"); return; }
         if (b.dataset.bola) { const k = b.dataset.bola; mandar("!ball " + k); u.eq = k; desenharPainel("bola"); erro(""); return; }
@@ -402,7 +519,7 @@
         }
       });
       el.querySelectorAll(".abre").forEach((b) => b.onclick = () => { editando = -1; abrirPainel(painel.dataset.p === b.dataset.p ? "" : b.dataset.p); });
-      el.querySelectorAll(".rapidos button:not(.abre)").forEach((b) => b.onclick = () => {
+      el.querySelectorAll(".compor button[data-t]").forEach((b) => b.onclick = () => {
         if (b.dataset.semMel) { erro("Você não tem Mel na mochila 🍯"); return; }
         let t = b.dataset.t; erro("");
         if (t === "!mel" || t === "!hipermel") { if (t === "!mel") melGasto++; else hiperGasto++; setTimeout(atualizarMel, 50); }
