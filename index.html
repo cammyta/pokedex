@@ -1351,7 +1351,7 @@
     const pLoc = Math.max(tw.p || 0, login ? twLocal(login).p || 0 : 0), prox = pLoc >= L.length ? -1 : pLoc, usadas = Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, login ? twLocal(login).n || 0 : 0), meu = login && souEu(login); const alvo = prox < 0 ? 0 : prox;
     const nv = (i, pz) => { const t = T.timeDoLider("alola", i, pz); return `Nv. ${Math.min(...t.map((x) => x.lv))}–${Math.max(...t.map((x) => x.lv))}`; };
     const card = (Lid, i) => { const st = !u ? "" : ganhou.has(i) ? "tem" : i === prox ? "prox falta" : "falta";
-      return `<div class="tw-lid ${st} ${meu && i === alvo && usadas < T.CFG.porDia ? "meu" : ""}" data-i="${i}" tabindex="0" style="--tc:${TW_COR[Lid.tipo]}" title="Ver o time de ${esc(Lid.n)}">
+      return `<div class="tw-lid ${st} ${meu && i === alvo && (usadas < T.CFG.porDia || login === D.canal) ? "meu" : ""}" data-i="${i}" tabindex="0" style="--tc:${TW_COR[Lid.tipo]}" title="Ver o time de ${esc(Lid.n)}">
         ${u ? `<span class="ins" title="${ganhou.has(i) ? "Insígnia conquistada" : "Insígnia ainda não conquistada"}">${icInsignia(Lid)}</span>` : ""}
         ${spriteTreinador(Lid)}<b>${esc(Lid.n)}</b><small>${esc(Lid.tit)} · ${esc(NOME_TIPO[Lid.tipo] || Lid.tipo)}</small><small>${nv(i, false)}</small>
         <div class="tw-time">${Lid.time.map(([n], k) => `<img data-ret="${n}:0" alt="" title="${esc(nome(n))}" class="${k >= T.qtdLider(i, false) ? "pz" : ""}">`).join("")}</div></div>`; };
@@ -1384,7 +1384,7 @@
           <h3 style="margin:0">${esc(u.n)} na Torre de Alola</h3>
           <div class="tw-estojo" title="Estojo de insígnias">${L.map((x, i) => `<i style="--tc:${TW_COR[x.tipo]}" class="${ganhou.has(i) ? "" : "falta"} ${ganhouP.has(i) ? "pz" : ""}" title="${esc(x.n)}${ganhou.has(i) ? "" : " (falta)"}${ganhouP.has(i) ? " · pesadelo" : ""}">${icInsignia(x)}</i>`).join("")}</div>
           <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · subidas hoje: <b>${usadas}/${T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
-          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia ? "disabled" : ""}>${usadas >= T.CFG.porDia ? "Volte amanhã" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes. Quer que a party lute sozinha? Mande <code>!torre</code> com <b>${T.CFG.bitsAuto} bits</b> no chat da live.</small></div>`
+          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia && login !== D.canal ? "disabled" : ""}>${usadas >= T.CFG.porDia && login !== D.canal ? "Volte amanhã" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes. Quer que a party lute sozinha? Mande <code>!torre</code> com <b>${T.CFG.bitsAuto} bits</b> no chat da live.</small></div>`
             : barraLogin(login)}
           <div id="tw-replay"></div>` : `${barraLogin("")}<p class="sub">Entre com a Twitch para ver suas insígnias e batalhar clicando nos líderes.</p>`}</div>
       </section>`;
@@ -1393,8 +1393,8 @@
     app.querySelector("[data-tranca]").onclick = () => TWX.aviso("🔒 A Torre do Canal ainda está trancada. Dizem que o campeão de lá anda com um Kecleon…");
     app.querySelectorAll("[data-nevoa]").forEach((b) => (b.onclick = () => TWX.aviso(`🌫️ A Torre de ${esc(T.TORRES.find((t) => t.id === b.dataset.nevoa).n)} ainda está coberta de névoa.`)));
     app.querySelectorAll(".tw-lid").forEach((c) => { const i = +c.dataset.i;
-      const abrir = () => (meu && i === alvo && usadas < T.CFG.porDia ? batalharTorre(u, login, true) : fichaLider(i));
-      if (meu && i === alvo && usadas < T.CFG.porDia) c.title = `Clique para batalhar com ${L[i].n}`; c.onclick = abrir; c.onkeydown = (e) => { if (e.key === "Enter") abrir(); }; });
+      const abrir = () => (meu && i === alvo && (usadas < T.CFG.porDia || login === D.canal) ? batalharTorre(u, login, true) : fichaLider(i));
+      if (meu && i === alvo && (usadas < T.CFG.porDia || login === D.canal)) c.title = `Clique para batalhar com ${L[i].n}`; c.onclick = abrir; c.onkeydown = (e) => { if (e.key === "Enter") abrir(); }; });
     const btB = app.querySelector("[data-batalhar]"); if (btB) btB.onclick = () => batalharTorre(u, login);
     if (u && u.tl && u.tl.l && u.tl.l.length) assistirTorre(document.getElementById("tw-replay"), u, u.tl);
   }
@@ -1411,8 +1411,8 @@
     img.src = l[0];
   }
   const TW_LOCAL = "pokedex_torre_local";
-  function twLocal(login) { try { const v = (JSON.parse(localStorage.getItem(TW_LOCAL) || "{}")[login]) || {}; return v.d === hojeStr() ? v : { d: hojeStr() }; } catch (e) { return { d: hojeStr() }; } }
-  function twLocalMudar(login, fn) { try { const t = JSON.parse(localStorage.getItem(TW_LOCAL) || "{}"); const v = twLocal(login); fn(v); t[login] = v; localStorage.setItem(TW_LOCAL, JSON.stringify(t)); } catch (e) {} }
+  function twLocal(login) { try { const v = (JSON.parse(localStorage.getItem(TW_LOCAL) || "{}")[login]) || {}; return v.d === hojeStr() && (!D || !v.t || v.t > Date.parse(D.em) - 60e3) ? v : { d: hojeStr() }; } catch (e) { return { d: hojeStr() }; } }
+  function twLocalMudar(login, fn) { try { const t = JSON.parse(localStorage.getItem(TW_LOCAL) || "{}"); const v = twLocal(login); fn(v); v.t = Date.now(); t[login] = v; localStorage.setItem(TW_LOCAL, JSON.stringify(t)); } catch (e) {} }
   function partyDoSite(u) {
     const l = [], viu = new Set(), c = u.c || {};
     [u.p && u.p[0] ? [u.p[0], u.p[1] ? 1 : 0] : null].concat(((u.tms || {}).live) || []).forEach((x) => {
@@ -1428,7 +1428,7 @@
   function batalharTorre(u, login, direto) {
     const T = USUM.torre, L = T.ALOLA, tw = (u.rn && u.rn.tw) || {}, loc = twLocal(login);
     const usadas = Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, loc.n || 0);
-    if (usadas >= T.CFG.porDia) { TWX.aviso(`Você já usou as ${T.CFG.porDia} subidas de hoje. Volte amanhã!`, true); return; }
+    if (usadas >= T.CFG.porDia && login !== D.canal) { TWX.aviso(`Você já usou as ${T.CFG.porDia} subidas de hoje. Volte amanhã!`, true); return; }
     let pesadelo = false, ordem = partyDoSite(u);
     if (!ordem.length) { TWX.aviso("Monte sua party primeiro: escolha um parceiro e salve um time (botão ⭐ Time no chat do site)", true); return; }
     const proxDe = (pz) => { const k = pz ? "pp" : "p"; let i = Math.max(tw[k] || 0, loc[k] || 0); return i >= L.length ? 0 : i; };
