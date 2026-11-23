@@ -141,6 +141,100 @@
 
   .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
   .pk.reg img { opacity: .55; filter: saturate(.6); }
+  /* ---------- 🗼 Torre dos Líderes ---------- */
+  .tw-cena { position: relative; margin: 14px 0 10px; border-radius: 20px; overflow: hidden; border: 1px solid var(--borda); aspect-ratio: 2752 / 1536; background: #1c1630 url(assets/rancho/torre-cena.jpg) center/cover no-repeat; image-rendering: pixelated; }
+  .tw-cena::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: #fff; opacity: 0; animation: tw-raio 11s infinite; }
+  @keyframes tw-raio { 0%, 61%, 63.5%, 100% { opacity: 0; } 62% { opacity: .16; } 62.6% { opacity: .02; } 63% { opacity: .1; } }
+  .tw-hot { position: absolute; border-radius: 14px; cursor: pointer; background: none; padding: 0; border: 0; }
+  .tw-hot span { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); white-space: nowrap; font: 600 13px "Fredoka", sans-serif; padding: 4px 10px; border-radius: 999px; background: rgba(10,8,20,.78); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  .tw-hot.aberta span { background: linear-gradient(90deg, #0f8f85, #e08a2c); }
+  .tw-hot.aberta:hover, .tw-hot.aberta:focus-visible { box-shadow: 0 0 0 2px #ffd25a, 0 0 30px rgba(255,210,90,.45); outline: none; }
+  .tw-hot.trancada span { background: rgba(60,20,90,.85); } .tw-hot.trancada:hover { box-shadow: 0 0 0 2px rgba(200,140,255,.7), 0 0 26px rgba(170,90,255,.45); }
+  .tw-hot.nevoa { width: 6%; height: 18%; } .tw-hot.nevoa span { opacity: 0; transition: opacity .2s; bottom: auto; top: -8px; font-size: 12px; } .tw-hot.nevoa:hover span, .tw-hot.nevoa:focus-visible span { opacity: 1; }
+  .tw-lista { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .tw-lista span { font: 600 13px "Fredoka", sans-serif; padding: 5px 11px; border-radius: 999px; background: var(--card); color: var(--txt2); border: 1px solid var(--borda); }
+  .tw-lista span.aberta { color: #fff; background: linear-gradient(90deg, rgba(15,143,133,.55), rgba(224,138,44,.45)); border-color: #ffd25a; }
+  .tw-lista span.trancada { color: #e6cfff; border-color: rgba(170,90,255,.5); }
+  .tw-painel { border-radius: 22px; padding: 18px; margin-bottom: 18px; border: 1px solid rgba(255,210,90,.35);
+    background: radial-gradient(ellipse at 100% 0, rgba(255,170,80,.22), transparent 50%), linear-gradient(160deg, rgba(15,110,104,.55), rgba(20,40,60,.75) 55%, rgba(30,20,50,.85)); }
+  .tw-painel h3 { margin: 0 0 4px; font: 600 24px "Fredoka", sans-serif; } .tw-painel > p { margin: 4px 0 12px; color: #d7efe9; max-width: 70ch; }
+  .tw-regras { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin: 10px 0 16px; padding: 0; list-style: none; }
+  .tw-regras li { background: rgba(0,0,0,.22); border-radius: 12px; padding: 9px 12px; font-size: 13.5px; }
+  .tw-regras b { color: #ffe7a8; }
+  .tw-etapa { margin: 14px 0 6px; font: 600 15px "Fredoka", sans-serif; color: #ffe7a8; }
+  .tw-lideres { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tw-lid { position: relative; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 10px 10px 8px; text-align: center; cursor: pointer; border-top: 4px solid var(--tc, #888); }
+  .tw-lid:hover, .tw-lid:focus-visible { border-color: rgba(255,231,168,.6); border-top-color: var(--tc); outline: none; }
+  .tw-lid .tr-spr { height: 92px; width: auto; max-width: 100%; image-rendering: pixelated; display: block; margin: 0 auto; }
+  .tw-lid .tr-sem { height: 92px; display: grid; place-items: center; font-size: 46px; }
+  .tw-lid b { display: block; font: 600 15px "Fredoka", sans-serif; } .tw-lid small { display: block; color: #cfe3df; font-size: 12px; }
+  .tw-lid .ins { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; background: var(--tc); box-shadow: 0 0 0 2px #ffe7a8, 0 0 10px var(--tc); }
+  .tw-lid.falta .ins { filter: grayscale(1) brightness(.5); box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+  .tw-lid.prox { box-shadow: 0 0 0 2px #ffd25a, 0 0 18px rgba(255,210,90,.35); }
+  .tw-lid.prox::before { content: "próximo"; position: absolute; top: 8px; left: 8px; font: 600 11px "Fredoka", sans-serif; padding: 1px 7px; border-radius: 999px; background: #ffd25a; color: #3a2400; }
+  .tw-time { display: flex; justify-content: center; gap: 2px; margin-top: 6px; flex-wrap: wrap; }
+  .tw-time img { width: 30px; height: 30px; object-fit: contain; image-rendering: pixelated; border-radius: 6px; background: rgba(255,255,255,.07); }
+  .tw-time img.pz { opacity: .35; }
+  .tw-ficha .tr-spr { height: 120px; image-rendering: pixelated; }
+  .tw-ficha .tw-ftime { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .tw-ficha .tw-fpk { display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,.05); border-radius: 12px; padding: 6px; }
+  .tw-ficha .tw-fpk img { width: 52px; height: 52px; border-radius: 8px; image-rendering: pixelated; object-fit: contain; background: rgba(0,0,0,.25); }
+  .tw-ficha .tw-fpk.pz { opacity: .55; } .tw-ficha .tw-fpk small { display: block; color: var(--txt2); font-size: 11.5px; }
+  .tw-eu { border-radius: 18px; padding: 14px; background: rgba(0,0,0,.25); margin-top: 16px; }
+  .tw-estojo { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+  .tw-estojo i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 17px; background: var(--tc); box-shadow: 0 0 0 2px #ffe7a8, 0 0 10px var(--tc); }
+  .tw-estojo i.falta { background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 2px rgba(255,255,255,.15); filter: grayscale(1); opacity: .5; }
+  .tw-estojo i.pz { box-shadow: 0 0 0 2px #c58bff, 0 0 12px #9b4dff; }
+  .tw-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .tw-botoes button { font: 600 15px "Fredoka", sans-serif; padding: 10px 18px; border-radius: 14px; }
+  .tw-botoes .pesadelo { background: linear-gradient(90deg, #4b1a7a, #8a2b6a); color: #fff; }
+  /* arena do replay */
+  .tw-replay { margin-top: 16px; }
+  .tw-arena { position: relative; height: 330px; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,231,168,.3);
+    background: linear-gradient(180deg, #2fb9c9 0%, #8fe0d6 38%, #ffd9a0 39%, #f2c27a 62%, #e0a85e 100%); }
+  .tw-arena.pz { background: linear-gradient(180deg, #2b1440 0%, #5a2a6e 38%, #3b2a3e 39%, #2a1d30 100%); }
+  .tw-arena::before { content: ""; position: absolute; left: 8%; right: 8%; top: 39%; height: 8px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 18px, transparent 18px 36px); opacity: .5; }
+  .tw-pal { position: absolute; bottom: 0; font-size: 64px; filter: drop-shadow(0 4px 2px rgba(0,0,0,.2)); opacity: .9; }
+  .tw-lado { position: absolute; display: flex; align-items: flex-end; gap: 10px; }
+  .tw-lado.op { right: 14px; top: 14px; flex-direction: row-reverse; align-items: flex-start; }
+  .tw-lado.eu { left: 14px; bottom: 14px; }
+  .tw-ret { width: 104px; height: 104px; border-radius: 10px; background: #f8f8f8; border: 4px solid #2b2b2b; box-shadow: 0 0 0 2px #fff, 0 6px 14px rgba(0,0,0,.35); overflow: hidden; transition: filter .3s, transform .3s; }
+  .tw-ret img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; display: block; }
+  .tw-ret.bate { animation: tw-bate .45s; } .tw-ret.ataca { animation: tw-ataca .4s; }
+  .tw-ret.ko { filter: grayscale(1) brightness(.7); transform: translateY(10px) scale(.92); }
+  @keyframes tw-bate { 0%, 100% { transform: none; } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+  @keyframes tw-ataca { 50% { transform: scale(1.08) translateY(-4px); } }
+  .tw-info { min-width: 170px; background: rgba(20,22,30,.86); color: #fff; border-radius: 12px; padding: 7px 10px; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+  .tw-info b { font: 600 15px "Fredoka", sans-serif; } .tw-info small { margin-left: 6px; color: #c9d4d8; }
+  .tw-hp { height: 8px; border-radius: 999px; background: rgba(255,255,255,.15); margin: 5px 0 4px; overflow: hidden; }
+  .tw-hp i { display: block; height: 100%; width: 100%; background: #4fd67a; transition: width .5s ease-out, background .3s; }
+  .tw-hp i.a { background: #f5c542; } .tw-hp i.v { background: #ef5350; }
+  .tw-pips { display: flex; gap: 3px; } .tw-pips i { width: 9px; height: 9px; border-radius: 50%; background: #e94b4b; box-shadow: inset 0 -3px 0 #fff; }
+  .tw-pips i.caiu { background: #555; box-shadow: inset 0 -3px 0 #888; }
+  .tw-treinador { position: absolute; right: 136px; top: 8px; height: 120px; image-rendering: pixelated; opacity: 0; transition: opacity .3s; filter: drop-shadow(0 4px 4px rgba(0,0,0,.3)); }
+  .tw-treinador.on { opacity: 1; }
+  .tw-num { position: absolute; font: 700 22px "Fredoka", sans-serif; color: #fff; -webkit-text-stroke: 1px #6a0f0f; text-shadow: 0 2px 0 #a81d1d; animation: tw-sobe .9s ease-out forwards; pointer-events: none; }
+  .tw-num.crit { color: #ffe066; font-size: 28px; }
+  @keyframes tw-sobe { 0% { opacity: 0; transform: translateY(6px) scale(.8); } 20% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-34px); } }
+  .tw-fala { display: flex; gap: 12px; align-items: center; min-height: 92px; margin-top: 10px; background: #fbfbf4; color: #20232a; border-radius: 16px; padding: 10px 14px; border: 3px solid #2b2b2b; box-shadow: inset 0 0 0 3px #e9dfb4; }
+  .tw-fala .tw-quem { width: 70px; height: 70px; flex: none; object-fit: cover; object-position: top; image-rendering: pixelated; border-radius: 12px; background: #e7f4ef; border: 2px solid #2b2b2b; }
+  .tw-fala .tw-quem.pk { object-fit: contain; }
+  .tw-fala > div > b { display: block; font: 600 14px "Fredoka", sans-serif; color: #0f8f85; }
+  .tw-play[hidden] { display: none; }
+  .tw-fala p { margin: 2px 0 0; font-size: 15.5px; line-height: 1.4; }
+  .tw-ctrl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+  .tw-ctrl button { padding: 6px 12px; font-size: 13.5px; }
+  .tw-lutas { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .tw-lutas button { padding: 4px 9px; font-size: 12.5px; border-radius: 999px; background: rgba(255,255,255,.08); color: #fff; }
+  .tw-lutas button.v { box-shadow: inset 0 0 0 1.5px #4fd67a; } .tw-lutas button.d { box-shadow: inset 0 0 0 1.5px #ef5350; }
+  .tw-lutas button.on { background: #ffd25a; color: #3a2400; }
+  .tw-play { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10,20,30,.45); border: 0; color: #fff; font: 600 20px "Fredoka", sans-serif; cursor: pointer; border-radius: 0; }
+  .tw-play span { padding: 14px 26px; border-radius: 999px; background: linear-gradient(90deg, #0f8f85, #e08a2c); box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+  .tw-xp { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tw-xp span { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.25); border-radius: 999px; padding: 3px 10px 3px 3px; font-size: 13px; }
+  .tw-xp img { width: 28px; height: 28px; object-fit: contain; }
+  @media (max-width: 640px) { .tw-arena { height: 270px; } .tw-ret { width: 78px; height: 78px; } .tw-info { min-width: 128px; } .tw-treinador { height: 84px; right: 100px; } .tw-hot.nevoa { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .tw-cena::after { animation: none; } .tw-ret.bate, .tw-ret.ataca { animation: none; } }
   .pk.vis img { opacity: .35; filter: grayscale(1) brightness(.8); }
   .pk .na-box { display: block; margin-top: 3px; font-size: 11px; color: var(--txt2); }
   .dex-prog { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 14px; text-align: center; }
@@ -566,6 +660,7 @@
     <a href="?p=jogar" data-p="jogar">📖 Como jogar</a>
     <a href="?p=bolas" data-p="bolas">⚪ Pokébolas</a>
     <a href="?p=fotos" data-p="fotos">🧢 Fotos de treinador</a>
+    <a href="?p=torre" data-p="torre">🗼 Torre</a>
     <a href="?p=novidades" data-p="novidades">📰 Patch Notes</a>
     <a href="?p=perfil" data-p="perfil" id="nav-perfil">⭐ Meu perfil</a>
   </nav>
@@ -587,6 +682,7 @@
 <script src="overlay/golpes.js"></script>
 <script src="overlay/tipos.js"></script>
 <script src="overlay/rancho.js"></script>
+<script src="overlay/torre.js"></script>
 <script>
 (function () {
   const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
@@ -767,7 +863,7 @@
       const n = await baixarGist(GIST);
       if (!n || !n.t || n.em === D.em) return;
       D = n; window.__pokedexDados = n;
-      const ocupado = document.querySelector(".ficha-fundo") || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+      const ocupado = document.querySelector(".ficha-fundo, .tw-arena.ativo") || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
       const rodape = document.getElementById("rodape"); if (rodape) rodape.textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       if (!ocupado) { const y = scrollY; rota(); scrollTo(0, y); }
     } catch (e) {}
@@ -787,6 +883,7 @@
     if (pag === "creditos") { marcar(""); return paginaCreditos(); }
     if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
     if (pag === "bolas") { marcar("bolas"); return paginaBolas(); }
+    if (pag === "torre") { marcar("torre"); return paginaTorre(login); }
     if (login) { marcar("perfil"); return perfil(login); }
     if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada minuto durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
     marcar("inicio"); inicio(u);
@@ -806,6 +903,12 @@
 
   /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
   const PATCH = [
+    { v: "Torre", d: "23/11/2026", t: "Torre dos Líderes", itens: [
+      ["🗼", "Torre de Alola aberta", "Suba com <code>!torre</code> (ou pelo botão na página 🗼 Torre): 8 capitães, os 4 Kahunas e o Kukui de campeão. Sua party luta sozinha, líder por líder, até perder."],
+      ["🏅", "Insígnias e XP", "Cada líder vencido dá uma insígnia e XP para todos os Pokémon da party. Dá para subir 2 vezes por dia, e o progresso fica salvo."],
+      ["🎬", "Assista à batalha", "A última subida aparece na página da torre, com as falas dos líderes e as reações dos Pokémon."],
+      ["🌺", "Bolha e borda da torre", "Vencer o Kukui dá a bolha Torre de Alola e a borda Torre de Alola nos Pokémon da party. Depois disso abre o <b>modo pesadelo</b> 😈."],
+      ["🔒", "Outras torres", "A Torre do Canal está trancada por enquanto... e as das outras regiões ainda estão na névoa."]] },
     { v: "Box", d: "23/11/2026", t: "Pokédex e Box separadas", itens: [
       ["📖", "Pokédex", "Agora a Pokédex é a lista das espécies: as que você <b>viu</b> (tentou capturar) e as que você <b>capturou</b>, com o progresso até 807."],
       ["📦", "Box", "A aba Box mostra cada Pokémon guardado, um por um, com nível, força, apelido e item. Dá para procurar e ordenar por força, nível ou data."],
@@ -1002,6 +1105,7 @@
         ${linha("!forjar great", "A forja faz Pokébolas com Essência, Apricorn e Minério. Precisa ter na caixa um Pokémon de <b>Aço, Terra ou Pedra</b> e um de <b>Fogo</b> (os mais fortes trabalham sozinhos; para escolher: <code>!forja geodude litten</code>). <code>!forjar great 5</code> faz 5 vezes. Também forja as bolas de Johto e as varas de pesca (<code>!forjar vara boa</code>)")}
         ${linha("!mel / !hipermel", "Uma abelha da sua caixa (<b>Cutiefly, Ribombee, Combee ou Vespiquen</b>) faz Mel no apiário do rancho durante a live, devagar: mais ou menos 1 a cada 30 minutos, e às vezes a abelha volta sem nada (<code>!apiario cutiefly</code> escolhe qual). <code>!mel</code> chama um Pokémon selvagem na live. <code>!hipermel</code> tem 10% de chance de vir um Pokémon na última forma e 0,1% de um lendário")}
         ${linha("Check-in", "Na sua primeira mensagem de cada live você faz check-in e ganha 2 Great Balls, 1 Mel, 3 Essências e 1 Apricorn. A cada 5 dias seguidos ganha também 1 Ultra Ball e 1 Hiper Mel")}
+        ${linha("!torre", "Sobe a <b>Torre dos Líderes de Alola</b> com a sua party (parceiro + time salvo): capitães com 3 Pokémon, os 4 Kahunas e o Kukui com 6. A party luta sozinha, líder por líder, até perder. Cada vitória dá insígnia e XP para todos da party. <b>2 subidas por dia</b>; o progresso fica salvo. <code>!torre pesadelo</code> abre depois de vencer tudo, e <code>!insignias</code> mostra seu estojo. Veja a batalha na página <a href='?p=torre'>🗼 Torre</a>")}
         ${linha("!atacar (Raid)", "Quando o streamer abre uma <b>Raid</b>, aparece um Pokémon chefe 80% mais forte, com HP enorme, por 3 minutos. Digite <code>!atacar</code> (ou use o botão ⚔️ no chat do site) para atacar com o seu parceiro: a força dele, o estágio e o tipo contam. O chefe revida e deixa alguns parceiros fora de combate por um tempinho. Se ele cair, todo mundo que lutou ganha Essência e só quem lutou pode tentar capturar")}
         ${linha("!pedreira geodude", "Um Pokémon de <b>Pedra</b> ou <b>Terra</b> da sua caixa quebra pedra na pedreira do rancho durante a live (se você não escolher, o mais forte vai sozinho). A cada 8 minutos mais ou menos ele acha algo: quase sempre <b>Minério</b> para a forja, às vezes Pó Estelar e, com sorte, <b>pedras de evolução</b> e <b>Revestimento Metálico</b> (só vem daqui; Magneton precisa dele e do nível 30 para virar Magnezone). Mais forte, mais rápido. Vai direto para a mochila")}
         ${linha("!colher", "A horta tem 3 canteiros. Com um Pokémon de <b>Água</b> (rega) e um de <b>Grama</b> na caixa, o de Grama <b>planta sozinho</b> nos canteiros vazios durante a live, de graça. A cor do Apricorn depende do tipo dele: Grama/Fogo planta vermelho, Grama/Fada rosa, Grama/Veneno preto, só Grama verde (e às vezes vem uma surpresa). Em até 45 minutos dá 2 ou 3 Apricorns: <code>!colher</code>. Quer uma cor certa? Plante o seu com <code>!plantar azul</code>. <code>!horta squirtle bulbasaur</code> escolhe os ajudantes")}
@@ -1155,6 +1259,208 @@
     if (location.hash) { const alvo = document.querySelector(location.hash); if (alvo) alvo.scrollIntoView(); }
   }
 
+  /* ---------- 🗼 Torre dos Líderes (os dados, as falas e a batalha vêm do overlay/torre.js) ---------- */
+  const TW_COR = { normal: "#a8a77a", fire: "#ee8130", water: "#6390f0", grass: "#7ac74c", electric: "#f7d02c", ice: "#96d9d6", fighting: "#c22e28", poison: "#a33ea1", ground: "#e2bf65", flying: "#a98ff3", psychic: "#f95587", bug: "#a6b91a", rock: "#b6a136", ghost: "#735797", dragon: "#6f35fc", dark: "#705746", steel: "#b7b7ce", fairy: "#d685ad" };
+  const TW_IC = { normal: "⚪", water: "💧", fire: "🔥", grass: "🌿", electric: "⚡", ghost: "👻", fairy: "🌸", steel: "⚙️", fighting: "👊", rock: "🪨", dark: "🌑", ground: "⛰️" };
+  const icInsignia = (L) => (L.campeao ? "🏆" : TW_IC[L.tipo] || "🏅");
+  const PMD_RET = "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/portrait/";
+  const EMO_PAR = { Pain: ["Worried"], Determined: ["Inspired", "Happy"], Joyous: ["Happy"], Dizzy: ["Pain", "Worried"], Angry: ["Determined"] };
+  function urlsRetrato(n, s, emo) {
+    const f = ALOLA_CAIXA.has(n) ? "/0001" : "", base = PMD_RET + pad4(n) + f + (s ? (f ? "/0001" : "/0000/0001") : "");
+    return [...(emo && emo !== "Normal" ? [emo, ...(EMO_PAR[emo] || [])].map((e) => base + "/" + e + ".png") : []), base + "/Normal.png", PMD_RET + pad4(n) + "/Normal.png", home(n, s)];
+  }
+  const retCache = new Map();   // "n:s:emo" → endereço que funcionou
+  function porRetrato(img, n, s, emo) {
+    const k = n + ":" + (s ? 1 : 0) + ":" + (emo || "Normal");
+    if (retCache.has(k)) { img.src = retCache.get(k); return; }
+    const l = urlsRetrato(n, s, emo); let i = 0; const t = new Image();
+    t.onload = () => { retCache.set(k, t.src); if (img.dataset.k === k) img.src = t.src; };
+    t.onerror = () => { if (++i < l.length) t.src = l[i]; };
+    img.dataset.k = k; t.src = l[0];
+  }
+  function spriteTreinador(L, cls) { return `<img class="${cls || "tr-spr"}" alt="" data-sp="${esc(JSON.stringify(L.sp || []))}">`; }
+  function ligarSprites(raiz) {
+    raiz.querySelectorAll("img[data-sp]:not([data-ok])").forEach((im) => {
+      im.dataset.ok = "1"; const l = JSON.parse(im.dataset.sp || "[]"); let i = 0;
+      im.style.visibility = "";
+      im.onerror = () => { if (++i < l.length) im.src = l[i]; else if (im.matches(".tw-quem, .tw-treinador")) im.style.visibility = "hidden"; else { im.replaceWith(Object.assign(document.createElement("div"), { className: "tr-sem", textContent: "🧑" })); } };
+      if (l.length) im.src = l[0]; else im.onerror();
+    });
+    raiz.querySelectorAll("img[data-ret]:not([data-ok])").forEach((im) => { im.dataset.ok = "1"; const [n, s, e] = im.dataset.ret.split(":"); porRetrato(im, +n, s === "1", e || "Normal"); });
+  }
+  const hojeStr = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+
+  function paginaTorre(login) {
+    if (login && !paginaTorre._tw) { paginaTorre._tw = 1; TWX.quem().then(() => { if (TWX.eu === login && new URLSearchParams(location.search).get("p") === "torre") paginaTorre(login); }); }
+    const T = USUM.torre; if (!T) { app.innerHTML = `<p class="vazio">A torre está carregando…</p>`; return; }
+    const u = login ? D.t[login] : null, tw = (u && u.rn && u.rn.tw) || {}, L = T.ALOLA, ganhou = new Set(tw.b || []), ganhouP = new Set(tw.bp || []);
+    const prox = (tw.p || 0) >= L.length ? -1 : tw.p || 0, usadas = tw.d === hojeStr() ? tw.n || 0 : 0, meu = login && souEu(login);
+    const nv = (i, pz) => { const t = T.timeDoLider("alola", i, pz); return `Nv. ${Math.min(...t.map((x) => x.lv))}–${Math.max(...t.map((x) => x.lv))}`; };
+    const card = (Lid, i) => { const st = !u ? "" : ganhou.has(i) ? "tem" : i === prox ? "prox falta" : "falta";
+      return `<div class="tw-lid ${st}" data-i="${i}" tabindex="0" style="--tc:${TW_COR[Lid.tipo]}" title="Ver o time de ${esc(Lid.n)}">
+        ${u ? `<span class="ins" title="${ganhou.has(i) ? "Insígnia conquistada" : "Insígnia ainda não conquistada"}">${icInsignia(Lid)}</span>` : ""}
+        ${spriteTreinador(Lid)}<b>${esc(Lid.n)}</b><small>${esc(Lid.tit)} · ${esc(NOME_TIPO[Lid.tipo] || Lid.tipo)}</small><small>${nv(i, false)}</small>
+        <div class="tw-time">${Lid.time.map(([n], k) => `<img data-ret="${n}:0" alt="" title="${esc(nome(n))}" class="${k >= T.qtdLider(i, false) ? "pz" : ""}">`).join("")}</div></div>`; };
+    const nevoa = [["kanto", 4.2, 30], ["johto", 22.6, 18], ["hoenn", 44.9, 30], ["sinnoh", 53.6, 12], ["unova", 88, 22]];
+    app.innerHTML = `<h2>🗼 Torre dos Líderes</h2>
+      <p class="sub">Monte sua party e suba a torre: os líderes de cada região esperam lá dentro, um depois do outro. Hoje só a <b>Torre de Alola</b> está aberta.</p>
+      <div class="tw-cena" role="img" aria-label="As torres dos líderes no meio da tempestade">
+        <button type="button" class="tw-hot aberta" data-ir="alola" style="left:23%;top:36%;width:25%;height:52%"><span>🌺 Torre de Alola</span></button>
+        <button type="button" class="tw-hot trancada" data-tranca style="left:68.5%;top:3%;width:14%;height:42%"><span>🔒 Torre do Canal</span></button>
+        ${nevoa.map(([id, x, y]) => `<button type="button" class="tw-hot nevoa" data-nevoa="${id}" style="left:${x}%;top:${y}%"><span>🌫️ ${esc(T.TORRES.find((t) => t.id === id).n)}</span></button>`).join("")}
+      </div>
+      <div class="tw-lista">${T.TORRES.map((t) => `<span class="${t.aberta ? "aberta" : t.trancada ? "trancada" : ""}">${t.aberta ? "🌺" : t.trancada ? "🔒" : "🌫️"} ${esc(t.n)}</span>`).join("")}</div>
+      <section class="tw-painel" id="tw-alola">
+        <h3>🌺 Torre de Alola</h3>
+        <p>Os capitães das provas, os quatro Kahunas e o Professor Kukui como campeão. A party luta sozinha: em cada luta, o Pokémon mais rápido ataca primeiro com o golpe que mais machuca o outro.</p>
+        <ul class="tw-regras">
+          <li><b>Capitães</b> usam 3 Pokémon: lutam os <b>3 primeiros</b> da sua party.</li>
+          <li><b>Kahunas e Kukui</b> usam 6: entra a party inteira.</li>
+          <li><b>2 subidas por dia.</b> Se perder, o progresso fica salvo e você continua do líder onde parou.</li>
+          <li>Cada vitória dá uma <b>insígnia</b> e <b>XP para todos</b> os Pokémon da party.</li>
+          <li>Vencer o Kukui dá a <b>bolha Torre de Alola</b> 🗼 e a <b>borda Torre de Alola</b> 🌺 nos Pokémon da party.</li>
+          <li><b>Modo pesadelo</b> 😈: abre depois de vencer a torre. Todos usam 6 Pokémon, 20 níveis acima.</li>
+        </ul>
+        <p class="sub">A ordem importa: o parceiro (<code>!pokemon</code>) entra primeiro e depois o time salvo (<code>!meutime</code> ou o botão ⭐ Time no chat do site). Contra um especialista em Aço, deixe na frente quem bate forte em Aço.</p>
+        <div class="tw-etapa">Provas dos capitães</div><div class="tw-lideres">${L.slice(0, 8).map((x, i) => card(x, i)).join("")}</div>
+        <div class="tw-etapa">Elite dos Kahunas</div><div class="tw-lideres">${L.slice(8, 12).map((x, i) => card(x, i + 8)).join("")}</div>
+        <div class="tw-etapa">Campeão</div><div class="tw-lideres">${card(L[12], 12)}</div>
+        <div class="tw-eu" id="tw-eu">${u ? `
+          <h3 style="margin:0">${esc(u.n)} na Torre de Alola</h3>
+          <div class="tw-estojo" title="Estojo de insígnias">${L.map((x, i) => `<i style="--tc:${TW_COR[x.tipo]}" class="${ganhou.has(i) ? "" : "falta"} ${ganhouP.has(i) ? "pz" : ""}" title="${esc(x.n)}${ganhou.has(i) ? "" : " (falta)"}${ganhouP.has(i) ? " · pesadelo" : ""}">${icInsignia(x)}</i>`).join("")}</div>
+          <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · subidas hoje: <b>${usadas}/${T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
+          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-cmd="!torre" ${usadas >= T.CFG.porDia ? "disabled" : ""}>${usadas >= T.CFG.porDia ? "Volte amanhã" : "🗼 Subir a torre"}</button>${tw.v ? `<button type="button" class="r-btn pesadelo" data-cmd="!torre pesadelo" ${usadas >= T.CFG.porDia ? "disabled" : ""}>😈 Modo pesadelo</button>` : ""}<small class="sub">A batalha aparece aqui em menos de 1 minuto (com a live ligada).</small></div>`
+            : barraLogin(login)}
+          <div id="tw-replay"></div>` : `<p class="sub">Digite seu nome lá em cima (ou abra pelo seu perfil) para ver suas insígnias e a sua última subida. No chat da live: <code>!torre</code>, <code>!torre pesadelo</code> e <code>!insignias</code>.</p>`}</div>
+      </section>`;
+    ligarSprites(app);
+    app.querySelector("[data-ir]").onclick = () => document.getElementById("tw-alola").scrollIntoView({ behavior: "smooth" });
+    app.querySelector("[data-tranca]").onclick = () => TWX.aviso("🔒 A Torre do Canal ainda está trancada. Dizem que o campeão de lá anda com um Kecleon…");
+    app.querySelectorAll("[data-nevoa]").forEach((b) => (b.onclick = () => TWX.aviso(`🌫️ A Torre de ${esc(T.TORRES.find((t) => t.id === b.dataset.nevoa).n)} ainda está coberta de névoa.`)));
+    app.querySelectorAll(".tw-lid").forEach((c) => { const abrir = () => fichaLider(+c.dataset.i); c.onclick = abrir; c.onkeydown = (e) => { if (e.key === "Enter") abrir(); }; });
+    if (u && u.tl && u.tl.l && u.tl.l.length) assistirTorre(document.getElementById("tw-replay"), u, u.tl);
+  }
+  function fichaLider(i) {
+    const T = USUM.torre, Lid = T.ALOLA[i], q = T.qtdLider(i, false), tn = T.timeDoLider("alola", i, false), tp = T.timeDoLider("alola", i, true);
+    const fundo = document.createElement("div"); fundo.className = "ficha-fundo";
+    fundo.innerHTML = `<div class="ficha tw-ficha"><button class="fechar-ficha" title="Fechar">✕</button>
+      <div class="ficha-topo">${spriteTreinador(Lid)}<div><small>${esc(Lid.tit)} · ${esc(Lid.lugar || "")}</small><h3>${esc(Lid.n)}</h3><span>${Lid.campeao ? "Campeão da torre" : "Especialista em " + esc(NOME_TIPO[Lid.tipo] || Lid.tipo)} · ${q === 6 ? "6 Pokémon" : q + " Pokémon no normal, 6 no pesadelo"}</span></div></div>
+      <p class="sub">“${esc(Lid.ola[Lid.ola.length - 1])}”</p>
+      <div class="tw-ftime">${Lid.time.map(([n, m1, m2], k) => `<div class="tw-fpk ${k >= q ? "pz" : ""}"><img data-ret="${n}:0" alt=""><div><b>${esc(nome(n))}</b><small>${k < q ? "Nv. " + tn[k].lv + " · " : ""}pesadelo Nv. ${tp[k].lv}</small><small>⚔️ ${esc(m1)} · ${esc(m2)}</small></div></div>`).join("")}</div>
+      ${q < 6 ? `<p class="sub">Os apagados só entram no modo pesadelo.</p>` : ""}</div>`;
+    document.body.appendChild(fundo); ligarSprites(fundo);
+    const fechar = () => fundo.remove();
+    fundo.onclick = (e) => { if (e.target === fundo) fechar(); }; fundo.querySelector(".fechar-ficha").onclick = fechar;
+  }
+
+  /* replay da última subida: monta a lista de passos (falas, envios, golpes) e toca um por um */
+  function assistirTorre(box, u, log) {
+    const T = USUM.torre, L = (T.LIDERES[log.tw] || T.ALOLA), eu = { n: u.n, sp: u.av ? ["assets/treinadores/" + u.av + ".png"] : [], foto: !!u.av };
+    const nomePk = (x) => (x[6] ? `“${x[6]}”` : nome(x[0]));
+    const passos = [], inicios = [];
+    log.l.forEach((b, k) => {
+      const Lid = L[b.i]; inicios.push(passos.length);
+      passos.push({ t: "comeca", k, b, Lid });
+      Lid.ola.forEach((f) => passos.push({ t: "fala", quem: Lid, txt: f }));
+      passos.push({ t: "envia", lado: 1, s: 0, txt: `${Lid.n} enviou ${nome(b.o[0][0])}!` }, { t: "envia", lado: 0, s: 0, txt: `Vai, ${nomePk(b.p[0])}!` });
+      const ia = [0, 0];
+      b.e.forEach((e) => {
+        passos.push({ t: "golpe", e });
+        if (e[5] & 16) {   // desmaiou: entra o próximo de quem levou o golpe
+          const lado = 1 - e[0]; ia[lado]++;
+          const tm = lado === 1 ? b.o : b.p;
+          if (ia[lado] < tm.length) {
+            if (lado === 1 && ia[1] === tm.length - 1 && Lid.ultimo) passos.push({ t: "fala", quem: Lid, txt: Lid.ultimo });
+            passos.push({ t: "envia", lado, s: ia[lado], txt: lado === 1 ? `${Lid.n} enviou ${nome(tm[ia[lado]][0])}!` : `Vai, ${nomePk(tm[ia[lado]])}!` });
+          }
+        }
+      });
+      (b.v ? Lid.perde : Lid.vence).forEach((f) => passos.push({ t: "fala", quem: Lid, txt: f }));
+      passos.push({ t: "fim", b, Lid });
+    });
+    box.innerHTML = `<h3 class="tw-etapa" style="font-size:18px">🎬 Última subida <small class="sub">${new Date(log.t * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${log.pz ? " · 😈 pesadelo" : ""}</small></h3>
+      <div class="tw-arena ${log.pz ? "pz" : ""}">
+        <span class="tw-pal" style="left:-6px">🌴</span><span class="tw-pal" style="right:30%;font-size:44px">🌺</span>
+        <img class="tw-treinador" alt="">
+        <div class="tw-lado op" style="visibility:hidden"><div class="tw-ret"><img alt=""></div><div class="tw-info"><b></b><small></small><div class="tw-hp"><i></i></div><div class="tw-pips"></div></div></div>
+        <div class="tw-lado eu" style="visibility:hidden"><div class="tw-ret"><img alt=""></div><div class="tw-info"><b></b><small></small><div class="tw-hp"><i></i></div><div class="tw-pips"></div></div></div>
+        <button type="button" class="tw-play"><span>▶ Assistir a batalha</span></button>
+      </div>
+      <div class="tw-fala"><img class="tw-quem" alt=""><div><b></b><p></p></div></div>
+      <div class="tw-ctrl"><button type="button" data-a="pausa">⏸ Pausar</button><button type="button" data-a="vel">⏩ 1x</button><button type="button" data-a="pula">⏭ Próxima luta</button></div>
+      <div class="tw-lutas">${log.l.map((b, k) => `<button type="button" data-k="${k}" class="${b.v ? "v" : "d"}">${icInsignia(L[b.i])} ${esc(L[b.i].n)} ${b.v ? "✔" : "✘"}</button>`).join("")}</div>
+      ${(log.xp || []).length ? `<div class="tw-xp">${log.xp.map(([n, s, xp, a, lv]) => `<span><img src="${home(n, !!s)}" alt="">${esc(nome(n))} +${xp} XP${lv > a ? ` · Nv. ${a} → <b>${lv}</b>` : ""}</span>`).join("")}</div>` : ""}`;
+    const $ = (s) => box.querySelector(s), lados = [$(".tw-lado.eu"), $(".tw-lado.op")], fala = $(".tw-fala"), arena = $(".tw-arena");
+    let ptr = 0, tim = null, vel = 1, tocando = false, cur = null;   // cur: a luta atual { b, hp: [[...], [...]], at: [i, i] }
+    const time = (lado) => (lado === 1 ? cur.b.o : cur.b.p);
+    function mostrarFala(quem, txt, pk) {
+      const q = fala.querySelector(".tw-quem");
+      if (quem === "pk") { q.className = "tw-quem pk"; delete q.dataset.sp; q.onerror = null; if (pk) porRetrato(q, pk[0], !!pk[1], pk[2] || "Normal"); } else if (quem) { q.className = "tw-quem"; delete q.dataset.k; const sp = JSON.stringify(quem.sp || []); if (q.dataset.sp !== sp) { q.removeAttribute("data-ok"); q.dataset.sp = sp; ligarSprites(fala); } }
+      fala.querySelector("b").textContent = quem && quem !== "pk" ? quem.n : "";
+      fala.querySelector("p").innerHTML = txt;
+    }
+    function desenharLado(lado, emo) {
+      const x = time(lado)[cur.at[lado]], el = lados[lado], hp = cur.hp[lado][cur.at[lado]], pc = Math.max(0, hp / x[3]) * 100;
+      el.querySelector("b").textContent = lado === 0 ? nomePk(x) : nome(x[0]); el.querySelector("small").textContent = "Nv. " + x[2];
+      const bar = el.querySelector(".tw-hp i"); bar.style.width = pc + "%"; bar.className = pc <= 20 ? "v" : pc <= 50 ? "a" : "";
+      el.querySelector(".tw-pips").innerHTML = time(lado).map((_, i) => `<i class="${cur.hp[lado][i] <= 0 ? "caiu" : ""}"></i>`).join("");
+      const ret = el.querySelector(".tw-ret"); ret.classList.toggle("ko", hp <= 0);
+      porRetrato(ret.querySelector("img"), x[0], !!x[1], emo || (hp <= 0 ? "Dizzy" : "Normal"));
+    }
+    function numero(lado, v, crit) {
+      const n = document.createElement("div"); n.className = "tw-num" + (crit ? " crit" : ""); n.textContent = v ? "-" + v : "0";
+      const r = lados[lado].querySelector(".tw-ret").getBoundingClientRect(), a = arena.getBoundingClientRect();
+      n.style.left = (r.left - a.left + r.width / 2 - 14) + "px"; n.style.top = (r.top - a.top + 10) + "px"; arena.appendChild(n); setTimeout(() => n.remove(), 950);
+    }
+    function aplicar(p, animar) {   // executa um passo; devolve quanto tempo esperar (ms, em 1x)
+      if (p.t === "comeca") {
+        cur = { b: p.b, hp: [p.b.p.map((x) => x[3]), p.b.o.map((x) => x[3])], at: [0, 0] };
+        box.querySelectorAll(".tw-lutas button").forEach((x) => x.classList.toggle("on", +x.dataset.k === p.k));
+        const tr = $(".tw-treinador"); tr.removeAttribute("data-ok"); tr.dataset.sp = JSON.stringify(p.Lid.sp || []); tr.classList.add("on"); ligarSprites(arena);
+        lados.forEach((el) => (el.style.visibility = "hidden"));
+        mostrarFala(null, `<b style="display:inline;color:#0f8f85">${esc(p.Lid.tit)} ${esc(p.Lid.n)}</b> quer lutar!`); return 1300;
+      }
+      if (p.t === "fala") { mostrarFala(p.quem, esc(p.txt)); return 1500 + p.txt.length * 28; }
+      if (p.t === "envia") { cur.at[p.lado] = p.s; lados[p.lado].style.visibility = "visible"; desenharLado(p.lado, p.lado === 0 ? "Determined" : "Normal"); const xe = time(p.lado)[p.s]; mostrarFala("pk", esc(p.txt), [xe[0], xe[1], p.lado === 0 ? "Determined" : "Normal"]); if (p.lado === 1) $(".tw-treinador").classList.remove("on"); return 1000; }
+      if (p.t === "golpe") {
+        const [lado, ia, id, g, dano, fl] = p.e, alvo = 1 - lado, at = time(lado)[ia], df = time(alvo)[id];
+        cur.at[lado] = ia; cur.at[alvo] = id; cur.hp[alvo][id] = Math.max(0, cur.hp[alvo][id] - dano);
+        const golpe = g === 2 ? "Debater-se" : at[4 + g] || "Tackle", quem = lado === 0 ? nomePk(at) : `o ${nome(at[0])} de ${cur && log.l.length ? L[cur.b.i].n : ""}`;
+        let txt = `${quem.charAt(0).toUpperCase() + quem.slice(1)} usou <b>${esc(golpe)}</b>!`;
+        if (fl & 8) txt += ` Não afeta ${esc(lado === 0 ? nome(df[0]) : nomePk(df))}…`; else { if (fl & 1) txt += " Um golpe crítico!"; if (fl & 2) txt += " É super efetivo!"; if (fl & 4) txt += " Não é muito efetivo…"; }
+        if (fl & 16) txt += ` <b>${esc(alvo === 0 ? nomePk(df) : nome(df[0]))} desmaiou!</b>`;
+        mostrarFala("pk", txt, [at[0], at[1], fl & 2 ? "Joyous" : "Determined"]);
+        desenharLado(lado, fl & 2 ? "Joyous" : "Determined"); desenharLado(alvo, fl & 16 ? "Dizzy" : dano ? "Pain" : "Normal");
+        if (animar) { const ra = lados[lado].querySelector(".tw-ret"), rb = lados[alvo].querySelector(".tw-ret"); ra.classList.remove("ataca"); rb.classList.remove("bate"); void ra.offsetWidth; ra.classList.add("ataca"); if (dano) rb.classList.add("bate"); numero(alvo, dano, fl & 1); }
+        return fl & 16 ? 1900 : 1350;
+      }
+      if (p.t === "fim") {
+        const Lid = p.Lid; $(".tw-treinador").classList.add("on");
+        if (p.b.v) { desenharLado(0, "Joyous"); const w = time(0)[cur.at[0]]; mostrarFala("pk", `🏅 <b>${esc(u.n)}</b> ganhou a insígnia de <b>${esc(Lid.n)}</b>! ${icInsignia(Lid)}`, [w[0], w[1], "Joyous"]); }
+        else mostrarFala("pk", `A subida de <b>${esc(u.n)}</b> terminou em <b>${esc(Lid.n)}</b>. Treine a party e tente de novo!`);
+        return 2200;
+      }
+      return 500;
+    }
+    function passo() {
+      tim = null; if (!tocando) return;
+      if (ptr >= passos.length) { tocando = false; $("[data-a=pausa]").textContent = "↺ Ver de novo"; if (log.fim) mostrarFala("pk", `🏆 <b>${esc(u.n)}</b> venceu a Torre de Alola${log.pz ? " no modo pesadelo" : ""}!`); return; }
+      const ms = aplicar(passos[ptr++], true); tim = setTimeout(passo, ms / vel);
+    }
+    function irPara(k) {   // pula para o começo da luta k
+      arena.classList.add("ativo"); clearTimeout(tim); ptr = inicios[k] || 0; tocando = true; $(".tw-play").hidden = true; $("[data-a=pausa]").textContent = "⏸ Pausar"; passo();
+    }
+    $(".tw-play").onclick = () => irPara(0);
+    $("[data-a=pausa]").onclick = (e) => {
+      if (ptr >= passos.length) return irPara(0);
+      tocando = !tocando; e.target.textContent = tocando ? "⏸ Pausar" : "▶ Continuar"; if (tocando && !tim) passo(); else if (!tocando) { clearTimeout(tim); tim = null; } };
+    $("[data-a=vel]").onclick = (e) => { vel = vel === 1 ? 2 : vel === 2 ? 4 : 1; e.target.textContent = "⏩ " + vel + "x"; };
+    $("[data-a=pula]").onclick = () => { const k = inicios.findIndex((x) => x > ptr - 1 && x >= ptr); irPara(k < 0 ? inicios.length - 1 : k); };
+    box.querySelectorAll(".tw-lutas button").forEach((b) => (b.onclick = () => irPara(+b.dataset.k)));
+    // antes de tocar: mostra a primeira fala, parado
+    mostrarFala(L[log.l[0].i], esc(L[log.l[0].i].ola[0]));
+  }
+
   function paginaBolas() {
     const SUB = [["level", "Level Ball"], ["lure", "Lure Ball"], ["moon", "Moon Ball"], ["friend", "Friend Ball"], ["love", "Love Ball"],
                  ["heavy", "Heavy Ball"], ["fast", "Fast Ball"], ["premier", "Premier Ball"]];
@@ -1243,7 +1549,8 @@
             ${u.jf && JOGO(u.jf) ? `<span class="tag">${capa(JOGO(u.jf), "mini-capa")} Jogo favorito: <b>${esc(JOGO(u.jf).nome)}</b></span>` : ""}
             ${u.g && GEN[u.g] ? `<span class="tag">${u.g === "nb" ? "" : GEN[u.g][0] + " "}${GEN[u.g][1]}</span>` : ""}
             ${u.fc ? `<span class="tag fc" id="fc" title="Clique para copiar">🎮 Friend code: <b>${esc(u.fc)}</b></span>` : ""}
-            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${({ rancho: "🌱 Bolha Rancho", cinefilo: "🎬 Bolha Cinéfilo", neon: "✨ Bolha Neon", raid: "⚔️ Bolha Raid", dojo: "🥋 Bolha Dojo", sub: "💜 Bolha Sub", bits: "💎 Bolha Bits" })[id] || id}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
+            ${u.rn && u.rn.tw && ((u.rn.tw.b || []).length || u.rn.tw.v) ? `<a class="tag" href="?p=torre&u=${encodeURIComponent(login)}" title="Torre dos Líderes">🗼 ${(u.rn.tw.b || []).length}/13 insígnias${u.rn.tw.v ? " · campeão da Torre de Alola" : ""}</a>` : ""}
+            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${({ rancho: "🌱 Bolha Rancho", cinefilo: "🎬 Bolha Cinéfilo", neon: "✨ Bolha Neon", raid: "⚔️ Bolha Raid", dojo: "🥋 Bolha Dojo", sub: "💜 Bolha Sub", bits: "💎 Bolha Bits", torre: "🗼 Bolha Torre de Alola" })[id] || id}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
           </div>
           <div class="acoes"><button id="compartilhar">Compartilhar perfil</button></div>
           <div class="nums">
@@ -1365,6 +1672,7 @@
     TWX.enviar(cmd);
     anotarPendente(TWX.eu, cmd);
     if (b.dataset.depois) setTimeout(() => TWX.enviar(b.dataset.depois), 2500);   // ex: !release sim
+    if (/^!torre\b/.test(cmd)) { b.disabled = true; b.textContent = "⏳ Subindo a torre…"; esperarLive(); }
     TWX.aviso(`✓ Enviado no chat da live: <b>${esc(cmd)}</b><br><small>O overlay responde no chat e aqui atualiza em menos de 1 minuto (só funciona com a live ligada).</small>`);
   });
   function barraLogin(login) {
@@ -1429,7 +1737,8 @@
         const novo = await baixarGist(GIST); if (!novo || !novo.t || novo.em === antes) return;
         D = novo; window.__pokedexDados = D;
         const y = scrollY, l = new URLSearchParams(location.search).get("u");
-        if (l && D.t[l]) { desenhar(l); scrollTo(0, y); }
+        if (new URLSearchParams(location.search).get("p") === "torre") { if (!document.querySelector(".tw-arena.ativo")) { rota(); scrollTo(0, y); } }
+        else if (l && D.t[l]) { desenhar(l); scrollTo(0, y); }
         document.getElementById("rodape").textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       } catch (e) {}
     }, 25e3);
