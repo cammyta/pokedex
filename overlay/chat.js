@@ -10,7 +10,7 @@
   const times = () => ler("usum_times", {});
   const placar = () => ler("usum_placar", { sol: 0, lua: 0 });
   function primeiraVez(id) {
-    const v = ler("usum_vistos", []); if (v.includes(id)) return false;
+    let v = ler("usum_vistos", []); if (!Array.isArray(v)) v = []; if (v.includes(id)) return false;
     v.push(id); gravar("usum_vistos", v.slice(-300)); return true;
   }
   function pontuar(time, pts, id) {
@@ -332,7 +332,7 @@
       } else if (ev.tipo === "borda") {
         d.className = "aviso borda-nova b-" + (ev.borda || "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
-        if (ev.borda === "bits") d.insertAdjacentHTML("beforeend", `<span class="t">💰 <b>${esc(ev.nome)}</b> liberou a <b>borda Bits</b> com a Moeda Amuleto (mandou 100 bits)! Ela vale para qualquer Pokémon parceiro · escolha com <b>!borda bits</b></span>`); else d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : ev.borda === "raid" ? "(o Pokémon que mais lutou nas Raids ⚔️)" : ev.borda === "dojo" ? "(treino máximo no dojo 🥋)" : ev.borda === "bits" ? "(mandou 100 bits, vale para qualquer parceiro)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
+                if (ev.borda === "torre") d.insertAdjacentHTML("beforeend", `<span class="t">🗼🌺 <b>${esc(ev.nome)}</b> venceu a Torre de Alola! ${esc(ev.pnome)} ganharam a <b>borda Torre de Alola</b> · escolha com <b>!borda torre</b></span>`); else if (ev.borda === "bits") d.insertAdjacentHTML("beforeend", `<span class="t">💰 <b>${esc(ev.nome)}</b> liberou a <b>borda Bits</b> com a Moeda Amuleto (mandou 100 bits)! Ela vale para qualquer Pokémon parceiro · escolha com <b>!borda bits</b></span>`); else d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : ev.borda === "raid" ? "(o Pokémon que mais lutou nas Raids ⚔️)" : ev.borda === "dojo" ? "(treino máximo no dojo 🥋)" : ev.borda === "bits" ? "(mandou 100 bits, vale para qualquer parceiro)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
       } else if (ev.tipo === "surto") {
         d.className = "aviso surto";
         d.innerHTML = ev.modo === "rapido"
@@ -697,7 +697,7 @@
         const arg = txt.split(/\s+/).slice(1).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
         const NOMES = { bronze: "bronze", prata: "prata", silver: "prata", ouro: "ouro", gold: "ouro", esmeralda: "esmeralda", emerald: "esmeralda",
           arcoiris: "arcoiris", rainbow: "arcoiris", shiny: "shiny", brilhante: "shiny", neon: "arcoiris", arcoirisneon: "arcoiris", nenhuma: "nenhuma", nenhum: "nenhuma", sem: "nenhuma", off: "nenhuma", tirar: "nenhuma",
-          auto: "auto", automatica: "auto", melhor: "auto", raid: "raid", rancho: "rancho", dojo: "dojo", bits: "bits", moeda: "bits" };
+          auto: "auto", automatica: "auto", melhor: "auto", raid: "raid", rancho: "rancho", dojo: "dojo", bits: "bits", moeda: "bits", torre: "torre", torredealola: "torre", alola: "torre" };
         const alvo = NOMES[arg];
         if (!arg || !alvo) {
           aviso(t, lib.length ? `<b>${esc(m.nome)}</b>, bordas de ${esc(pn)}: ${lib.map((b) => "<b>" + b.nome + "</b>").join(", ")} · use <b>!borda prata</b>, <b>!borda nenhuma</b> ou <b>!borda auto</b>`
@@ -909,6 +909,7 @@
       }
       if (/^!capturar\b/.test(low)) return;
       if (USUM.rancho && USUM.rancho.ehComando(low)) return;
+      if (/^!(torre|insignias|insígnias)\b/.test(low)) return;   // Torre dos Líderes: respondida pelo core/torre.js
       if (/^!(atacar|atk|ataque|a|raid)(\s|$)/.test(low)) return;   // Raid: o ataque aparece na tela da Raid, não no chat   // comandos do rancho: respondidos pelo core/rancho.js
       if (/^!(subs|meta)\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;                       // conta no encontro.html
       if ((m.dono || m.ajudante) && /^!registrar\b/.test(low)) return;
