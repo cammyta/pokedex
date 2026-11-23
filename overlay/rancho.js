@@ -8,7 +8,7 @@
   window.USUM = window.USUM || {};
   const S = () => USUM.selvagens;
   const CFG = Object.assign({ chanceDrop: 0.45, minutosEstagio: 15, pescaMinutos: 3, canteiros: 3, ovoMinutos: 20, chocarMinutos: 30, maxOvos: 6,
-    bonusForca: 0.4, amizadeBorda: 60 }, (window.USUM_CONFIG || {}).rancho);
+    bonusForca: 0.4, amizadeBorda: 60, pedreiraMinutos: 8 }, (window.USUM_CONFIG || {}).rancho);
   const ler = (k, p) => { try { return JSON.parse(localStorage.getItem(k) || "null") || p; } catch (e) { return p; } };
   const gravar = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/";
@@ -98,7 +98,10 @@
     if (!porNum) { porNum = {}; Object.entries(window.USUM_TIPOS || {}).forEach(([t, l]) => l.forEach((n) => (porNum[n] = porNum[n] || []).push(t))); }
     return porNum[num] || [];
   }
-  const temTipo = (num, t) => tiposDe(num).includes(t);
+  const temTipo = (num, t) => [].concat(t).some((x) => tiposDe(num).includes(x));
+  // forja: 1º ajudante de Aço, Terra ou Pedra + 2º de Fogo · horta: Água + Grama · pedreira: Pedra ou Terra
+  const PARES = { forja: [["steel", "ground", "rock"], ["fire"]], horta: [["water"], ["grass"]] };
+  const TIPOS_PEDREIRA = ["rock", "ground"];
 
   /* ---------- dados ---------- */
   function rancho(login) { return (ler("usum_rancho", {})[login]) || {}; }
@@ -223,7 +226,7 @@
   }
   // ajudantes que valem agora: os escolhidos (se ainda estão na caixa) ou os melhores que a pessoa tem
   function ajudantes(login, qual) {
-    const r = rancho(login), par = qual === "forja" ? ["steel", "fire"] : ["water", "grass"], esc_ = (qual === "forja" ? r.fj : r.hf) || [];
+    const r = rancho(login), par = PARES[qual], esc_ = (qual === "forja" ? r.fj : r.hf) || [];
     const tem = new Set(donos(login));
     const a = esc_[0] && tem.has(esc_[0]) && temTipo(esc_[0], par[0]) ? esc_[0] : melhorDoTipo(login, par[0]);
     const b = esc_[1] && tem.has(esc_[1]) && temTipo(esc_[1], par[1]) && esc_[1] !== a ? esc_[1] : melhorDoTipo(login, par[1], a);
@@ -236,7 +239,7 @@
   // quanto mais forte, mais rápido: com força 100% o tempo cai bonusForca (40%)
   const fatorTempo = (f) => 1 - CFG.bonusForca * Math.max(0, Math.min(1, f || 0));
   function escolherAjudantes(login, qual, texto) {
-    const par = qual === "forja" ? ["steel", "fire"] : ["water", "grass"], tem = new Set(donos(login));
+    const par = PARES[qual], tem = new Set(donos(login));
     const nums = palavrasPoke(texto).map((w) => (USUM.lerPokemon(w) || {}).num).filter((n) => n && tem.has(n));
     const a = nums.find((n) => temTipo(n, par[0])), b = nums.find((n) => temTipo(n, par[1]) && n !== a);
     mudarR(login, (r) => { const k = qual === "forja" ? "fj" : "hf", v = r[k] || [0, 0]; if (a) v[0] = a; if (b) v[1] = b; r[k] = v; });
@@ -397,6 +400,37 @@
     return { ok: 1, nasceram, cheios };
   }
   // a tela líder põe os ovos de todo mundo a cada minuto (assim o site mostra) e avisa no chat
+
+  /* ---------- Pedreira: um Pokémon de Pedra ou Terra quebra pedra e acha Minério, Pó Estelar e às vezes pedras de evolução.
+     Acha 1 coisa a cada pedreiraMinutos (mais rápido se for forte), durante a live. r.pd = { n: escolhido, ult: ms, ac: [[id, ms]] } ---------- */
+  function mineiro(login) {
+    const r = rancho(login), tem = new Set(donos(login)), esc_ = r.pd && r.pd.n;
+    if (esc_ && tem.has(esc_) && temTipo(esc_, TIPOS_PEDREIRA)) return esc_;
+    const fj = ajudantes(login, "forja")[0];
+    return melhorDoTipo(login, TIPOS_PEDREIRA, fj) || melhorDoTipo(login, TIPOS_PEDREIRA);
+  }
+  const ACHADOS = [["hard-stone", 60], ["stardust", 12], ["star-piece", 2], ["fire-stone", 2.5], ["water-stone", 2.5], ["thunder-stone", 2.5], ["leaf-stone", 2.5],
+    ["moon-stone", 2.5], ["sun-stone", 2], ["shiny-stone", 1.5], ["dusk-stone", 1.5], ["dawn-stone", 1.5], ["ice-stone", 2], ["everstone", 0]];
+  function sortearAchado() { const l = ACHADOS.filter(([, w]) => w > 0), tot = l.reduce((a, x) => a + x[1], 0); let r = Math.random() * tot; for (const [id, w] of l) if ((r -= w) <= 0) return id; return "hard-stone"; }
+  function rodadaPedreira() {
+    const todos = ler("usum_rancho", {}), avisos = [];
+    Object.keys(todos).forEach((l) => {
+      const n = mineiro(l); if (!n) return;
+      const passo = CFG.pedreiraMinutos * fatorTempo(forcaDe(l, n)) * 60e3, agora = Date.now();
+      mudarR(l, (r) => {
+        r.pd = r.pd || {}; if (!r.pd.ult || r.pd.quem !== n) { r.pd.ult = agora; r.pd.quem = n; return; }
+        let k = 0;
+        while (agora - r.pd.ult >= passo && k < 3) {   // no máximo 3 de uma vez (se o OBS ficou fechado, não acumula)
+          r.pd.ult += passo; k++;
+          const id = sortearAchado(); r.it[id] = (r.it[id] || 0) + 1;
+          r.pd.ac = [[id, agora]].concat(r.pd.ac || []).slice(0, 8);
+          if (ITENS[id].c === "pedra" || id === "star-piece") avisos.push({ l, nome: r.nm || l, n, id });
+        }
+        if (agora - r.pd.ult > passo * 3) r.pd.ult = agora;
+      });
+    });
+    avisos.forEach((a, i) => setTimeout(() => publicar(a.id, `⛏️ ${nomeP(a.n)} quebrou uma pedra na pedreira de <b>${esc(a.nome)}</b> e achou <b>${esc(ITENS[a.id].n)}</b>!`, a.l), i * 700));
+  }
   /* ---------- amizade no rancho: quem trabalha ganha 1 ponto por minuto, o Pokémon do Cantinho da Amizade ganha 2.
      Com amizadeBorda pontos (60) a espécie libera a borda "Rancho" da fotinha. r.ami = Pokémon no cantinho, r.am = {num: pontos}, r.br = [nums] ---------- */
   function quemTrabalha(login) {
@@ -404,6 +438,7 @@
     const fj = ajudantes(login, "forja"); if (fj[0] && fj[1]) l.push(fj[0], fj[1]);
     const hf = ajudantes(login, "horta"); if (hf[0] && hf[1] && (r.hz || []).some(Boolean)) l.push(hf[0], hf[1]);
     if (r.dc && r.dc.a && r.dc.b) l.push(r.dc.a.n, r.dc.b.n);
+    const mn = mineiro(login); if (mn) l.push(mn);
     return [...new Set(l)];
   }
   function rodadaAmizade() {
@@ -516,7 +551,7 @@
   const listaCusto = (c) => Object.entries(c).map(([id, n]) => `${n} ${esc(ITENS[id].n)}`).join(" + ");
 
   /* ---------- comandos ---------- */
-  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas)\b/;
+  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar)\b/;
   let lider = false;
   const site = /github\.io$/.test(location.hostname);
   if (USUM.aoMensagem && !site && navigator.locks && navigator.locks.request) navigator.locks.request("usum_rancho", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
@@ -543,7 +578,7 @@
     }
     if (cmd === "rancho" || cmd === "casa" || cmd === "receitas") {
       const r = rancho(L), [a, f] = ajudantes(L, "forja"), [ag, gr] = ajudantes(L, "horta");
-      return publicar("ic:casa", `🏡 Rancho de <b>${esc(N)}</b>: forja ${a && f ? `🔥 ${nomeP(a)} + ${nomeP(f)}` : "apagada (precisa de um Pokémon de Aço e um de Fogo)"} · horta ${ag && gr ? `💧 ${nomeP(ag)} + ${nomeP(gr)}` : "parada (precisa de Água e Grama)"} · ${(r.mv || []).length} móveis · vara ${["velha", "boa", "super"][r.vr || 0]}` + url, L);
+      return publicar("ic:casa", `🏡 Rancho de <b>${esc(N)}</b>: forja ${a && f ? `🔥 ${nomeP(a)} + ${nomeP(f)}` : "apagada (precisa de um Pokémon de Aço, Terra ou Pedra e um de Fogo)"} · horta ${ag && gr ? `💧 ${nomeP(ag)} + ${nomeP(gr)}` : "parada (precisa de Água e Grama)"} · ${(r.mv || []).length} móveis · vara ${["velha", "boa", "super"][r.vr || 0]}` + url, L);
     }
     if (cmd === "usar") {
       const id = acharItem(arg, (k) => ITENS[k].c !== "mat");
@@ -569,7 +604,7 @@
     if (cmd === "forja" && arg) {
       const [a, b] = escolherAjudantes(L, "forja", arg);
       const [aa, ff] = ajudantes(L, "forja");
-      return publicar("rancho:forja-acesa", `🔨 Forja de <b>${esc(N)}</b>: ${aa ? nomeP(aa) : "<i>sem Aço</i>"} + ${ff ? nomeP(ff) : "<i>sem Fogo</i>"}` + (!a && !b ? " (não achei esses Pokémon de Aço/Fogo na sua caixa)" : ""), L);
+      return publicar("rancho:forja-acesa", `🔨 Forja de <b>${esc(N)}</b>: ${aa ? nomeP(aa) : "<i>sem Aço/Terra/Pedra</i>"} + ${ff ? nomeP(ff) : "<i>sem Fogo</i>"}` + (!a && !b ? " (não achei esses Pokémon de Aço/Terra/Pedra e Fogo na sua caixa)" : ""), L);
     }
     if (cmd === "forja" || cmd === "forjar") {
       if (!arg) return publicar("rancho:forja-acesa", `🔨 <b>${esc(N)}</b>, para forjar: <b>!forjar great</b> (ou ultra, quick, timer, repeat, nest, net, dive, dusk, dream, heal, luxury, as bolas de Johto e <b>vara boa</b>/<b>vara super</b>). Receitas no site` + url, L);
@@ -578,7 +613,7 @@
       const k = /vara/.test(nome) ? (/super/.test(nome) ? "vara-super" : "vara-boa") : USUM.lerBola ? USUM.lerBola(nome) : null;
       if (!k || !RECEITAS[k]) return publicar("rancho:forja-apagada", `<b>${esc(N)}</b>, a forja não faz isso 🤔 Tente <b>!forjar great</b>`, L);
       const r = forjar(L, N, k, vezes);
-      if (r.erro === "ajudantes") return publicar("rancho:forja-apagada", `🔨 <b>${esc(N)}</b>, a forja precisa de um Pokémon de <b>Aço</b>${r.aco ? " ✓" : ""} e um de <b>Fogo</b>${r.fogo ? " ✓" : ""} na sua caixa`, L);
+      if (r.erro === "ajudantes") return publicar("rancho:forja-apagada", `🔨 <b>${esc(N)}</b>, a forja precisa de um Pokémon de <b>Aço, Terra ou Pedra</b>${r.aco ? " ✓" : ""} e um de <b>Fogo</b>${r.fogo ? " ✓" : ""} na sua caixa`, L);
       if (r.erro === "falta") return publicar("rancho:forja-apagada", `🔨 <b>${esc(N)}</b>, falta: ${r.falta.map(esc).join(", ")} (receita: ${listaCusto(RECEITAS[k].custo)})` + (qtd(L, "essencia") < (RECEITAS[k].custo.essencia || 0) ? ` <small>✨ essência vem de capturar e de soltar Pokémon (!release)</small>` : ""), L);
       if (r.erro === "jatem") return publicar("rancho:forja-acesa", `<b>${esc(N)}</b>, você já tem essa vara (ou uma melhor)`, L);
       if (r.erro === "precisaboa") return publicar("rancho:forja-acesa", `<b>${esc(N)}</b>, forje a <b>vara boa</b> primeiro`, L);
@@ -617,6 +652,18 @@
       return publicar("num:" + r.num + (r.shiny ? ":s" : ""), `🎣 <b>${esc(N)}</b> pescou um <b>${nomeP(r.num)}</b>${r.shiny ? " ✦ SHINY" : ""}! <small class="forca">força ${r.forca}%</small>`, L);
     }
 
+    if (cmd === "pedreira" || cmd === "minerar") {
+      mudarR(L, (r) => { r.nm = N; });
+      if (arg) {
+        const tem = new Set(donos(L)), n = palavrasPoke(arg).map((w) => (USUM.lerPokemon(w) || {}).num).find((x) => x && tem.has(x) && temTipo(x, TIPOS_PEDREIRA));
+        if (!n) return publicar("hard-stone", `⛏️ <b>${esc(N)}</b>, a pedreira precisa de um Pokémon de <b>Pedra</b> ou <b>Terra</b> que você tem: <b>!pedreira geodude</b>`, L);
+        mudarR(L, (r) => { r.nm = N; r.pd = Object.assign(r.pd || {}, { n }); });
+      }
+      const n = mineiro(L), pd = rancho(L).pd || {};
+      if (!n) return publicar("hard-stone", `⛏️ <b>${esc(N)}</b>, a pedreira precisa de um Pokémon de <b>Pedra</b> ou <b>Terra</b> na sua caixa (Geodude, Rockruff, Sandshrew…)`, L);
+      const min = Math.round(CFG.pedreiraMinutos * fatorTempo(forcaDe(L, n)) * 10) / 10;
+      return publicar("num:" + n, `⛏️ ${nomeP(n)} está quebrando pedra na pedreira de <b>${esc(N)}</b>: acha alguma coisa a cada ${min} min de live (Minério, Pó Estelar e às vezes pedras de evolução)` + ((pd.ac || []).length ? ` · último achado: ${esc(ITENS[pd.ac[0][0]].n)}` : ""), L);
+    }
     if (cmd === "bolha" || cmd === "bolhas") {
       const b = bolhasDe(L), tem = b.tem || [], a = limpa(arg);
       if (!a) return publicar("ic:casa", `🫧 <b>${esc(N)}</b>, suas bolhas: <b>Equipe</b> (Sol/Lua)${tem.map((id) => ", <b>" + BOLHAS[id].n + "</b> " + BOLHAS[id].ic).join("")}. Usando: <b>${bolhaDe(L) ? BOLHAS[bolhaDe(L)].n : "Equipe"}</b> · troque com <b>!bolha rancho</b>, <b>!bolha cinefilo</b> ou <b>!bolha equipe</b>` + (tem.length < 2 ? ` · faltam: ${Object.keys(BOLHAS).filter((id) => !tem.includes(id)).map((id) => BOLHAS[id].n + (id === "rancho" ? " (amizade perfeita no rancho)" : " (ficar num filme até o fim)")).join(", ")}` : ""), L);
@@ -661,7 +708,7 @@
       return publicar("rancho:movel-" + k, `🛠️ <b>${esc(N)}</b> fez <b>${esc(MOVEIS[k].n)}</b> na bancada e colocou na casinha! (${r.total}/${Object.keys(MOVEIS).length} móveis)`, L);
     }
   }
-  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
   if (USUM.aoMensagem && !site) USUM.aoMensagem((m) => {
     if (m.tipo || !lider) return;
     try {
@@ -677,6 +724,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
