@@ -312,6 +312,16 @@
       const st = estado(L), b = st.b || [], usadas = st.d === hoje() ? st.n || 0 : 0;
       return feed(`🗼 <b>${esc(N)}</b>: ${b.length}/${ALOLA.length} insígnias da Torre de Alola${st.v ? ` · venceu a torre ${st.v}x` : ""}${(st.bp || []).length ? ` · pesadelo ${(st.bp || []).length}/${ALOLA.length}` : ""} · subidas hoje: ${usadas}/${CFG.porDia}${url}`, L);
     }
+    // !torre reset [nome]: só o streamer. Zera insígnias, subidas do dia e a última subida (para testar)
+    if (/^(reset|resetar|zerar)\b/.test(arg)) {
+      if (!m.dono) return;
+      const alvo = (arg.split(/\s+/)[1] || L).replace(/^@/, "").toLowerCase();
+      const todos = ler("usum_rancho", {}); if (todos[alvo]) { delete todos[alvo].tw; gravar("usum_rancho", todos); }
+      const logs = ler("usum_torre_log", {}); delete logs[alvo]; gravar("usum_torre_log", logs);
+      feed(`🗼 A Torre de Alola de <b>${esc(alvo)}</b> foi zerada: 0 insígnias e subidas do dia liberadas`, L);
+      clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 1500);
+      return;
+    }
     // resultado de uma luta jogada na mão no site: !torre luta <líder> <pesadelo 0/1> <semente> <25.33,448s.40,...> <escolhas>
     let mm = arg.match(/^luta (\d+) ([01]) (\d+) ([\w.,]+) ([1-2a-f]+)$/);
     if (mm) return resultadoMao(m, +mm[1], mm[2] === "1", +mm[3], mm[4], mm[5], url);
