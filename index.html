@@ -469,6 +469,11 @@
   .quarto .vazia { position: absolute; left: 50%; top: 62%; transform: translateX(-50%); background: rgba(43,29,20,.85); padding: 8px 14px; border-radius: 12px; font-size: 14px; text-align: center; width: max-content; max-width: 80%; }
   @media (max-width: 560px) { .painel { padding: 16px 14px; } .dupla { flex-direction: column; } }
   @media (prefers-reduced-motion: reduce) { .cena *, .cena *::after, .dc-ovo img, .pend { animation: none !important; } }
+  .ind-nv{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 6px;font-size:.85em}
+  .ind-nv b{background:#2b6b3f;color:#fff;border-radius:6px;padding:1px 7px}
+  .xp-barra{width:90px;height:7px;border-radius:4px;background:rgba(127,127,127,.25);overflow:hidden}.xp-barra i{display:block;height:100%;background:#3fae5f}
+  .golpe{border-radius:6px;padding:1px 8px;background:#666;color:#fff}.golpe em{opacity:.85;font-style:normal;font-size:.9em}
+  .golpe.t-fire{background:#d8572a}.golpe.t-water{background:#3a7bd5}.golpe.t-grass{background:#3c9a4a}.golpe.t-electric{background:#c9a400}.golpe.t-ice{background:#4fb3c9}.golpe.t-fighting{background:#b13c2e}.golpe.t-poison{background:#8a4aa8}.golpe.t-ground{background:#a8823a}.golpe.t-flying{background:#7a8fd8}.golpe.t-psychic{background:#d8467a}.golpe.t-bug{background:#7f9a20}.golpe.t-rock{background:#9a8a4a}.golpe.t-ghost{background:#5b4a8a}.golpe.t-dragon{background:#5a3ad8}.golpe.t-dark{background:#4a3a32}.golpe.t-steel{background:#7a8a9a}.golpe.t-fairy{background:#d878b8}
 </style>
 </head>
 <body>
@@ -505,6 +510,7 @@
 <script src="pokedex.js"></script>
 <script src="fitas-catalogo.js"></script>
 <script src="perfil-dados.js"></script>
+<script src="overlay/golpes.js"></script>
 <script src="overlay/tipos.js"></script>
 <script src="overlay/rancho.js"></script>
 <script>
@@ -717,12 +723,20 @@
 
   /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
   const PATCH = [
+    { v: "Níveis", d: "23/11/2026", t: "Níveis, golpes e Raid com HP", itens: [
+      ["📈", "Níveis no lugar do convívio", "Cada mensagem no chat dá XP para o seu parceiro (uma a cada 15 s). Até o nível 63 sobe rápido; do 63 ao 100 fica bem mais difícil. Veja com <code>!nivel</code>."],
+      ["✨", "Evolução por nível, como nos jogos", "O parceiro libera a evolução quando chega no nível do jogo (ex: Charmander no 16, Charmeleon no 36). Evoluções por pedra ou item continuam pedindo o item e não precisam de nível."],
+      ["⚔️", "Um golpe para cada Pokémon", "Todo Pokémon tem 1 golpe sorteado entre os que ele aprende. Os que já estavam na caixa ganharam um também. Aparece na ficha de cada Pokémon."],
+      ["🔥", "Tipos na Raid", "O golpe conta na Raid: super efetivo dá mais dano, pouco efetivo dá menos, e golpe do mesmo tipo do Pokémon (STAB) dá 50% a mais."],
+      ["❤️", "Parceiros com HP na Raid", "O chefe revida e tira HP. Quem desmaia não ataca mais, mas ainda pode capturar se o chefe cair. Atacar: 1 vez a cada 2 s. Botão Capturar: espera de 4 s."],
+      ["🚫", "Lugar vazio no rancho", "Na forja, horta, pedreira e apiário dá para escolher <b>— nenhum Pokémon —</b> (ou <code>!pedreira nenhum</code>)."],
+      ["⚡", "Rancho mais rápido", "As trocas aparecem no site em menos de 1 minuto."] ] },
     { v: "Rancho 3", d: "23/11/2026", t: "Raid, Mel, check-in e alertas de sub", itens: [
       ["⚔️", "Raid", "O streamer chama um Pokémon chefe 80% mais forte, com HP enorme. Por 3 minutos, todo mundo ataca com o parceiro digitando <code>!atacar</code> (ou pelo botão ⚔️ no chat do site), e quem entra na luta aparece na tela. Se o chefe cair, quem lutou ganha Essência e pode tentar capturar."],
       ["🍯", "Apiário e Mel", "Cutiefly, Ribombee, Combee e Vespiquen fazem Mel no rancho. <code>!mel</code> chama um Pokémon selvagem; <code>!hipermel</code> tem 10% de chance de última forma e 0,1% de lendário."],
       ["✅", "Check-in", "Na primeira mensagem de cada live você ganha Great Balls, Mel, Essência e um Apricorn, com um cartão no chat. Dias seguidos rendem prêmio extra."],
       ["🌴", "Só Pokémon de Alola na grama", "Agora só aparecem os Pokémon da Pokédex de Alola (última forma só 0,5% das vezes). Os de outras regiões voltam quando o streamer liga um surto daquela região."],
-      ["🧲", "Magnezone", "Magneton precisa de 30 minutos de convívio e de um Revestimento Metálico, que agora só sai da pedreira."],
+      ["🧲", "Magnezone", "Magneton precisa do nível 30 e de um Revestimento Metálico, que agora só sai da pedreira."],
       ["🎯", "Botões no chat do site", "No chat do site, logado com a Twitch: botões de Capturar, Atacar na Raid, Usar Mel e Itens."],
       ["🎁", "Alertas de sub", "Sub, resub e sub de presente aparecem na live com a fotinha do seu parceiro."],
       ["🫧", "Bolhas no chat do site", "As bolhas Rancho e Cinéfilo agora aparecem também no chat do site."],
@@ -754,7 +768,7 @@
       ["✨", "Formas", "<code>!usar néctar rosa</code> no Oricorio, Gracídea no Shaymin, Catálogo no Rotom…"]
     ] },
     { v: "1.4", d: "22/11/2026", t: "Evolução, pacotes de bolas e limite", itens: [
-      ["🤝", "Convívio para evoluir", "Converse com o parceiro no chat por 10 minutos para evoluir (15 para a forma final). Veja com <code>!convivio</code>."],
+      ["🤝", "Nível para evoluir", "Converse no chat: cada mensagem dá XP para o parceiro e ele sobe de nível. Veja com <code>!nivel</code>."],
       ["📦", "Pacotes de 10 bolas", "Resgates de 10 Great, Ultra, Quick, Timer, Repeat, Nest, Net e Dive Balls, com uma Premier Ball de brinde."],
       ["🔟", "Até 10 de cada", "Agora cabem 10 de cada Pokémon na caixa."],
       ["⚡", "Release rápido", "<code>!release magikarp já</code> solta o mais fraco na hora."],
@@ -845,7 +859,7 @@
         ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live. Use o <b>nome em inglês</b> (se errar uma letra, ele tenta adivinhar). Você pode escolher <b>qualquer Pokémon que já capturou</b>, além de Rowlet, Litten, Popplio, Pikachu, Eevee e Clefairy, que todo mundo já tem")}
         ${linha("!pokemon rowlet shiny", "Versão shiny: só se você capturou ele shiny. Também vale <code>!pokemon rowlet*</code>")}
         ${linha("!pokemon vulpix alola", "Forma de Alola, para quem tem")}
-        ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Antes, ele precisa confiar em você: <b>converse no chat com ele como parceiro por 10 minutos</b> (15 minutos para evoluir para a forma final, ex: Charmeleon → Charizard ou Pikachu → Raichu). Veja quanto já tem com <code>!convivio</code>. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada entre as que você pode. <b>Algumas evoluções pedem pedra ou item</b> (veja o Rancho abaixo). Se ele não evolui mais, o aviso aparece no chat e o streamer pode devolver os pontos")}
+        ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Antes, ele precisa chegar no <b>nível de evolução</b>, igual nos jogos (ex: Charmander no 16, Charmeleon no 36). Cada mensagem sua no chat com ele de parceiro dá XP. Veja o nível com <code>!nivel</code>. Evoluções só por pedra ou item não pedem nível. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada entre as que você pode. <b>Algumas evoluções pedem pedra ou item</b> (veja o Rancho abaixo). Se ele não evolui mais, o aviso aparece no chat e o streamer pode devolver os pontos")}
         ${linha("!caixa", "Resumo no chat de quantos Pokémon você já capturou")}
         ${linha("!release magikarp", "Solta o seu Magikarp <b>mais fraco</b>. <code>!release magikarp 2</code> solta o #2 da lista (veja os números clicando nele na sua Pokédex) e <code>!release magikarp todos</code> solta todos. Se não sobrar nenhum e ele era o seu parceiro, você <b>perde a fotinha</b> e volta a ser um ovo. O chat pede confirmação: <code>!release sim</code> em até 1 minuto. <b>Rápido:</b> <code>!release magikarp já</code> solta o mais fraco na hora, sem confirmar (shiny, todos ou o último ainda pedem confirmação). Não tem volta")}
         ${linha("!pokedex", "Link desta página já aberta no seu perfil")}
@@ -866,7 +880,7 @@
         ${linha("!mel / !hipermel", "Uma abelha da sua caixa (<b>Cutiefly, Ribombee, Combee ou Vespiquen</b>) faz Mel no apiário do rancho durante a live (<code>!apiario cutiefly</code> escolhe qual). <code>!mel</code> chama um Pokémon selvagem na live. <code>!hipermel</code> tem 10% de chance de vir um Pokémon na última forma e 0,1% de um lendário")}
         ${linha("Check-in", "Na sua primeira mensagem de cada live você faz check-in e ganha 2 Great Balls, 1 Mel, 3 Essências e 1 Apricorn. A cada 5 dias seguidos ganha também 1 Ultra Ball e 1 Hiper Mel")}
         ${linha("!atacar (Raid)", "Quando o streamer abre uma <b>Raid</b>, aparece um Pokémon chefe 80% mais forte, com HP enorme, por 3 minutos. Digite <code>!atacar</code> (ou use o botão ⚔️ no chat do site) para atacar com o seu parceiro: a força dele, o estágio e o tipo contam. O chefe revida e deixa alguns parceiros fora de combate por um tempinho. Se ele cair, todo mundo que lutou ganha Essência e só quem lutou pode tentar capturar")}
-        ${linha("!pedreira geodude", "Um Pokémon de <b>Pedra</b> ou <b>Terra</b> da sua caixa quebra pedra na pedreira do rancho durante a live (se você não escolher, o mais forte vai sozinho). A cada 8 minutos mais ou menos ele acha algo: quase sempre <b>Minério</b> para a forja, às vezes Pó Estelar e, com sorte, <b>pedras de evolução</b> e <b>Revestimento Metálico</b> (só vem daqui; Magneton precisa dele e de 30 min de convívio para virar Magnezone). Mais forte, mais rápido. Vai direto para a mochila")}
+        ${linha("!pedreira geodude", "Um Pokémon de <b>Pedra</b> ou <b>Terra</b> da sua caixa quebra pedra na pedreira do rancho durante a live (se você não escolher, o mais forte vai sozinho). A cada 8 minutos mais ou menos ele acha algo: quase sempre <b>Minério</b> para a forja, às vezes Pó Estelar e, com sorte, <b>pedras de evolução</b> e <b>Revestimento Metálico</b> (só vem daqui; Magneton precisa dele e do nível 30 para virar Magnezone). Mais forte, mais rápido. Vai direto para a mochila")}
         ${linha("!colher", "A horta tem 3 canteiros. Com um Pokémon de <b>Água</b> (rega) e um de <b>Grama</b> na caixa, o de Grama <b>planta sozinho</b> nos canteiros vazios durante a live, de graça. A cor do Apricorn depende do tipo dele: Grama/Fogo planta vermelho, Grama/Fada rosa, Grama/Veneno preto, só Grama verde (e às vezes vem uma surpresa). Em até 45 minutos dá 2 ou 3 Apricorns: <code>!colher</code>. Quer uma cor certa? Plante o seu com <code>!plantar azul</code>. <code>!horta squirtle bulbasaur</code> escolhe os ajudantes")}
         ${linha("!pescar", "Joga a linha no rio do rancho (1 vez a cada 3 min). Vem Magikarp, outros peixes que entram na sua caixa, ou itens. Com Vara Boa e Super Vara aparecem peixes mais raros (Feebas, Dratini, Gyarados…)")}
         ${linha("!daycare pikachu eevee", "Deixa dois Pokémon da sua caixa no <b>Day Care</b> (clique no ninho de ovos no seu rancho para ver). A cada 20 min aparece um ovo, até 6. 30 min depois ele pode ser chocado com <code>!chocar</code>, e nasce a forma mais básica (Pichu, Togepi, Riolu…), com força herdada dos pais. É o <b>único jeito</b> de conseguir Pokémon bebê. <code>!daycare</code> mostra como está, <code>!daycare tirar</code> busca os pais")}
@@ -1170,7 +1184,7 @@
     return `<h3 style="margin:18px 0 6px;font:600 17px Fredoka,sans-serif">Quem evolui com cada item</h3><table class="tabela">` +
       Object.keys(por).map((id) => lin(id, [...new Set(por[id])].map((n) => esc(nome(n)) + ([28, 38].includes(n) && id === "ice-stone" ? " de Alola" : "")).join(", "))).join("") +
       Object.keys(FORMAS).map((id) => lin(id, "muda para " + esc(FORMAS[id]))).join("") + `</table>
-      <p class="sub" style="margin-top:6px">Espeon, Umbreon e Sylveon evoluem só com convívio (sem item). Pokémon que no jogo evoluem por troca (Alakazam, Gengar, Machamp…) usam o <b>Cordão de Troca</b>.</p>`;
+      <p class="sub" style="margin-top:6px">Espeon, Umbreon e Sylveon evoluem só por nível (20, sem item). Pokémon que no jogo evoluem por troca (Alakazam, Gengar, Machamp…) usam o <b>Cordão de Troca</b>.</p>`;
   }
 
   /* ---------- Entrar com a Twitch para mexer clicando: os botões mandam o comando no chat da live, como você ---------- */
@@ -1219,13 +1233,14 @@
     const form = b.closest("[data-form]");
     if (form) { const radios = [...new Set([...form.querySelectorAll("input[type=radio]")].map((x) => x.name))];
       const vals = [...form.querySelectorAll("select")].map((x) => x.value).concat(radios.map((nm) => (form.querySelector(`input[name="${nm}"]:checked`) || {}).value || ""));
+      if (vals.includes("nenhum")) vals.length = 0, cmd = cmd.split(" ")[0] + " nenhum";   // deixar o lugar vazio
       if (vals.some((v) => !v)) { TWX.aviso("Escolha uma opção primeiro 🙂", true); return; } cmd = cmd.replace(/\{(\d)\}/g, (_, i) => vals[+i]); }
     if (!TWX.eu) { if (confirm("Para fazer isso clicando, entre com a sua conta da Twitch. Entrar agora?")) TWX.entrar(); return; }
     if (b.dataset.confirma && !confirm(b.dataset.confirma)) return;
     TWX.enviar(cmd);
     anotarPendente(TWX.eu, cmd);
     if (b.dataset.depois) setTimeout(() => TWX.enviar(b.dataset.depois), 2500);   // ex: !release sim
-    TWX.aviso(`✓ Enviado no chat da live: <b>${esc(cmd)}</b><br><small>O overlay responde no chat e aqui atualiza em 1 ou 2 minutos (só funciona com a live ligada).</small>`);
+    TWX.aviso(`✓ Enviado no chat da live: <b>${esc(cmd)}</b><br><small>O overlay responde no chat e aqui atualiza em menos de 1 minuto (só funciona com a live ligada).</small>`);
   });
   function barraLogin(login) {
     if (souEu(login)) return `<div class="tw-barra on">🟣 Conectado como <b>${esc(TWX.eu)}</b>: use os botões para mexer no seu rancho e nos seus Pokémon. <a href="#" class="tw-sair">sair</a></div>`;
@@ -1245,6 +1260,8 @@
     else if ((m = cmd.match(/^!daycare (\d+) (\d+)$/))) { k = "dc"; v = [+m[1], +m[2]]; }
     else if ((m = cmd.match(/^!rancho (\d+)$/))) { k = "ami"; v = +m[1]; }
     else if ((m = cmd.match(/^!pedreira (\d+)$/))) { k = "pd"; v = +m[1]; }
+    else if ((m = cmd.match(/^!apiario (\d+)$/))) { k = "ap"; v = +m[1]; }
+    else if ((m = cmd.match(/^!(forja|horta|pedreira|apiario) nenhum$/))) { k = { forja: "fj", horta: "hf", pedreira: "pd", apiario: "ap" }[m[1]]; v = k === "fj" || k === "hf" ? "off" : -1; }
     else if (cmd === "!rancho tirar") { k = "ami"; v = 0; }
     else if (cmd === "!daycare tirar") { k = "dc"; v = 0; }
     else if ((m = cmd.match(/^!pokemon (\d+)( shiny)?$/))) { k = "p"; v = [+m[1], m[2] ? 1 : 0]; }
@@ -1260,20 +1277,21 @@
     const em = D && D.em ? Date.parse(D.em) : 0, rn = Object.assign({}, u.rn || {}), out = Object.assign({}, u, { rn }), pend = {};
     const igual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     Object.entries(eu).forEach(([k, x]) => {
-      const atual = k === "dc" ? (rn.dc && rn.dc.a ? [rn.dc.a[0], rn.dc.b && rn.dc.b[0]] : 0) : k === "p" ? (u.p ? [u.p[0], u.p[1] ? 1 : 0] : null) : k === "ami" ? (rn.ami || 0) : k === "pd" ? ((rn.pd || {}).n || 0) : rn[k];
-      const chegou = igual(atual, x.v) || (k === "fj" || k === "hf" ? (atual || []).slice().sort().join() === x.v.slice().sort().join() : false);
+      const atual = k === "dc" ? (rn.dc && rn.dc.a ? [rn.dc.a[0], rn.dc.b && rn.dc.b[0]] : 0) : k === "p" ? (u.p ? [u.p[0], u.p[1] ? 1 : 0] : null) : k === "ami" ? (rn.ami || 0) : k === "pd" ? ((rn.pd || {}).n || 0) : k === "ap" ? ((rn.ap || {}).n || 0) : rn[k];
+      const chegou = igual(atual, x.v) || ((k === "fj" || k === "hf") && Array.isArray(atual) && Array.isArray(x.v) ? atual.slice().sort().join() === x.v.slice().sort().join() : false);
       if (chegou || Date.now() - x.t > 10 * 60e3 || em > x.t + 4 * 60e3) { delete eu[k]; return; }   // confirmou, ou a live já respondeu sem mudar
       pend[k] = 1;
       if (k === "fj" || k === "hf") rn[k] = x.v;
       else if (k === "ami") { if (x.v) rn.ami = x.v; else delete rn.ami; }
       else if (k === "pd") rn.pd = Object.assign({}, rn.pd || {}, { n: x.v });
+      else if (k === "ap") rn.ap = Object.assign({}, rn.ap || {}, { n: x.v });
       else if (k === "dc") rn.dc = x.v ? Object.assign({}, rn.dc || {}, { a: [x.v[0], 0], b: [x.v[1], 0] }) : Object.assign({}, rn.dc || {}, { a: 0, b: 0 });
       else if (k === "p") out.p = x.v;
     });
     try { if (!Object.keys(eu).length) delete p[login]; localStorage.setItem(PEND, JSON.stringify(p)); } catch (e) {}
     return { u: out, pend };
   }
-  // depois de um clique, busca os dados de novo a cada 45 s por alguns minutos (sem recarregar a página)
+  // depois de um clique, busca os dados de novo a cada 25 s por alguns minutos (sem recarregar a página)
   let esperando = 0;
   function esperarLive() {
     esperando = Date.now();
@@ -1291,7 +1309,7 @@
         if (l && D.t[l]) { desenhar(l); scrollTo(0, y); }
         document.getElementById("rodape").textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       } catch (e) {}
-    }, 45e3);
+    }, 25e3);
   }
 
   /* ---------- sprites animados do PMD (o mesmo projeto das carinhas do chat): todos na mesma escala ----------
@@ -1344,6 +1362,7 @@
   // ajudantes publicados pelo overlay; se a pessoa nunca usou o rancho, calcula pela caixa
   function ajudantesSite(u, qual) {
     const rn = u.rn || {}, pub = qual === "forja" ? rn.fj : rn.hf;
+    if (pub === "off") return [0, 0];   // a pessoa deixou sem ninguém
     if (pub) return pub;
     const R = USUM.rancho, tem = Object.keys(u.c || {}).map(Number);
     if (!R) return [0, 0];
@@ -1367,13 +1386,13 @@
     const eu = souEu(login), cx = Object.keys(u.c || {}).map(Number).sort((a, b) => nome(a).localeCompare(nome(b)));
     const fz = rn.fz || {}, am = rn.am || {}, br = new Set(rn.br || []), LIM = R.CFG.amizadeBorda;
     const doTipo = (t) => cx.filter((n) => [].concat(t).some((x) => R.tiposDe(n).includes(x)));
-    const opts = (lista, sel) => `<option value="">escolher…</option>` + lista.map((n) => `<option value="${n}" ${n === sel ? "selected" : ""}>${esc(nome(n))}</option>`).join("");
+    const opts = (lista, sel, off) => `<option value="">escolher…</option><option value="nenhum" ${off ? "selected" : ""}>— nenhum Pokémon —</option>` + lista.map((n) => `<option value="${n}" ${n === sel ? "selected" : ""}>${esc(nome(n))}</option>`).join("");
     // controles aparecem no próprio perfil (logado) ou para quem ainda não entrou (o clique pede para entrar com a Twitch)
     const ctl = eu || !TWX.eu;
     const btn = (cmd, txt, ok = true, conf) => ctl ? `<button type="button" class="r-btn" data-cmd="${esc(cmd)}" ${ok ? "" : "disabled"} ${conf ? `data-confirma="${esc(conf)}"` : ""}>${txt}</button>` : "";
-    const trocaDupla = (cmd, t1, t2, a, b) => ctl ? `<div class="r-form" data-form><select aria-label="${t1}">${opts(doTipo(t1), a)}</select><select aria-label="${t2}">${opts(doTipo(t2), b)}</select><button type="button" class="r-btn" data-cmd="${cmd} {0} {1}">Trocar</button></div>` : "";
+    const trocaDupla = (cmd, t1, t2, a, b, off = (cmd === "!forja" ? rn.fj : rn.hf) === "off") => ctl ? `<div class="r-form" data-form><select aria-label="${t1}">${opts(doTipo(t1), a, off)}</select><select aria-label="${t2}">${opts(doTipo(t2), b, off)}</select><button type="button" class="r-btn" data-cmd="${cmd} {0} {1}">Trocar</button></div>` : "";
     const fzTxt = (n) => n && fz[n] != null ? ` <em class="fz-mini">${fz[n]}%</em>` : "";
-    const pok = (n, cls, tit) => pmdSpr(n, false, "ajud " + cls, tit + ": " + nome(n), { aco: 1, fogo: 7, agua: 1, grama: 7, mineiro: 7, abelha: 6 }[cls] || 0);
+    const pok = (n, cls, tit) => !(n > 0) ? "" : pmdSpr(n, false, "ajud " + cls, tit + ": " + nome(n), { aco: 1, fogo: 7, agua: 1, grama: 7, mineiro: 7, abelha: 6 }[cls] || 0);
     const pokVelho = (n, cls, tit) => n ? `<img class="ajud ${cls}" src="${ani(n)}" alt="" title="${esc(tit + ": " + nome(n))}" loading="lazy">` : "";
     const casaImg = mv.length >= 8 ? "casa-2" : "casa";
     const dc = rn.dc || {}, dcOv = (dc.ov || []).map(([n, s2, t]) => ({ n, s: s2, pronto: agora - t >= R.CFG.chocarMinutos * 60e3, min: Math.max(0, Math.ceil((t + R.CFG.chocarMinutos * 60e3 - agora) / 60e3)) }));
@@ -1409,7 +1428,7 @@
     // ---- horta ----
     h += `<section class="painel" id="r-horta"><h3><img src="${RA}ic-horta.png" alt="">Horta</h3>
       <div class="dupla">${[["Água (rega)", agua], ["Grama (aduba)", grama]].map(([t, n]) => `<div class="vaga ${n ? "ok" : ""}">${n ? pmdSpr(n, false, "vaga-spr") : `<span>?</span>`}<small>${t}</small><b>${n ? esc(nome(n)) : "falta"}${fzTxt(n)}</b></div>`).join("")}</div>
-      ${pend.hf ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (1 a 3 min)…</p>` : ""}${trocaDupla("!horta", "water", "grass", agua, grama)}
+      ${pend.hf ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}${trocaDupla("!horta", "water", "grass", agua, grama)}
       <div class="canteiros">` + hz.map((c) => { if (!c) return `<div class="cant vazio-c"><img src="${RA}terra-seca.png" alt=""><small>livre</small></div>`;
         const e = est(c), fim = c.t + 3 * (c.d || R.CFG.minutosEstagio) * 60e3, min = Math.max(0, Math.ceil((fim - agora) / 60e3));
         return `<div class="cant"><img src="${RA}terra-molhada.png" alt=""><img class="pl" src="${RA}${R.ESTAGIOS[e]}.png" alt=""><small><img class="mi" src="${R.urlItem(c.s + "-apricorn")}" alt="">${e >= 3 ? "<b>pronto! !colher</b>" : "fruto em ~" + min + " min"}</small></div>`; }).join("") +
@@ -1429,7 +1448,7 @@
     const bolas = Object.keys(R.RECEITAS).filter((k) => !/^vara/.test(k));
     h += `<section class="painel largo" id="r-forja"><h3><img src="${RA}ic-forja.png" alt="">Forja</h3>
       <div class="dupla">${[["Aço, Terra ou Pedra", aco], ["Fogo", fogo]].map(([t, n]) => `<div class="vaga ${n ? "ok" : ""}">${n ? pmdSpr(n, false, "vaga-spr") : `<span>?</span>`}<small>${t}</small><b>${n ? esc(nome(n)) : "falta"}${fzTxt(n)}</b></div>`).join("")}</div>
-      ${pend.fj ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (1 a 3 min)…</p>` : ""}${trocaDupla("!forja", ["steel", "ground", "rock"], "fire", aco, fogo)}
+      ${pend.fj ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}${trocaDupla("!forja", ["steel", "ground", "rock"], "fire", aco, fogo)}
       <p class="sub">💪 Quanto mais forte a dupla, maior a chance de sair <b>uma bola a mais</b> em cada fornada.</p>
       <p class="sub">✨ Toda Pokébola gasta <b>Essência</b> (você tem <b>${tem("essencia")}</b>): ganhe capturando Pokémon e soltando com <b>!release</b>.</p><p class="sub">${forjaOn ? "A forja está acesa! Forje com <b>!forjar great</b> (ou <b>!forjar great 5</b> para fazer várias)." : "Para acender, você precisa ter na caixa um Pokémon de <b>Aço, Terra ou Pedra</b> e um de <b>Fogo</b>. Escolha quem trabalha com <b>!forja geodude litten</b>."}</p>
       <div class="receitas">` + bolas.map((k) => { const r = R.RECEITAS[k];
@@ -1440,15 +1459,15 @@
     const pd = rn.pd || {}, mn = pd.n || 0;
     h += `<section class="painel" id="r-pedreira"><h3><img src="${R.urlItem("hard-stone")}" alt="">Pedreira</h3>
       <div class="dupla"><div class="vaga ${mn ? "ok" : ""}">${mn ? pmdSpr(mn, false, "vaga-spr") : `<span>?</span>`}<small>Pedra ou Terra</small><b>${mn ? esc(nome(mn)) : "falta"}${fzTxt(mn)}</b></div></div>
-      ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon de Pedra ou Terra">${opts(doTipo(R.TIPOS_PEDREIRA), mn)}</select><button type="button" class="r-btn" data-cmd="!pedreira {0}">Trocar</button></div>` : ""}
-      ${pend.pd ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (1 a 3 min)…</p>` : ""}
+      ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon de Pedra ou Terra">${opts(doTipo(R.TIPOS_PEDREIRA), mn, mn === -1)}</select><button type="button" class="r-btn" data-cmd="!pedreira {0}">Trocar</button></div>` : ""}
+      ${pend.pd ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}
       <p class="sub">${mn ? `${esc(nome(mn))} quebra pedra durante a live e acha alguma coisa a cada <b>${pd.m || R.CFG.pedreiraMinutos} min</b>: quase sempre <b>Minério</b> (para a forja), às vezes Pó Estelar e, com sorte, <b>pedras de evolução</b>. Vai direto para a mochila.` : "Um Pokémon de <b>Pedra</b> ou <b>Terra</b> da sua caixa quebra pedra aqui e acha Minério, Pó Estelar e pedras de evolução."} 💪 Mais forte, mais rápido.</p>
       ${(pd.ac || []).length ? `<h4>Últimos achados</h4><div class="achados">${pd.ac.map(([id]) => R.ITENS[id] ? `<img src="${R.urlItem(id)}" alt="" title="${esc(R.ITENS[id].n)}">` : "").join("")}</div>` : ""}</section>`;
     // ---- apiário ----
     const ap = rn.ap || {}, ab = ap.n || 0;
     h += `<section class="painel" id="r-apiario"><h3><img src="${RA}mel.png" alt="">Apiário</h3>
       <div class="dupla"><div class="vaga ${ab ? "ok" : ""}">${ab ? pmdSpr(ab, false, "vaga-spr") : `<span>?</span>`}<small>Abelha</small><b>${ab ? esc(nome(ab)) : "falta"}${fzTxt(ab)}</b></div></div>
-      ${ctl ? `<div class="r-form" data-form><select aria-label="Abelha">${opts(cx.filter((n) => R.ABELHAS.includes(n)), ab)}</select><button type="button" class="r-btn" data-cmd="!apiario {0}">Trocar</button></div>` : ""}
+      ${ctl ? `<div class="r-form" data-form><select aria-label="Abelha">${opts(cx.filter((n) => R.ABELHAS.includes(n)), ab, ab === -1)}</select><button type="button" class="r-btn" data-cmd="!apiario {0}">Trocar</button></div>` : ""}
       <p class="sub">${ab ? `${esc(nome(ab))} faz um pote de <b>Mel</b> a cada <b>${ap.m || R.CFG.apiarioMinutos} min</b> de live, e às vezes um <b>Hiper Mel</b>.` : "Precisa de <b>Cutiefly</b>, <b>Ribombee</b>, <b>Combee</b> ou <b>Vespiquen</b> na caixa."} Use o mel para chamar um Pokémon selvagem na live. O <b>Hiper Mel</b> tem 10% de chance de chamar um Pokémon na última forma e 0,1% de um lendário.</p>
       <div class="r-acoes">${ctl ? btn("!mel", `<img src="${RA}mel.png" alt="">Usar Mel (${it.mel || 0})`, (it.mel || 0) > 0) + btn("!hipermel", `<img src="${RA}hiper-mel.png" alt="">Usar Hiper Mel (${it["hiper-mel"] || 0})`, (it["hiper-mel"] || 0) > 0) : ""}</div></section>`;
     // ---- cantinho da amizade ----
@@ -1457,7 +1476,7 @@
     h += `<section class="painel largo" id="r-amizade"><h3><img src="${RA}ic-casa.png" alt="">Cantinho da Amizade</h3>
       <p class="sub">Deixe um Pokémon morando no rancho com <b>!rancho pikachu</b>: ele ganha 2 de amizade por minuto de live. Quem trabalha na forja, na horta ou no Day Care ganha 1. Com <b>${LIM}</b> de amizade a espécie libera a <b>borda Rancho</b> 🌱 da fotinha.</p>
       ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon">${opts(cx, rn.ami)}</select><button type="button" class="r-btn" data-cmd="!rancho {0}">Deixar no rancho</button>${rn.ami ? btn("!rancho tirar", "Tirar") : ""}</div>` : ""}
-      ${pend.ami ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (1 a 3 min)…</p>` : ""}
+      ${pend.ami ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}
       <div class="amigos">` + (amigos.length ? amigos.map((n) => { const p = Math.min(am[n] || 0, LIM), ok = br.has(n);
         return `<div class="amigo-r ${ok ? "ok" : ""}"><img src="${mini(n)}" alt=""><div><b>${esc(nome(n))}</b> ${n === rn.ami ? '<span class="tag-r">mora aqui</span>' : trab.includes(n) ? '<span class="tag-r t">trabalhando</span>' : ""}
           <div class="prog"><div class="cheio" style="width:${(p / LIM) * 100}%"></div></div><small>${ok ? "🌱 borda Rancho liberada!" : p + "/" + LIM + " de amizade"}</small></div></div>`; }).join("") : `<p class="vazio">Ninguém no rancho ainda.</p>`) + `</div></section>`;
@@ -1491,7 +1510,7 @@
       <p>${dc.a && dc.b ? `<b>${esc(nome(dc.a[0]))}</b> e <b>${esc(nome(dc.b[0]))}</b> estão no Day Care. A cada ${x.dp || R.CFG.ovoMinutos} min aparece um ovo (até ${R.CFG.maxOvos}); ${R.CFG.chocarMinutos} min depois ele pode ser chocado com <b>!chocar</b>. Dos ovos nasce a forma mais básica${bebe ? `, como <b>${esc(bebe)}</b>` : ""}.`
         : `Deixe dois Pokémon da sua caixa aqui com <b>!daycare pikachu eevee</b>. Eles botam até ${R.CFG.maxOvos} ovos, e é o <b>único jeito</b> de conseguir Pokémon bebê (Pichu, Togepi, Riolu, Munchlax…).`}
       ${x.dcOv.length ? ` Você tem <b>${x.dcOv.length}</b> ovo(s), ${x.dcOv.filter((o) => o.pronto).length} pronto(s).` : ""} Para buscar os pais: <b>!daycare tirar</b>. 💪 Pais fortes botam ovo mais rápido.</p>
-      ${x.pend ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (1 a 3 min)…</p>` : ""}${x.eu ? `<div class="dc-acoes"><div class="r-form" data-form><select aria-label="Pokémon 1">${dcOpts(x.cx, dc.a && dc.a[0])}</select><select aria-label="Pokémon 2">${dcOpts(x.cx, dc.b && dc.b[0])}</select><button type="button" class="r-btn" data-cmd="!daycare {0} {1}">Deixar no Day Care</button></div>
+      ${x.pend ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}${x.eu ? `<div class="dc-acoes"><div class="r-form" data-form><select aria-label="Pokémon 1">${dcOpts(x.cx, dc.a && dc.a[0])}</select><select aria-label="Pokémon 2">${dcOpts(x.cx, dc.b && dc.b[0])}</select><button type="button" class="r-btn" data-cmd="!daycare {0} {1}">Deixar no Day Care</button></div>
         ${x.dcOv.some((o) => o.pronto) ? `<button type="button" class="r-btn rosa" data-cmd="!chocar">🐣 Chocar ovos</button>` : ""}${dc.a ? `<button type="button" class="r-btn" data-cmd="!daycare tirar">Buscar os pais</button>` : ""}</div>` : ""}</div>`;
     const fechar = () => { f.remove(); document.removeEventListener("keydown", tecla); };
     const tecla = (e) => { if (e.key === "Escape") fechar(); };
@@ -1623,8 +1642,16 @@
   const NATUREZAS = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty",
     "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t, a, n]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "" }; })
+    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0 }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
+  }
+  const custoNivel = (L) => (L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);   // igual ao overlay
+  const NOME_TIPO = { normal: "Normal", fire: "Fogo", water: "Água", grass: "Grama", electric: "Elétrico", ice: "Gelo", fighting: "Lutador", poison: "Veneno", ground: "Terra", flying: "Voador", psychic: "Psíquico", bug: "Inseto", rock: "Pedra", ghost: "Fantasma", dragon: "Dragão", dark: "Sombrio", steel: "Aço", fairy: "Fada" };
+  function nivelHTML(x) {
+    if (!x.lv) return "";
+    const g = x.m && (window.USUM_GOLPES || {})[x.m], prox = x.lv >= 100 ? 0 : custoNivel(x.lv);
+    return `<div class="ind-nv"><b>Nv. ${x.lv}</b>${prox ? `<div class="xp-barra" title="${x.xp}/${prox} XP"><i style="width:${Math.min(100, (x.xp / prox) * 100)}%"></i></div><small>${x.xp}/${prox} XP</small>` : "<small>nível máximo</small>"}
+      ${x.m ? `<span class="golpe t-${g ? g[0] : "normal"}">⚔️ ${esc(x.m)}${g ? ` <em>${NOME_TIPO[g[0]] || g[0]} · poder ${g[1]}</em>` : ""}</span>` : ""}</div>`;
   }
   function fichaPokemon(u, n) {
     const e = (u.c || {})[n]; if (!e) return;
@@ -1638,6 +1665,7 @@
         <select class="fi-f"><option value="0">qualquer força</option><option value="50">50%+</option><option value="70">70%+</option><option value="90">90%+</option></select></div>` : ""}
       <div class="fi-lista">${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}" data-i="${i}" data-f="${x.f}" data-t="${x.t || 0}" data-a="${esc((x.a || "").toLowerCase())}">
         <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${x.n || notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
+        ${nivelHTML(x)}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
         ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button><button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
