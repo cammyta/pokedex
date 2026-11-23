@@ -23,14 +23,14 @@
   let lider = false;
   const temTrava = !!(navigator.locks && navigator.locks.request);
   if (temTrava) navigator.locks.request("usum_lider", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
+  // Cada comando roda numa tela só. A líder roda na hora e anota; as outras esperam um pouco e, se ninguém anotou
+  // (a líder pode estar com o chat caído, ex.: fonte escondida no OBS), a primeira que chegar roda no lugar dela.
   function umaVez(m, fn) {
-    if (temTrava) { if (lider) fn(); return; }
-    setTimeout(() => {
-      const k = (m.id || m.texto) + "", v = ler("usum_cmd_feitos", []);
-      if (v.includes(k)) return;
-      v.push(k); gravar("usum_cmd_feitos", v.slice(-300));
-      fn();
-    }, 30 + Math.random() * 220);
+    const k = (m.id || m.login + ":" + m.texto) + "";
+    const feito = () => ler("usum_cmd_feitos", []).includes(k);
+    const anotar = () => { const v = ler("usum_cmd_feitos", []); v.push(k); gravar("usum_cmd_feitos", v.slice(-300)); };
+    if (temTrava && lider) { if (feito()) return; anotar(); fn(); return; }
+    setTimeout(() => { if (feito()) return; anotar(); fn(); }, (temTrava ? 1400 : 30) + Math.random() * 600);
   }
   function mudar(m, chave, fn) { umaVez(m, () => { const tudo = ler(chave, {}); fn(tudo); gravar(chave, tudo); }); }
   function mudarPerfil(m, fn) { mudar(m, "usum_perfil", (pf) => fn(pf[m.login] = pf[m.login] || {})); }
@@ -355,6 +355,11 @@
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
         d.insertAdjacentHTML("beforeend", `<span class="t">O ${esc(ev.de)} de <b>${esc(ev.nome)}</b> evoluiu para <b>${esc(ev.para)}</b>!${ev.item ? " (usou " + esc(ev.item) + ")" : ""}</span>`);
+      } else if (ev.tipo === "checkin") {
+        // cartão de check-in: primeira mensagem da live
+        d.className = "aviso checkin " + (times()[ev.login] || "");
+        d.innerHTML = `<div class="ck-topo"><span class="ck-selo">✓</span><div><b class="ck-nome">${esc(ev.nome)}</b><small>fez check-in na live${ev.tot > 1 ? ` · ${ev.tot}ª vez` : ""}</small></div>${ev.seguidos > 1 ? `<span class="ck-fogo">🔥 ${ev.seguidos} dias seguidos</span>` : ""}</div>
+          <div class="ck-itens">${(ev.itens || []).map((x) => `<span><img src="${esc(x.img)}" alt="">${x.n > 1 ? x.n + "× " : ""}${esc(x.nome)}</span>`).join("")}</div>`;
       } else if (ev.tipo === "rancho") {
         d.className = "aviso rancho " + (times()[ev.login] || "");
         const ic = String(ev.img || ""), RA = /github\.io$|^file:.*pokedex-site/.test(location.hostname || location.href) ? "assets/rancho/" : "pokedex-site/assets/rancho/";
@@ -884,7 +889,8 @@
         aviso(times()[m.login], `<b>${esc(m.nome)}</b>, para evoluir seu parceiro use a recompensa <b>Evoluir meu Pokémon</b> nos pontos do canal`); return;
       }
       if (/^!capturar\b/.test(low)) return;
-      if (USUM.rancho && USUM.rancho.ehComando(low)) return;   // comandos do rancho: respondidos pelo core/rancho.js
+      if (USUM.rancho && USUM.rancho.ehComando(low)) return;
+      if (/^!(atacar|atk|ataque|a|raid)(\s|$)/.test(low)) return;   // Raid: o ataque aparece na tela da Raid, não no chat   // comandos do rancho: respondidos pelo core/rancho.js
       if (/^!(subs|meta)\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;                       // conta no encontro.html
       if ((m.dono || m.ajudante) && /^!registrar\b/.test(low)) return;
       if ((m.dono || m.ajudante) && /^!selvagem\b/.test(low)) return;
