@@ -797,3 +797,16 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .chat .msg.bolha-cinefilo .nome { color: #f6e3b0; }
 .chat .msg.bolha-cinefilo::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7px; pointer-events: none; opacity: .5;
   background: radial-gradient(circle, rgba(255,240,200,.9) 2px, transparent 2.5px) 0 0/7px 9px repeat-y; }
+
+/* ---------- cartão de check-in (primeira mensagem da live) ---------- */
+.aviso.checkin { display: block; padding: 12px 14px; border-radius: 20px; border: 2px solid rgba(255,216,107,.65);
+  background: linear-gradient(135deg, rgba(255,200,92,.28), rgba(164,147,255,.22) 55%, rgba(24,14,50,.92)); box-shadow: 0 0 20px rgba(255,200,92,.25); animation: ck-entra .6s cubic-bezier(.2,1.5,.4,1); }
+@keyframes ck-entra { from { transform: translateY(14px) scale(.9); opacity: 0; } }
+.aviso.checkin .ck-topo { display: flex; align-items: center; gap: 10px; }
+.aviso.checkin .ck-selo { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: #8fd36a; color: #1d3310; font: 700 20px "Fredoka"; box-shadow: 0 0 0 3px rgba(255,255,255,.75); }
+.aviso.checkin .ck-nome { font: 700 18px "Fredoka"; color: #ffe08a; display: block; line-height: 1.1; }
+.aviso.checkin small { font-size: 13px; opacity: .9; }
+.aviso.checkin .ck-fogo { margin-left: auto; font: 700 13px "Fredoka"; background: rgba(255,120,60,.3); border: 1px solid rgba(255,150,80,.6); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.aviso.checkin .ck-itens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.aviso.checkin .ck-itens span { display: inline-flex; align-items: center; gap: 4px; font: 600 13px "Fredoka"; background: rgba(0,0,0,.28); border-radius: 999px; padding: 2px 10px 2px 4px; }
+.aviso.checkin .ck-itens img { width: 24px; height: 24px; image-rendering: pixelated; object-fit: contain; }
