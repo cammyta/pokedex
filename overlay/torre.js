@@ -112,7 +112,7 @@
     time: [[352, "Shadow Sneak", "Sucker Punch"]] }];
 
   const LIDERES = { alola: ALOLA, canal: CANAL };
-  const CFG = Object.assign({ porDia: 2, xpCapitao: 1, xpKahuna: 1.6, xpCampeao: 3, xpPesadelo: 1.5, xpPerdeu: 5 }, (window.USUM_CONFIG || {}).torre || {});
+  const CFG = Object.assign({ bitsAuto: 100, porDia: 2, xpCapitao: 1, xpKahuna: 1.6, xpCampeao: 3, xpPesadelo: 1.5, xpPerdeu: 5 }, (window.USUM_CONFIG || {}).torre || {});
 
   /* ---------- força dos líderes ----------
      capitães: nível 10 a 52 (do 1º ao 8º) com 3 Pokémon · Kahunas 58-67 e Kukui 72 com 6 · pesadelo: +20 níveis e 6 Pokémon para todos */
@@ -197,6 +197,43 @@
     return { venceu: ib >= b.length && ia < a.length, e, a, b };
   }
 
+  /* ---------- batalha na mão (turno a turno) ----------
+     O site joga e o overlay refaz a mesma luta (mesma semente + mesmas escolhas) para conferir antes de dar a insígnia.
+     Escolhas (uma letra por ação): "1"/"2" = golpe 1 ou 2 · "a".."f" = trocar para o Pokémon 1..6 da party */
+  function novaLuta(A, B, semente) { return { r: rng(semente || 1), a: A.map(preparar), b: B.map(preparar), ia: 0, ib: 0, acoes: "", fim: 0, voltas: 0, troca: false }; }
+  const vivo = (l, i) => l[i] && l[i].hp > 0;
+  // aplica uma escolha; devolve os acontecimentos: ["g", lado, quem, alvo, golpe, dano, flags] · ["t", lado, de, para] · ["e", lado, slot] (entrou depois de desmaio)
+  function jogar(st, acao) {
+    const ev = []; if (st.fim) return ev;
+    let c = String(acao || "1")[0];
+    const slot = "abcdef".indexOf(c);
+    if (st.troca) {   // o Pokémon da pessoa desmaiou: escolhe quem entra (não gasta turno)
+      const ok = slot >= 0 && vivo(st.a, slot) ? slot : st.a.findIndex((x) => x.hp > 0);
+      st.acoes += "abcdef"[ok]; st.ia = ok; st.troca = false; ev.push(["e", 0, ok]); return ev;
+    }
+    if (slot >= 0 && (!vivo(st.a, slot) || slot === st.ia)) c = "1";
+    st.acoes += c; st.voltas++;
+    const golpe = (lado, g) => {
+      const at = lado === 0 ? st.a[st.ia] : st.b[st.ib], df = lado === 0 ? st.b[st.ib] : st.a[st.ia];
+      if (at.hp <= 0 || df.hp <= 0) return;
+      const x = golpear(at, df, g, st.r); df.hp = Math.max(0, df.hp - x.dano);
+      ev.push(["g", lado, lado === 0 ? st.ia : st.ib, lado === 0 ? st.ib : st.ia, g, x.dano, x.flags | (df.hp <= 0 ? 16 : 0), df.hp]);
+    };
+    if ("abcdef".includes(c)) {   // trocar gasta o turno: o líder ataca quem entrou
+      ev.push(["t", 0, st.ia, slot]); st.ia = slot;
+      golpe(1, escolher(st.b[st.ib], st.a[st.ia]));
+    } else {
+      const pa = st.a[st.ia], pb = st.b[st.ib], g = Math.min(+c - 1, Math.max(0, pa.mv.length - 1));
+      const primeiro = velocidade(pa, st.r) >= velocidade(pb, st.r) ? 0 : 1;
+      for (const lado of [primeiro, 1 - primeiro]) golpe(lado, lado === 0 ? g : escolher(pb, pa));
+    }
+    if (st.b[st.ib].hp <= 0) { st.ib++; if (st.ib >= st.b.length) st.fim = 1; else ev.push(["e", 1, st.ib]); }
+    if (!st.fim && st.a[st.ia].hp <= 0) { if (st.a.some((x) => x.hp > 0)) st.troca = true; else st.fim = 2; }
+    if (!st.fim && st.voltas >= 200) st.fim = 2;
+    return ev;
+  }
+  function refazer(A, B, semente, acoes) { const st = novaLuta(A, B, semente); for (const c of String(acoes || "")) { if (st.fim) break; jogar(st, c); } return st; }
+
   /* ---------- tudo daqui para baixo só roda no overlay ---------- */
   const site = /github\.io$/.test(location.hostname) || /pokedex-site/.test(location.href);
   const ler = (k, p) => { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? p : v; } catch (e) { return p; } };
@@ -221,7 +258,7 @@
   }
   function lutadorDe(login, num, sh) {
     const SV = S(), lista = SV.individuos(login, num), ind = lista.find((x) => !!x.s === !!sh) || lista[0]; if (!ind) return null;
-    const m1 = SV.golpeDe(ind, num) || (SV.sortearGolpe ? SV.sortearGolpe(num) : "Tackle"), m2 = ind.m2 && (window.USUM_GOLPES || {})[ind.m2] ? ind.m2 : "";
+    const m1 = SV.golpeDe(ind, num) || "Tackle", m2 = ind.m2 && (window.USUM_GOLPES || {})[ind.m2] ? ind.m2 : "";
     return { num, s: !!ind.s, lv: SV.nivelDe(ind, num), fz: SV.forcaIV(ind.iv), ev: ind.ev || {}, mv: [m1, m2], hi: ind.hi || "", a: ind.a || "" };
   }
   const xpDaVitoria = (i, pesadelo, lv) => Math.round((S().custoNivel(lv) * (i >= 12 ? CFG.xpCampeao : i >= 8 ? CFG.xpKahuna : CFG.xpCapitao) + 10) * (pesadelo ? CFG.xpPesadelo : 1));
@@ -275,9 +312,17 @@
       const st = estado(L), b = st.b || [], usadas = st.d === hoje() ? st.n || 0 : 0;
       return feed(`🗼 <b>${esc(N)}</b>: ${b.length}/${ALOLA.length} insígnias da Torre de Alola${st.v ? ` · venceu a torre ${st.v}x` : ""}${(st.bp || []).length ? ` · pesadelo ${(st.bp || []).length}/${ALOLA.length}` : ""} · subidas hoje: ${usadas}/${CFG.porDia}${url}`, L);
     }
+    // resultado de uma luta jogada na mão no site: !torre luta <líder> <pesadelo 0/1> <semente> <25.33,448s.40,...> <escolhas>
+    let mm = arg.match(/^luta (\d+) ([01]) (\d+) ([\w.,]+) ([1-2a-f]+)$/);
+    if (mm) return resultadoMao(m, +mm[1], mm[2] === "1", +mm[3], mm[4], mm[5], url);
+    if ((mm = arg.match(/^perdi (\d+) ([01])$/))) return perdeuMao(m, +mm[1], mm[2] === "1");
     const pesadelo = /pesadelo|nightmare|dificil|hard/.test(arg);
+    // a subida automática agora é comprada com bits (o streamer pode sem bits)
+    if (!m.dono && !((m.bits || 0) >= CFG.bitsAuto)) {
+      return feed(`🗼 <b>${esc(N)}</b>, a torre agora é jogada <b>na mão</b>: escolha os golpes no site, na página 🗼 Torre${url}. Quer que a party lute sozinha? Mande <b>!torre</b> junto com <b>${CFG.bitsAuto} bits</b> 💎`, L);
+    }
     const torre = /canal|camaleao|kami|cammy/.test(arg) ? "canal" : (TORRES.find((x) => arg.includes(x.id)) || { id: "alola" }).id;
-    const r = subir(L, N, torre, pesadelo, !!m.dono);
+    const r = subir(L, N, torre, pesadelo, true);   // automática (paga com bits ou do streamer): não conta no limite do dia
     if (r.erro === "trancada") return feed(`🔒 <b>${esc(N)}</b>, a <b>Torre do Canal</b> ainda está trancada. Dizem que o campeão de lá tem um Kecleon...`, L, "rancho:torre-canal");
     if (r.erro === "fechada") return feed(`🌫️ <b>${esc(N)}</b>, a Torre de ${esc(nomeTorre(torre))} ainda está coberta de névoa. Por enquanto, só a <b>Torre de Alola</b> está aberta (<b>!torre</b>)`, L);
     if (r.erro === "pesadelo") return feed(`😈 <b>${esc(N)}</b>, o <b>modo pesadelo</b> abre depois que você vencer a Torre de Alola inteira (<b>!torre</b>)`, L);
@@ -294,6 +339,46 @@
     feed(html, L, "rancho:torre-alola");
     if (r.venceuTudo && !r.log.pz && USUM.rancho && USUM.rancho.darBolha) setTimeout(() => { try { USUM.rancho.darBolha(L, N, "torre"); } catch (e) {} }, 1200);
     if (r.bordaNova.length && USUM.publicarFeed) setTimeout(() => USUM.publicarFeed({ tipo: "borda", login: L, nome: N, num: r.bordaNova[0].num, pnome: r.bordaNova.map((x) => USUM.nomeDe(x.num)).join(", "), borda: "torre", bordaNome: "Torre de Alola" }), 2600);
+    clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
+  }
+  const FEM = new Set(["lana", "mallow", "acerola", "mina", "olivia", "hapu"]);
+  /* resultado da luta na mão: o overlay refaz a luta com os Pokémon da caixa (nível no máximo o real) e confere */
+  function resultadoMao(m, i, pesadelo, semente, ordem, acoes, url) {
+    const L = m.login, N = m.nome || L, Lid = ALOLA[i]; if (!Lid) return;
+    const st = estado(L), chave = pesadelo ? "pp" : "p", prox = (st[chave] || 0) >= ALOLA.length ? 0 : st[chave] || 0;
+    const usadas = st.d === hoje() ? st.n || 0 : 0;
+    if (usadas >= CFG.porDia && !m.dono) return feed(`🗼 <b>${esc(N)}</b>, você já usou as ${CFG.porDia} subidas de hoje. A luta contra ${esc(Lid.n)} não valeu insígnia`, L);
+    if (pesadelo && !(st.v > 0)) return;
+    if (i !== prox) return feed(`🗼 <b>${esc(N)}</b>, seu próximo desafio na torre é <b>${esc(ALOLA[prox].n)}</b>, não ${esc(Lid.n)}`, L);
+    const meus = ordem.split(",").slice(0, 6).map((t) => { const mt = t.match(/^(\d+)(s?)\.(\d+)$/); if (!mt) return null;
+      const x = lutadorDe(L, +mt[1], !!mt[2]); if (!x) return null; x.lv = Math.min(x.lv, +mt[3]); return x; }).filter(Boolean);
+    const lid = timeDoLider("alola", i, pesadelo);
+    if (!meus.length || meus.length > lid.length) return;
+    const res = refazer(meus, lid, semente, acoes);
+    if (res.fim !== 1) return feed(`🗼 <b>${esc(N)}</b>, não consegui confirmar a vitória contra ${esc(Lid.n)} com os seus Pokémon da live. Atualize o site e tente de novo`, L);
+    // XP para toda a party
+    party(L).forEach(([n, sh]) => { const ind = S().individuos(L, n).find((y) => !!y.s === sh); const lv = S().nivelDe(ind, n); S().ganharXP(L, n, sh, xpDaVitoria(i, pesadelo, lv)); });
+    const tudo = i >= ALOLA.length - 1, nums = meus.map((x) => x.num);
+    let novos = [];
+    mudar(L, N, (tw) => {
+      if (tw.d !== hoje()) { tw.d = hoje(); tw.n = 0; }
+      const k = pesadelo ? "bp" : "b"; tw[k] = [...new Set((tw[k] || []).concat(i))].sort((a, b) => a - b);
+      tw[chave] = i + 1;
+      if (tudo) { tw.n = (tw.n || 0) + 1; tw[pesadelo ? "vp" : "v"] = (tw[pesadelo ? "vp" : "v"] || 0) + 1;
+        const antes = new Set(tw.cmp || []); novos = party(L).map(([n]) => n).filter((n) => !antes.has(n)); tw.cmp = [...new Set((tw.cmp || []).concat(party(L).map(([n]) => n)))].slice(-30); }
+    });
+    const tot = (estado(L)[pesadelo ? "bp" : "b"] || []).length, pz = pesadelo ? " no <b>pesadelo</b> 😈" : "";
+    if (!tudo) feed(`⚔️ <b>${esc(N)}</b> derrotou ${FEM.has(Lid.id) ? "a" : "o"} <b>${esc(Lid.tit)} ${esc(Lid.n)}</b> na Torre de Alola${pz}! ${tot}/${ALOLA.length} insígnias · a party ganhou XP`, L, "rancho:torre-alola");
+    else {
+      feed(`🏆 <b>${esc(N)}</b> derrotou o <b>Campeão Kukui</b> e venceu a <b>Torre de Alola</b>${pz}! 🌺${url}`, L, "rancho:torre-alola");
+      if (!pesadelo && USUM.rancho && USUM.rancho.darBolha) setTimeout(() => { try { USUM.rancho.darBolha(L, N, "torre"); } catch (e) {} }, 1200);
+      if (novos.length && USUM.publicarFeed) setTimeout(() => USUM.publicarFeed({ tipo: "borda", login: L, nome: N, num: novos[0], pnome: novos.map((n) => USUM.nomeDe(n)).join(", "), borda: "torre", bordaNome: "Torre de Alola" }), 2600);
+    }
+    clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
+  }
+  function perdeuMao(m, i, pesadelo) {   // perder encerra a subida (conta no limite do dia); o progresso fica
+    const L = m.login, N = m.nome || L, Lid = ALOLA[i]; if (!Lid) return;
+    mudar(L, N, (tw) => { if (tw.d !== hoje()) { tw.d = hoje(); tw.n = 0; } tw.n = (tw.n || 0) + 1; });
     clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
   }
   // roda numa tela só (a líder da torre; se ela estiver com o chat caído, outra assume)
@@ -313,6 +398,6 @@
 
   // a borda "Torre de Alola" fica nos Pokémon que estavam na party quando a pessoa venceu a torre
   const temBorda = (login, num) => (estado(login).cmp || []).includes(+num);
-  USUM.torre = { TORRES, LIDERES, ALOLA, CFG, NV, qtdLider, timeDoLider, lutar, preparar, tiposDe, efetividade, golpeInfo, party, subir, comando, estado, temBorda,
+  USUM.torre = { TORRES, LIDERES, ALOLA, CFG, NV, qtdLider, timeDoLider, lutar, novaLuta, jogar, refazer, escolher, preparar, tiposDe, efetividade, golpeInfo, party, subir, comando, estado, temBorda,
     ehComando: (low) => CMD.test(low) };
 })();
