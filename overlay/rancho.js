@@ -568,7 +568,8 @@
   function dojoDe(login) {
     const dj = rancho(login).dj || {}, tem = new Set(donos(login));
     const a = seguir(login, dj.a, null, tem), b = seguir(login, dj.b, null, tem);
-    return { a, b: b !== a ? b : 0, ev: dj.ev || "at", ult: dj.ult || 0 };
+    const ev = dj.ev || "at";
+    return { a, b: b !== a ? b : 0, ev, ea: dj.ea || ev, eb: dj.eb || ev, ult: dj.ult || 0 };   // ea/eb: o EV que cada um treina
   }
   function rodadaDojo() {
     const avisos = [];
@@ -577,16 +578,18 @@
       const agora = Date.now(), passo = CFG.dojoMinutos * 60e3, dj = rancho(l).dj || {};
       if (!dj.ult) { mudarR(l, (r) => { r.dj = Object.assign(r.dj || {}, { ult: agora }); }); return; }
       if (agora - dj.ult < passo) return;
-      mudarR(l, (r) => { r.dj.ult = agora; if (d.a !== dj.a) r.dj.a = d.a; if (d.b !== dj.b) r.dj.b = d.b; });
+      mudarR(l, (r) => { r.dj.ult = agora; if (d.a !== dj.a) r.dj.a = d.a; if (d.b !== dj.b) r.dj.b = d.b; r.dt = (r.dt || 0) + 1; });   // r.dt = treinos feitos (bolha Dojo)
       const res = [];
-      [d.a, d.b].filter(Boolean).forEach((n) => {
+      [[d.a, d.ea], [d.b, d.eb]].filter(([n]) => n).forEach(([n, evN]) => {
         const ind = melhorInd(l, n) || {}, lv = S().nivelDe(ind, n);
         const custo = (L) => (S().custoNivel ? S().custoNivel(L) : L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);
-        const x = S().ganharXP(l, n, !!ind.s, 2 * custo(lv) + 10), e = S().treinarEV(l, n, !!ind.s, d.ev, CFG.dojoEV);
-        res.push(`${nomeP(n)}${x ? ` nv ${x.lv}${x.lv > x.antes ? " ⬆️" : ""}` : ""}${e && e.add ? ` +${e.add} ${S().EV_NOMES[d.ev]}` : e && e.cheio ? " (EV no máximo)" : ""}`);
+        const x = S().ganharXP(l, n, !!ind.s, 2 * custo(lv) + 10), e = S().treinarEV(l, n, !!ind.s, evN, CFG.dojoEV);
+        if (e && e.add && S().evTotal(e.ev) >= 510) publicarEv({ tipo: "borda", login: l, nome: nomeTreinador(l), num: n, pnome: USUM.nomeDe(n), borda: "dojo", bordaNome: "Dojo" });   // treino máximo (510 EVs)
+        res.push(`${nomeP(n)}${x ? ` nv ${x.lv}${x.lv > x.antes ? " ⬆️" : ""}` : ""}${e && e.add ? ` +${e.add} ${S().EV_NOMES[evN]}` : e && e.cheio ? " (EV no máximo)" : ""}`);
       });
       if (res.length) avisos.push({ l, n: d.a || d.b, txt: res.join(" · ") });
     });
+    treinadores().forEach((l) => { try { checarBolhas(l); } catch (e) {} });
     avisos.forEach((a, i) => setTimeout(() => publicar("num:" + a.n, `🥋 Treino no dojo de <b>${esc(nomeTreinador(a.l))}</b>: ${a.txt}`, a.l), i * 700));
   }
   // pede ao encontro.html (a tela do selvagem) para chamar um Pokémon
@@ -660,7 +663,9 @@
   const BOLHAS = { rancho: { n: "Rancho", ic: "🌱", como: "faça uma amizade perfeita no rancho (!rancho pikachu)", ganhou: "amizade perfeita no rancho" },
     cinefilo: { n: "Cinéfilo", ic: "🎬", como: "fique numa live de filme até o fim, conversando", ganhou: "ficou no filme até o fim" },
     neon: { n: "Neon", ic: "✨", como: "capture 50 Pokémon shiny", ganhou: "capturou 50 shiny" },
-    raid: { n: "Raid", ic: "⚔️", como: "participe de 10 Raids", ganhou: "lutou em 10 Raids" } };
+    raid: { n: "Raid", ic: "⚔️", como: "participe de 10 Raids", ganhou: "lutou em 10 Raids" },
+    dojo: { n: "Dojo", ic: "🥋", como: "complete 10 treinos no dojo do rancho", ganhou: "completou 10 treinos no dojo" },
+    sub: { n: "Sub", ic: "💜", como: "seja sub do canal", ganhou: "é sub do canal" } };
   // contadores das bolhas novas: r.sh (shiny capturados) e r.rd (Raids que lutou)
   function shinyTotal(login) {
     const cx = (S().caixa ? S().caixa(login) : {}) || {}, naCaixa = Object.values(cx.p || {}).reduce((a, e) => a + (e.s || 0), 0);
@@ -669,6 +674,7 @@
   function checarBolhas(login, nome) {
     if (shinyTotal(login) >= 50) darBolha(login, nome || nomeTreinador(login), "neon");
     if ((rancho(login).rd || 0) >= 10) darBolha(login, nome || nomeTreinador(login), "raid");
+    if ((rancho(login).dt || 0) >= 10) darBolha(login, nome || nomeTreinador(login), "dojo");
     // a fita é dada pela tela do chat (que tem as fitas); a tela da Raid só conta as vitórias
     if ((rancho(login).rv || 0) >= 50 && USUM.darFita) USUM.darFita(login, nome || nomeTreinador(login), "raid");
   }
@@ -913,12 +919,15 @@
       mudarR(L, (r) => { r.nm = N; });
       const a0 = limpa(arg || "");
       if (a0 && NINGUEM.test(a0)) { mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: 0, b: 0 }); }); return publicar("ic:casa", `🥋 <b>${esc(N)}</b> deixou o dojo vazio`, L); }
-      const mev = a0.match(/^ev\s+(.+)$/);
+      // !dojo ev ataque (os dois) · !dojo ev1 ataque (só o 1º) · !dojo ev2 velocidade (só o 2º)
+      const mev = a0.match(/^ev\s*([12])?\s+(.+)$/);
       if (mev) {
-        const st = EV_ALIAS[mev[1].trim()];
-        if (!st) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, escolha o EV: <b>!dojo ev ataque</b>, defesa, ataque especial, defesa especial, velocidade ou hp`, L);
-        mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { ev: st }); });
-        return publicar("ic:casa", `🥋 O dojo de <b>${esc(N)}</b> agora treina <b>${S().EV_NOMES[st]}</b>`, L);
+        const st = EV_ALIAS[mev[2].trim()];
+        if (!st) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, escolha o EV: <b>!dojo ev ataque</b> (os dois), <b>!dojo ev1 defesa</b> (só o 1º), <b>!dojo ev2 velocidade</b> (só o 2º). Opções: ataque, defesa, ataque especial, defesa especial, velocidade, hp`, L);
+        const qual = mev[1], d0 = dojoDe(L);
+        mudarR(L, (r) => { r.dj = r.dj || {}; if (qual === "1") r.dj.ea = st; else if (qual === "2") r.dj.eb = st; else { r.dj.ev = st; r.dj.ea = st; r.dj.eb = st; } });
+        const quem = qual === "1" ? (d0.a ? nomeP(d0.a) : "o 1º") : qual === "2" ? (d0.b ? nomeP(d0.b) : "o 2º") : "os dois";
+        return publicar("ic:casa", `🥋 No dojo de <b>${esc(N)}</b>, ${quem} agora treina${qual ? "" : "m"} <b>${S().EV_NOMES[st]}</b>`, L);
       }
       if (a0) {
         const tem = new Set(donos(L)), nums = [];
@@ -929,7 +938,7 @@
       const d = dojoDe(L);
       if (!d.a && !d.b) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, o dojo está vazio. Coloque até 2 Pokémon: <b>!dojo pikachu eevee</b>. A cada hora de live eles ganham XP e EVs (escolha com <b>!dojo ev ataque</b>)`, L);
       const ev = (n) => { const i = melhorInd(L, n) || {}, e = i.ev || {}; return Object.keys(S().EV_NOMES).filter((k) => e[k]).map((k) => `${S().EV_NOMES[k]} ${e[k]}`).join(", ") || "sem EV"; };
-      return publicar("num:" + (d.a || d.b), `🥋 Dojo de <b>${esc(N)}</b>: ${[d.a, d.b].filter(Boolean).map((n) => `${nomeP(n)} (${ev(n)})`).join(" e ")} · treinando <b>${S().EV_NOMES[d.ev]}</b> · próximo treino em ${Math.max(1, Math.ceil(((d.ult || Date.now()) + CFG.dojoMinutos * 60e3 - Date.now()) / 60e3))} min de live`, L);
+      return publicar("num:" + (d.a || d.b), `🥋 Dojo de <b>${esc(N)}</b>: ${[[d.a, d.ea], [d.b, d.eb]].filter(([n]) => n).map(([n, e]) => `${nomeP(n)} treinando <b>${S().EV_NOMES[e]}</b> (${ev(n)})`).join(" e ")} · próximo treino em ${Math.max(1, Math.ceil(((d.ult || Date.now()) + CFG.dojoMinutos * 60e3 - Date.now()) / 60e3))} min de live`, L);
     }
     if (cmd === "apiario" || cmd === "apiário") {
       if (arg && NINGUEM.test(limpa(arg))) { mudarR(L, (r) => { r.nm = N; r.ap = Object.assign(r.ap || {}, { n: -1 }); }); return publicar("mel", `🐝 <b>${esc(N)}</b> deixou o apiário vazio (ninguém fazendo mel)`, L); }
@@ -1016,6 +1025,8 @@
   });
   function trata(m) {
     if (m.login) vistosR.set(m.login, Date.now());
+    // bolha Sub: quem fala com o selo de sub ganha (uma vez só; quem grava é a tela líder do rancho)
+    if (m.sub && m.login && lider && !((ler("usum_bolhas", {})[m.login] || {}).tem || []).includes("sub")) { try { darBolha(m.login, m.nome || m.login, "sub"); } catch (e) {} }
     try {
       const lw = String(m.texto || "").trim().toLowerCase();
       if (/^!evento\s+(fim|parar)\b/.test(lw) && (m.dono || m.ajudante || m.mod)) fimDoFilme();   // não depende do pk_sessao (outra tela pode já ter encerrado o evento)
