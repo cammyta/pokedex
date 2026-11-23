@@ -214,7 +214,67 @@
      Se a lista não carregar (sem internet), sorteia um golpe do tipo dele. ---- */
   let LEARN = null;
   const paraID = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/♀/g, "f").replace(/♂/g, "m").toLowerCase().replace(/[^a-z0-9]/g, "");
+  /* ---------- Day Care como no jogo: grupo de ovo e sexo (dados do Showdown, baixados na hora) ---------- */
+  let DEXI = null;   // { num: { g: ["Field", ...], r: chance de ser macho (0..1) ou -1 sem sexo } }
+  function carregarDex() {
+    if (carregarDex.p) return carregarDex.p;
+    carregarDex.p = fetch("https://play.pokemonshowdown.com/data/pokedex.json").then((r) => r.json()).then((j) => {
+      const D = {};
+      Object.values(j).forEach((e) => {
+        if (!e || !e.num || e.num < 1 || e.num > 807 || e.forme || D[e.num]) return;
+        const r = e.gender === "M" ? 1 : e.gender === "F" ? 0 : e.gender === "N" ? -1 : e.genderRatio ? e.genderRatio.M : 0.5;
+        D[e.num] = { g: e.eggGroups || [], r };
+      });
+      DEXI = D; return D;
+    }).catch(() => { carregarDex.p = null; return null; });
+    return carregarDex.p;
+  }
+  const gruposOvo = (n) => (DEXI && DEXI[n] ? DEXI[n].g : null);
+  // sexo fixo de cada Pokémon (como no jogo, sai do "DNA" dele): ♂, ♀ ou "" (sem sexo)
+  function sexoDe(ind, num) {
+    if (ind && ind.sx) return ind.sx;
+    const r = DEXI && DEXI[num] ? DEXI[num].r : 0.5;
+    if (r < 0) return ""; if (r >= 1) return "♂"; if (r <= 0) return "♀";
+    const h = (((ind && ind.iv) || []).reduce((a, b, i) => (a * 33 + b * 7 + i) >>> 0, 11) + Math.round(((ind && ind.t) || 0) / 1000)) % 1000;
+    return h / 1000 < r ? "♂" : "♀";
+  }
+  // escolhe o melhor casal possível entre as espécies A e B da caixa. Devolve { a, b } (indivíduos) ou { erro }
+  function casalDaycare(login, A, B) {
+    const la = individuos(login, A), lb = individuos(login, B);
+    if (!la.length || !lb.length) return { erro: "naotem" };
+    if (A === B && la.length < 2) return { erro: "sozinho" };
+    if (A === 132 && B === 132) return { erro: "dittos" };
+    const ga = gruposOvo(A), gb = gruposOvo(B);
+    if (ga && gb) {
+      if (ga.includes("Undiscovered") || gb.includes("Undiscovered")) return { erro: "naobota", n: ga.includes("Undiscovered") ? A : B };
+      const ditto = A === 132 || B === 132;
+      if (!ditto && !ga.some((g) => gb.includes(g))) return { erro: "grupo", ga, gb };
+    }
+    const pares = [];
+    la.forEach((x) => lb.forEach((y) => {
+      if (x === y) return;   // o mesmo Pokémon não pode ser os dois pais
+      const ditto = A === 132 || B === 132, sx = sexoDe(x, A), sy = sexoDe(y, B);
+      if (!ditto && (!sx || !sy || sx === sy)) return;
+      pares.push([x, y, forcaIV(x.iv) + forcaIV(y.iv)]);
+    }));
+    if (!pares.length) {
+      const semSexo = (A !== 132 && !sexoDe(la[0], A)) || (B !== 132 && !sexoDe(lb[0], B));
+      return { erro: semSexo ? "semsexo" : "mesmosexo", sx: sexoDe(la[0], A) };
+    }
+    pares.sort((p, q) => q[2] - p[2]);
+    return { a: pares[0][0], b: pares[0][1] };
+  }
+  /* ---------- Equipes Sol × Lua: quem entra no time menor ganha bônus ---------- */
+  function timesHoje() {
+    const hoje = (ler("pk_sessao", {}) || {}).dia || new Date().toLocaleDateString("sv");
+    const t = ler("usum_times", {}), d = ler("usum_times_dia", {}), c = { sol: 0, lua: 0 };
+    Object.keys(d).forEach((l) => { if (d[l] === hoje && (t[l] === "sol" || t[l] === "lua")) c[t[l]]++; });
+    return c;
+  }
+  // o time com menos gente nesta live (diferença de 2 ou mais); null se está equilibrado
+  function timeMenor(c) { c = c || timesHoje(); return c.sol + 2 <= c.lua ? "sol" : c.lua + 2 <= c.sol ? "lua" : null; }
   function carregarGolpes() {
+    carregarDex();
     if (carregarGolpes.p) return carregarGolpes.p;
     carregarGolpes.p = fetch("https://play.pokemonshowdown.com/data/learnsets.json").then((r) => r.json()).then((j) => {
       const G = window.USUM_GOLPES || {}, porId = {}; Object.keys(G).forEach((n) => (porId[paraID(n)] = n));
@@ -445,7 +505,7 @@
   }
 
   USUM.selvagens = { C, registrar, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
-    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, carregarGolpes, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
+    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
       const id = USUM.homeId && USUM.formaRegional ? USUM.homeId(num, USUM.formaRegional(num)) : num;
