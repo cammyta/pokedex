@@ -211,14 +211,28 @@
   USUM.nomeTreinador = (l) => usuario(l).n || l;
   USUM.amizade = (a, b) => { const x = (usuario(a).am || []).find((e) => e[0] === b); return { pontos: x ? 1 : 0, nivel: x ? x[1] : 0 }; };
 
+  // Lê os dados publicados pela live. Usa o link "raw" do Gist (não tem limite de acessos);
+  // a API do GitHub só entra se o raw falhar, porque ela deixa só 60 acessos por hora para cada internet.
+  const DONO_GIST = "cammyta";
+  async function baixarGist(id) {
+    let dono = DONO_GIST; try { dono = localStorage.getItem("pokedex_gist_dono") || DONO_GIST; } catch (e) {}
+    try {
+      const r = await fetch(`https://gist.githubusercontent.com/${dono}/${id}/raw/dados.json?t=${Date.now()}`, { cache: "no-store" });
+      if (r.ok) return JSON.parse(await r.text());
+    } catch (e) {}
+    try {
+      const r = await fetch("https://api.github.com/gists/" + id, { cache: "no-store" }); if (!r.ok) return null;
+      const g = await r.json(); if (g.owner && g.owner.login) try { localStorage.setItem("pokedex_gist_dono", g.owner.login); } catch (e) {}
+      const f = g.files && g.files["dados.json"]; let txt = f && f.content;
+      if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
+      return JSON.parse(txt || "{}");
+    } catch (e) { return null; }
+  }
   async function buscarGist() {
     const g = q.get("g"); if (!g) return;
-    try {
-      const r = await fetch("https://api.github.com/gists/" + g, { cache: "no-store" });
-      const j = await r.json(), f = j.files && j.files["dados.json"];
-      let txt = f && f.content; if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
-      semear(JSON.parse(txt || "{}"));
-    } catch (e) {}
+    // dentro do site, usa os dados que o site já baixou (não gasta acesso)
+    try { if (pai && pai.__pokedexDados && pai.__pokedexDados.t) { semear(pai.__pokedexDados); return; } } catch (e) {}
+    const d = await baixarGist(g); if (d && d.t) semear(d);
   }
 
   // comandos: só os que dão pra mostrar na hora sem estragar nada (o overlay da live é quem manda de verdade)
