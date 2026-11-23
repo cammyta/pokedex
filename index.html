@@ -171,6 +171,7 @@
   .tw-lid .ins { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; background: var(--tc); box-shadow: 0 0 0 2px #ffe7a8, 0 0 10px var(--tc); }
   .tw-lid.falta .ins { filter: grayscale(1) brightness(.5); box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
   .tw-lid.prox { box-shadow: 0 0 0 2px #ffd25a, 0 0 18px rgba(255,210,90,.35); }
+  .tw-lid.prox.meu { cursor: crosshair; } .tw-lid.prox.meu::after { content: "⚔️ Batalhar"; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); font: 600 12.5px "Fredoka", sans-serif; padding: 3px 12px; border-radius: 999px; background: linear-gradient(90deg, #0f8f85, #e08a2c); color: #fff; white-space: nowrap; box-shadow: 0 3px 8px rgba(0,0,0,.35); }
   .tw-lid.prox::before { content: "próximo"; position: absolute; top: 8px; left: 8px; font: 600 11px "Fredoka", sans-serif; padding: 1px 7px; border-radius: 999px; background: #ffd25a; color: #3a2400; }
   .tw-time { display: flex; justify-content: center; gap: 2px; margin-top: 6px; flex-wrap: wrap; }
   .tw-time img { width: 30px; height: 30px; object-fit: contain; image-rendering: pixelated; border-radius: 6px; background: rgba(255,255,255,.07); }
@@ -1342,13 +1343,14 @@
   const hojeStr = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 
   function paginaTorre(login) {
+    if (!login && !paginaTorre._eu) { paginaTorre._eu = 1; TWX.quem().then(() => { const eu = TWX.eu; if (eu && D.t[eu] && new URLSearchParams(location.search).get("p") === "torre" && !new URLSearchParams(location.search).get("u")) { history.replaceState(null, "", "?p=torre&u=" + encodeURIComponent(eu)); paginaTorre(eu); } }); }
     if (login && !paginaTorre._tw) { paginaTorre._tw = 1; TWX.quem().then(() => { if (TWX.eu === login && new URLSearchParams(location.search).get("p") === "torre") paginaTorre(login); }); }
     const T = USUM.torre; if (!T) { app.innerHTML = `<p class="vazio">A torre está carregando…</p>`; return; }
     const u = login ? D.t[login] : null, tw = (u && u.rn && u.rn.tw) || {}, L = T.ALOLA, ganhou = new Set(tw.b || []), ganhouP = new Set(tw.bp || []);
-    const pLoc = Math.max(tw.p || 0, login ? twLocal(login).p || 0 : 0), prox = pLoc >= L.length ? -1 : pLoc, usadas = Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, login ? twLocal(login).n || 0 : 0), meu = login && souEu(login);
+    const pLoc = Math.max(tw.p || 0, login ? twLocal(login).p || 0 : 0), prox = pLoc >= L.length ? -1 : pLoc, usadas = Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, login ? twLocal(login).n || 0 : 0), meu = login && souEu(login); const alvo = prox < 0 ? 0 : prox;
     const nv = (i, pz) => { const t = T.timeDoLider("alola", i, pz); return `Nv. ${Math.min(...t.map((x) => x.lv))}–${Math.max(...t.map((x) => x.lv))}`; };
     const card = (Lid, i) => { const st = !u ? "" : ganhou.has(i) ? "tem" : i === prox ? "prox falta" : "falta";
-      return `<div class="tw-lid ${st}" data-i="${i}" tabindex="0" style="--tc:${TW_COR[Lid.tipo]}" title="Ver o time de ${esc(Lid.n)}">
+      return `<div class="tw-lid ${st} ${meu && i === alvo && usadas < T.CFG.porDia ? "meu" : ""}" data-i="${i}" tabindex="0" style="--tc:${TW_COR[Lid.tipo]}" title="Ver o time de ${esc(Lid.n)}">
         ${u ? `<span class="ins" title="${ganhou.has(i) ? "Insígnia conquistada" : "Insígnia ainda não conquistada"}">${icInsignia(Lid)}</span>` : ""}
         ${spriteTreinador(Lid)}<b>${esc(Lid.n)}</b><small>${esc(Lid.tit)} · ${esc(NOME_TIPO[Lid.tipo] || Lid.tipo)}</small><small>${nv(i, false)}</small>
         <div class="tw-time">${Lid.time.map(([n], k) => `<img data-ret="${n}:0" alt="" title="${esc(nome(n))}" class="${k >= T.qtdLider(i, false) ? "pz" : ""}">`).join("")}</div></div>`; };
@@ -1381,7 +1383,7 @@
           <h3 style="margin:0">${esc(u.n)} na Torre de Alola</h3>
           <div class="tw-estojo" title="Estojo de insígnias">${L.map((x, i) => `<i style="--tc:${TW_COR[x.tipo]}" class="${ganhou.has(i) ? "" : "falta"} ${ganhouP.has(i) ? "pz" : ""}" title="${esc(x.n)}${ganhou.has(i) ? "" : " (falta)"}${ganhouP.has(i) ? " · pesadelo" : ""}">${icInsignia(x)}</i>`).join("")}</div>
           <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · subidas hoje: <b>${usadas}/${T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
-          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia ? "disabled" : ""}>${usadas >= T.CFG.porDia ? "Volte amanhã" : "⚔️ Batalhar na torre"}</button><small class="sub">Você escolhe os golpes. Quer que a party lute sozinha? Mande <code>!torre</code> com <b>${T.CFG.bitsAuto} bits</b> no chat da live.</small></div>`
+          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia ? "disabled" : ""}>${usadas >= T.CFG.porDia ? "Volte amanhã" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes. Quer que a party lute sozinha? Mande <code>!torre</code> com <b>${T.CFG.bitsAuto} bits</b> no chat da live.</small></div>`
             : barraLogin(login)}
           <div id="tw-replay"></div>` : `<p class="sub">Digite seu nome lá em cima (ou abra pelo seu perfil) para ver suas insígnias e a sua última subida. No chat da live: <code>!torre</code>, <code>!torre pesadelo</code> e <code>!insignias</code>.</p>`}</div>
       </section>`;
@@ -1389,7 +1391,9 @@
     app.querySelector("[data-ir]").onclick = () => document.getElementById("tw-alola").scrollIntoView({ behavior: "smooth" });
     app.querySelector("[data-tranca]").onclick = () => TWX.aviso("🔒 A Torre do Canal ainda está trancada. Dizem que o campeão de lá anda com um Kecleon…");
     app.querySelectorAll("[data-nevoa]").forEach((b) => (b.onclick = () => TWX.aviso(`🌫️ A Torre de ${esc(T.TORRES.find((t) => t.id === b.dataset.nevoa).n)} ainda está coberta de névoa.`)));
-    app.querySelectorAll(".tw-lid").forEach((c) => { const abrir = () => fichaLider(+c.dataset.i); c.onclick = abrir; c.onkeydown = (e) => { if (e.key === "Enter") abrir(); }; });
+    app.querySelectorAll(".tw-lid").forEach((c) => { const i = +c.dataset.i;
+      const abrir = () => (meu && i === alvo && usadas < T.CFG.porDia ? batalharTorre(u, login, true) : fichaLider(i));
+      if (meu && i === alvo && usadas < T.CFG.porDia) c.title = `Clique para batalhar com ${L[i].n}`; c.onclick = abrir; c.onkeydown = (e) => { if (e.key === "Enter") abrir(); }; });
     const btB = app.querySelector("[data-batalhar]"); if (btB) btB.onclick = () => batalharTorre(u, login);
     if (u && u.tl && u.tl.l && u.tl.l.length) assistirTorre(document.getElementById("tw-replay"), u, u.tl);
   }
@@ -1420,7 +1424,7 @@
     const G = window.USUM_GOLPES || {}, ev = x.ev ? { hp: x.ev[0] || 0, at: x.ev[1] || 0, df: x.ev[2] || 0, sa: x.ev[3] || 0, sd: x.ev[4] || 0, ve: x.ev[5] || 0 } : {};
     return { num: +num, s: x.s, lv: x.lv || 5, fz: x.f, ev, mv: [G[x.m] ? x.m : "Tackle", G[x.m2] ? x.m2 : ""], hi: x.hi || "", a: x.a || "" };
   }
-  function batalharTorre(u, login) {
+  function batalharTorre(u, login, direto) {
     const T = USUM.torre, L = T.ALOLA, tw = (u.rn && u.rn.tw) || {}, loc = twLocal(login);
     const usadas = Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, loc.n || 0);
     if (usadas >= T.CFG.porDia) { TWX.aviso(`Você já usou as ${T.CFG.porDia} subidas de hoje. Volte amanhã!`, true); return; }
@@ -1429,7 +1433,7 @@
     const proxDe = (pz) => { const k = pz ? "pp" : "p"; let i = Math.max(tw[k] || 0, loc[k] || 0); return i >= L.length ? 0 : i; };
     const fundo = document.createElement("div"); fundo.className = "tw-bt-fundo"; document.body.appendChild(fundo);
     document.body.style.overflow = "hidden";
-    const sair = () => { fundo.remove(); document.body.style.overflow = ""; };
+    const sair = () => { fundo.remove(); document.body.style.overflow = ""; if (new URLSearchParams(location.search).get("p") === "torre") paginaTorre(login); };
 
     function preparar() {
       const i = proxDe(pesadelo), Lid = L[i], q = T.qtdLider(i, pesadelo), t = T.timeDoLider("alola", i, pesadelo);
@@ -1570,7 +1574,7 @@
         falar(null, `O que ${esc(nomeLado(0, 0))} vai fazer?`, [st.a[0].num, st.a[0].s, "Normal"]); botoes();
       })();
     }
-    preparar();
+    if (direto) lutar(proxDe(false)); else preparar();
   }
 
   function fichaLider(i) {
