@@ -766,6 +766,11 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .msg .av-caixa.borda-rancho::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #f3c98b, #9a6230 28%, #8fd36a 48%, #6b4220 70%, #c9905a); animation: metal-brilho 3s linear infinite; }
 .msg .av-caixa.borda-rancho::after { box-shadow: 0 0 14px rgba(143,211,106,.55); }
 .msg .av-caixa.borda-rancho .encaixe::after { content: "🌱"; position: absolute; right: -50px; top: -58px; font-size: 14px; animation: borda-estrela 2.6s ease-in-out infinite; }
+/* borda Raid: o Pokémon que mais lutou nas Raids. Vermelho e branco de Pokébola, com faísca dourada */
+.msg .av-caixa.borda-raid::before { background: var(--reflexo) 0 0/300% 100%, conic-gradient(from var(--ang, 0deg), #ff3b4f 0 25%, #f5f5f5 25% 50%, #ff3b4f 50% 75%, #f5f5f5 75%); animation: girar 4s linear infinite; padding: 4.5px; }
+.msg .av-caixa.borda-raid::after { box-shadow: 0 0 0 1.5px #1b1b1b, 0 0 14px rgba(255,59,79,.6), 0 0 22px rgba(255,209,102,.4); }
+.msg .av-caixa.borda-raid .encaixe::after { content: "⚔️"; position: absolute; right: -50px; top: -58px; font-size: 14px; animation: borda-estrela 2.6s ease-in-out infinite; }
+.aviso.borda-nova.b-raid { border-color: #ff3b4f; box-shadow: 0 0 16px rgba(255,59,79,.45); }
 .aviso.borda-nova.b-rancho { border-color: #8fd36a; box-shadow: 0 0 16px rgba(143,211,106,.4); }
 
 /* ---------- Bolhas conquistadas (no lugar do visual Sol/Lua; o chip da equipe continua) ---------- */
@@ -797,6 +802,39 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .chat .msg.bolha-cinefilo .nome { color: #f6e3b0; }
 .chat .msg.bolha-cinefilo::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7px; pointer-events: none; opacity: .5;
   background: radial-gradient(circle, rgba(255,240,200,.9) 2px, transparent 2.5px) 0 0/7px 9px repeat-y; }
+/* Neon: capturou 50 shiny. Cartão escuro com borda de neon rosa/ciano que pulsa e uma estrela de neon atrás */
+.chat .msg.bolha-neon, .chat.cinema .msg.bolha-neon {
+  background: linear-gradient(110deg, rgba(40,6,60,.92), rgba(8,4,28,.94) 60%, rgba(4,20,40,.92));
+  border-color: #ff4fd8; box-shadow: 0 0 6px #ff4fd8, 0 0 18px rgba(255,79,216,.55), inset 0 0 12px rgba(80,240,255,.25);
+  animation: neon-pulsa 2.4s ease-in-out infinite; }
+@keyframes neon-pulsa { 0%,100% { border-color: #ff4fd8; box-shadow: 0 0 6px #ff4fd8, 0 0 18px rgba(255,79,216,.55), inset 0 0 12px rgba(80,240,255,.25); }
+  50% { border-color: #4ff3ff; box-shadow: 0 0 6px #4ff3ff, 0 0 22px rgba(79,243,255,.55), inset 0 0 12px rgba(255,79,216,.25); } }
+.chat .msg.bolha-neon .marca { -webkit-mask: none; mask: none; box-shadow: none; background: none; border-radius: 0; transform: none; opacity: .85; right: 6px; width: 120px; height: 120px; margin-top: -60px; animation: neon-gira 12s linear infinite; }
+.chat .msg.bolha-neon .marca::after { content: "✦"; display: grid; place-items: center; position: absolute; inset: 0; font: 400 118px/1 sans-serif; color: transparent;
+  -webkit-text-stroke: 2.5px #ff7be5; text-shadow: 0 0 8px #ff4fd8, 0 0 18px #ff4fd8, 0 0 30px #4ff3ff; animation: neon-cor 2.4s ease-in-out infinite; background: none; }
+@keyframes neon-cor { 50% { -webkit-text-stroke-color: #7ff6ff; text-shadow: 0 0 8px #4ff3ff, 0 0 18px #4ff3ff, 0 0 30px #ff4fd8; } }
+@keyframes neon-gira { to { transform: rotate(360deg); } }
+.chat .msg.bolha-neon .av { box-shadow: inset 0 0 0 2.5px #4ff3ff, 0 0 10px #4ff3ff, 0 0 20px rgba(255,79,216,.7); }
+.chat .msg.bolha-neon .nome { color: #9ff8ff; text-shadow: 0 0 6px #4ff3ff, 0 0 12px rgba(255,79,216,.8); }
+.chat .msg.bolha-neon .texto, .chat .msg.bolha-neon .txt { color: #ffe6fb; }
+.chat .msg.bolha-neon::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: .5;
+  background: radial-gradient(circle, #fff 1px, transparent 1.6px) 0 0/22px 18px, radial-gradient(circle, #ff9be9 1px, transparent 1.6px) 11px 9px/22px 18px;
+  animation: neon-brilho 3.2s ease-in-out infinite; }
+@keyframes neon-brilho { 50% { opacity: .15; } }
+/* Raid: lutou em 10 Raids. Vermelho de batalha com raios e uma Pokébola grande girando no fundo */
+.chat .msg.bolha-raid, .chat.cinema .msg.bolha-raid {
+  background: repeating-linear-gradient(120deg, rgba(255,255,255,.05) 0 10px, transparent 10px 26px), linear-gradient(110deg, rgba(200,24,48,.78), rgba(90,10,26,.9) 50%, rgba(20,6,14,.94));
+  border-color: #ffd166; box-shadow: 0 0 0 1px rgba(255,255,255,.25) inset, 0 0 20px rgba(255,59,90,.35); }
+.chat .msg.bolha-raid .marca { right: 14px; width: 112px; height: 112px; margin-top: -56px; border-radius: 50%; -webkit-mask: none; transform: none; opacity: .42; animation: raid-bola 14s linear infinite;
+  background:
+    radial-gradient(circle, #fff 0 11%, #1b1b1b 11.5% 17%, transparent 17.5%),
+    linear-gradient(to bottom, #ff3b4f 0 45%, #1b1b1b 45% 55%, #f5f5f5 55%);
+  box-shadow: 0 0 0 5px #1b1b1b, 0 0 24px rgba(255,209,102,.6); }
+.chat .msg.bolha-raid .marca::after { display: none; }
+@keyframes raid-bola { to { transform: rotate(360deg); } }
+.chat .msg.bolha-raid .av { box-shadow: inset 0 0 0 2.5px #ffd166, 0 0 0 4px rgba(255,59,79,.55), 0 0 16px rgba(255,209,102,.6); }
+.chat .msg.bolha-raid .nome { color: #ffe3a3; text-shadow: 0 1px 0 #7a0f22, 0 0 8px rgba(255,90,100,.7); }
+.chat .msg.bolha-raid::before { content: "⚔️"; position: absolute; left: 6px; top: 4px; font-size: 12px; opacity: .8; pointer-events: none; filter: drop-shadow(0 0 4px #ffd166); }
 
 /* ---------- cartão de check-in (primeira mensagem da live) ---------- */
 .aviso.checkin { display: block; padding: 12px 14px; border-radius: 20px; border: 2px solid rgba(255,216,107,.65);
