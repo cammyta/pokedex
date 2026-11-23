@@ -222,6 +222,7 @@
   .tw-fala .tw-quem.pk { object-fit: contain; }
   .tw-fala > div > b { display: block; font: 600 14px "Fredoka", sans-serif; color: #0f8f85; }
   .tw-play[hidden] { display: none; }
+  .tw-campo .tw-play { z-index: 3; }
   /* batalha na mão */
   .tw-bt-fundo { position: fixed; inset: 0; z-index: 90; background: rgba(8,6,16,.86); display: grid; place-items: start center; overflow-y: auto; padding: 18px 10px 40px; }
   .tw-bt { width: min(980px, 100%); }
@@ -270,9 +271,13 @@
   .tw-bits { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
   .tw-bit { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left; padding: 12px 16px; border-radius: 16px; color: #fff; border: 1px solid rgba(255,255,255,.18); }
   .tw-bit.auto { background: linear-gradient(120deg, #3a2a8a, #6a3fd0); } .tw-bit.reset { background: linear-gradient(120deg, #0f6f68, #1aa38f); }
-  .tw-bit:hover, .tw-bit:focus-visible { filter: brightness(1.12); outline: none; box-shadow: 0 0 0 2px #ffe7a8; }
+  .tw-bit:disabled { filter: grayscale(.7) brightness(.7); cursor: default; }
+  .tw-pagar [hidden] { display: none !important; }
+  .tw-bit:not(:disabled):hover, .tw-bit:focus-visible { filter: brightness(1.12); outline: none; box-shadow: 0 0 0 2px #ffe7a8; }
   .tw-bit span { grid-row: 1 / 3; font-size: 30px; } .tw-bit b { font: 600 17px "Fredoka", sans-serif; } .tw-bit small { grid-column: 2; font-size: 12.5px; opacity: .9; }
   .tw-bit i { grid-row: 1 / 3; grid-column: 3; font-style: normal; font: 600 14px "Fredoka", sans-serif; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.3); white-space: nowrap; }
+  .tw-atencao { background: rgba(255,170,40,.14); border: 1px solid rgba(255,190,80,.6); color: #ffe2b0; border-radius: 12px; padding: 10px 12px; margin: 8px 0; font-size: 14.5px; }
+  .tw-aviso-bits { margin: 14px 0 0; color: #ffd9a0; }
   .tw-pagar h3 { margin: 0 0 6px; font: 600 22px "Fredoka", sans-serif; }
   .tw-msg { display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,.3); border-radius: 12px; padding: 10px 12px; } .tw-msg code { flex: 1; font-size: 16px; color: #ffe7a8; }
   @media (max-width: 640px) { .tw-bits { grid-template-columns: 1fr; } }
@@ -922,7 +927,7 @@
       const n = await baixarGist(GIST);
       if (!n || !n.t || n.em === D.em) return;
       D = n; window.__pokedexDados = n;
-      const ocupado = document.querySelector(".ficha-fundo, .tw-arena.ativo") || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+      const ocupado = document.querySelector(".ficha-fundo, .tw-arena.ativo, .tw-campo.ativo, .tw-bt-fundo") || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
       const rodape = document.getElementById("rodape"); if (rodape) rodape.textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       if (!ocupado) { const y = scrollY; rota(); scrollTo(0, y); }
     } catch (e) {}
@@ -1401,9 +1406,11 @@
           <div class="tw-estojo" title="Estojo de insígnias">${L.map((x, i) => `<i style="--tc:${TW_COR[x.tipo]}" class="${ganhou.has(i) ? "" : "falta"} ${ganhouP.has(i) ? "pz" : ""}" title="${esc(x.n)}${ganhou.has(i) ? "" : " (falta)"}${ganhouP.has(i) ? " · pesadelo" : ""}">${icInsignia(x)}</i>`).join("")}</div>
           <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · chances nesta live: <b>${login === D.canal ? "∞" : Math.max(0, T.CFG.porDia - usadas) + "/" + T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
           ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia && login !== D.canal ? "disabled" : ""}>${usadas >= T.CFG.porDia && login !== D.canal ? "Sem chances: use 🔄 Mais 3 chances" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes.</small></div>
+            <p class="sub tw-aviso-bits">⚠️ Os botões abaixo usam <b>bits</b>, que são comprados na Twitch com dinheiro de verdade. Nada é cobrado sem você confirmar e enviar no chat.</p>
             <div class="tw-bits">
-              <button type="button" class="tw-bit auto" data-bits="auto"><span>🤖</span><b>Batalha automática</b><small>Sua party sobe a torre sozinha · não gasta chances</small><i>💎 ${T.CFG.bitsAuto} bits</i></button>
-              <button type="button" class="tw-bit reset" data-bits="reset"><span>🔄</span><b>Mais ${T.CFG.porDia} chances</b><small>Recarrega suas chances desta live</small><i>💎 ${T.CFG.bitsReset} bits</i></button>
+              ${(() => { const temParty = partyDoSite(u).length > 0, sobra = Math.max(0, T.CFG.porDia - usadas);
+                return (tw.ac > 0 ? `<button type="button" class="tw-bit auto" data-cmd="!torre auto" ${temParty ? "" : "disabled"}><span>🎟️</span><b>Usar batalha automática guardada</b><small>Você já pagou ${tw.ac > 1 ? tw.ac + " batalhas" : "1 batalha"}: não gasta bits de novo</small><i>grátis</i></button>` : "") + `<button type="button" class="tw-bit auto" data-bits="auto" ${temParty ? "" : "disabled"}><span>🤖</span><b>Batalha automática</b><small>${temParty ? "Sua party sobe a torre sozinha · não gasta chances" : "Monte sua party primeiro (parceiro + ⭐ Time)"}</small><i>💎 ${T.CFG.bitsAuto} bits</i></button>
+              <button type="button" class="tw-bit reset" data-bits="reset" ${sobra > 0 || login === D.canal ? "disabled" : ""}><span>🔄</span><b>Mais ${T.CFG.porDia} chances</b><small>${sobra > 0 ? `Você ainda tem ${sobra} ${sobra === 1 ? "chance" : "chances"}: use antes de comprar` : "Recarrega suas chances desta live"}</small><i>💎 ${T.CFG.bitsReset} bits</i></button>`; })()}
             </div>`
             : barraLogin(login)}
           <div id="tw-replay"></div>` : `${barraLogin("")}<p class="sub">Entre com a Twitch para ver suas insígnias e batalhar clicando nos líderes.</p>`}</div>
@@ -1616,17 +1623,22 @@
   function pagarBits(tipo) {
     const T = USUM.torre, auto = tipo === "auto", qtd = auto ? T.CFG.bitsAuto : T.CFG.bitsReset;
     const msg = `Cheer${qtd} !torre ${auto ? "auto" : "reset"}`, url = `https://www.twitch.tv/popout/${encodeURIComponent(D.canal || "canaldocamaleao")}/chat`;
-    try { navigator.clipboard.writeText(msg); } catch (e) {}
     const fundo = document.createElement("div"); fundo.className = "ficha-fundo";
     fundo.innerHTML = `<div class="ficha tw-pagar"><button class="fechar-ficha" title="Fechar">✕</button>
       <h3>${auto ? "🤖 Batalha automática" : `🔄 Mais ${T.CFG.porDia} chances`}</h3>
       <p>${auto ? "Sua party sobe a Torre de Alola sozinha, líder por líder, até perder. Não gasta suas chances. A batalha aparece aqui na página depois." : `Suas chances desta live voltam para ${T.CFG.porDia}.`}</p>
-      <p class="sub">Bits só podem ser enviados pelo chat da Twitch. Copiamos a mensagem para você: é só colar no chat da live e enviar.</p>
-      <div class="tw-msg"><code>${esc(msg)}</code><button type="button" class="r-btn" data-copiar>📋 Copiar</button></div>
-      <div class="tw-botoes" style="margin-top:12px"><a class="r-btn" href="${url}" target="_blank" rel="noopener">💬 Abrir o chat da Twitch</a><small class="sub">Custa ${qtd} bits. O chat da live avisa quando der certo.</small></div></div>`;
+      <div class="tw-atencao">⚠️ <b>Atenção: bits são dinheiro de verdade.</b> Eles são comprados na Twitch, com o seu dinheiro, e não voltam depois de enviados. Só continue se você quer mesmo gastar <b>${qtd} bits</b>.</div>
+      <p class="sub">Nada é cobrado aqui no site. Os bits só saem se <b>você</b> enviar a mensagem no chat da Twitch.</p>
+      <div class="tw-passo1"><div class="tw-botoes"><button type="button" class="r-btn" data-quero>Entendi, quero gastar ${qtd} bits</button><button type="button" data-nao>Cancelar</button></div></div>
+      <div class="tw-passo2" hidden>
+        <p>Copie a mensagem, cole no chat da live e envie. A Twitch mostra quantos bits vão sair antes de enviar: confira. Se mudar de ideia, é só não enviar.</p>
+        <div class="tw-msg"><code>${esc(msg)}</code><button type="button" class="r-btn" data-copiar>📋 Copiar</button></div>
+        <div class="tw-botoes" style="margin-top:12px"><a class="r-btn" href="${url}" target="_blank" rel="noopener">💬 Abrir o chat da Twitch</a><small class="sub">O chat da live avisa quando der certo.</small></div></div></div>`;
     document.body.appendChild(fundo);
     const fechar = () => fundo.remove();
     fundo.onclick = (e) => { if (e.target === fundo) fechar(); }; fundo.querySelector(".fechar-ficha").onclick = fechar;
+    fundo.querySelector("[data-nao]").onclick = fechar;
+    fundo.querySelector("[data-quero]").onclick = () => { fundo.querySelector(".tw-passo1").hidden = true; fundo.querySelector(".tw-passo2").hidden = false; };
     fundo.querySelector("[data-copiar]").onclick = (e) => { try { navigator.clipboard.writeText(msg); e.target.textContent = "✓ Copiado"; } catch (er) { TWX.aviso("Copie a mensagem: " + msg); } };
   }
   function fichaLider(i, rev) {   // rev = { u, login } quando a pessoa já venceu esse líder e ainda tem idas hoje
@@ -1645,111 +1657,104 @@
   }
 
   /* replay da última subida: monta a lista de passos (falas, envios, golpes) e toca um por um */
-  function assistirTorre(box, u, log) {
-    const T = USUM.torre, L = (T.LIDERES[log.tw] || T.ALOLA), eu = { n: u.n, sp: u.av ? ["assets/treinadores/" + u.av + ".png"] : [], foto: !!u.av };
+  function assistirTorre(box, u, log) {   // replay da batalha automática, na mesma arena da batalha na mão
+    const T = USUM.torre, L = (T.LIDERES[log.tw] || T.ALOLA);
     const nomePk = (x) => (x[6] ? `“${x[6]}”` : nome(x[0]));
     const passos = [], inicios = [];
     log.l.forEach((b, k) => {
       const Lid = L[b.i]; inicios.push(passos.length);
       passos.push({ t: "comeca", k, b, Lid });
       Lid.ola.forEach((f) => passos.push({ t: "fala", quem: Lid, txt: f }));
-      passos.push({ t: "envia", lado: 1, s: 0, txt: `${Lid.n} enviou ${nome(b.o[0][0])}!` }, { t: "envia", lado: 0, s: 0, txt: `Vai, ${nomePk(b.p[0])}!` });
+      passos.push({ t: "envia", lado: 1, s: 0 }, { t: "envia", lado: 0, s: 0 });
       const ia = [0, 0];
       b.e.forEach((e) => {
         passos.push({ t: "golpe", e });
-        if (e[5] & 16) {   // desmaiou: entra o próximo de quem levou o golpe
-          const lado = 1 - e[0]; ia[lado]++;
-          const tm = lado === 1 ? b.o : b.p;
-          if (ia[lado] < tm.length) {
-            if (lado === 1 && ia[1] === tm.length - 1 && Lid.ultimo) passos.push({ t: "fala", quem: Lid, txt: Lid.ultimo });
-            passos.push({ t: "envia", lado, s: ia[lado], txt: lado === 1 ? `${Lid.n} enviou ${nome(tm[ia[lado]][0])}!` : `Vai, ${nomePk(tm[ia[lado]])}!` });
-          }
-        }
+        if (e[5] & 16) { const lado = 1 - e[0], tm = lado ? b.o : b.p; ia[lado]++;
+          if (ia[lado] < tm.length) { if (lado === 1 && ia[1] === tm.length - 1 && Lid.ultimo) passos.push({ t: "fala", quem: Lid, txt: Lid.ultimo }); passos.push({ t: "envia", lado, s: ia[lado] }); } }
       });
       (b.v ? Lid.perde : Lid.vence).forEach((f) => passos.push({ t: "fala", quem: Lid, txt: f }));
       passos.push({ t: "fim", b, Lid });
     });
-    box.innerHTML = `<h3 class="tw-etapa" style="font-size:18px">🎬 Última subida automática <small class="sub">${new Date(log.t * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${log.pz ? " · 😈 pesadelo" : ""}</small></h3>
-      <div class="tw-arena ${log.pz ? "pz" : ""}">
-        <span class="tw-pal" style="left:-6px">🌴</span><span class="tw-pal" style="right:30%;font-size:44px">🌺</span>
-        <img class="tw-treinador" alt="">
-        <div class="tw-lado op" style="visibility:hidden"><div class="tw-ret"><img alt=""></div><div class="tw-info"><b></b><small></small><div class="tw-hp"><i></i></div><div class="tw-pips"></div></div></div>
-        <div class="tw-lado eu" style="visibility:hidden"><div class="tw-ret"><img alt=""></div><div class="tw-info"><b></b><small></small><div class="tw-hp"><i></i></div><div class="tw-pips"></div></div></div>
+    box.innerHTML = `<h3 class="tw-etapa" style="font-size:18px">🎬 Última batalha automática <small class="sub">${new Date(log.t * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${log.pz ? " · 😈 pesadelo" : ""}</small></h3>
+      <div class="tw-campo ${log.pz ? "pz" : ""}">
+        <img class="tw-lider-spr fora" alt="">
+        <img class="tw-pk op sai" alt=""><img class="tw-pk eu sai" alt="">
+        <div class="tw-caixa op" hidden><b></b><small></small><div class="tw-hp"><i></i></div><div class="tw-pips"></div></div>
+        <div class="tw-caixa eu" hidden><b></b><small></small><div class="tw-hp"><i></i></div><span class="hpn"></span><div class="tw-pips"></div></div>
         <button type="button" class="tw-play"><span>▶ Assistir a batalha</span></button>
       </div>
       <div class="tw-fala"><img class="tw-quem" alt=""><div><b></b><p></p></div></div>
       <div class="tw-ctrl"><button type="button" data-a="pausa">⏸ Pausar</button><button type="button" data-a="vel">⏩ 1x</button><button type="button" data-a="pula">⏭ Próxima luta</button></div>
       <div class="tw-lutas">${log.l.map((b, k) => `<button type="button" data-k="${k}" class="${b.v ? "v" : "d"}">${icInsignia(L[b.i])} ${esc(L[b.i].n)} ${b.v ? "✔" : "✘"}</button>`).join("")}</div>
       ${(log.xp || []).length ? `<div class="tw-xp">${log.xp.map(([n, s, xp, a, lv]) => `<span><img src="${home(n, !!s)}" alt="">${esc(nome(n))} +${xp} XP${lv > a ? ` · Nv. ${a} → <b>${lv}</b>` : ""}</span>`).join("")}</div>` : ""}`;
-    const $ = (s) => box.querySelector(s), lados = [$(".tw-lado.eu"), $(".tw-lado.op")], fala = $(".tw-fala"), arena = $(".tw-arena");
-    let ptr = 0, tim = null, vel = 1, tocando = false, cur = null;   // cur: a luta atual { b, hp: [[...], [...]], at: [i, i] }
-    const time = (lado) => (lado === 1 ? cur.b.o : cur.b.p);
-    function mostrarFala(quem, txt, pk) {
+    const $ = (s) => box.querySelector(s), campo = $(".tw-campo"), fala = $(".tw-fala");
+    const spr = [$(".tw-pk.eu"), $(".tw-pk.op")], caixa = [$(".tw-caixa.eu"), $(".tw-caixa.op")], lspr = $(".tw-lider-spr");
+    let ptr = 0, tim = null, vel = 1, tocando = false, cur = null;   // cur: { b, Lid, hp: [[...], [...]], at: [i, i] }
+    const time = (lado) => (lado ? cur.b.o : cur.b.p);
+    function falar(quem, txt, pk) {
       const q = fala.querySelector(".tw-quem");
-      if (quem === "pk") { q.className = "tw-quem pk"; delete q.dataset.sp; q.onerror = null; if (pk) porRetrato(q, pk[0], !!pk[1], pk[2] || "Normal"); } else if (quem) { q.className = "tw-quem"; delete q.dataset.k; const sp = JSON.stringify(quem.sp || []); if (q.dataset.sp !== sp) { q.removeAttribute("data-ok"); q.dataset.sp = sp; ligarSprites(fala); } }
-      fala.querySelector("b").textContent = quem && quem !== "pk" ? quem.n : "";
+      if (pk) { q.className = "tw-quem pk"; delete q.dataset.sp; porRetrato(q, pk[0], !!pk[1], pk[2] || "Normal"); fala.querySelector("b").textContent = ""; }
+      else if (quem) { q.className = "tw-quem"; delete q.dataset.k; q.removeAttribute("data-ok"); q.dataset.sp = JSON.stringify(quem.sp || []); ligarSprites(fala); fala.querySelector("b").textContent = quem.n; }
       fala.querySelector("p").innerHTML = txt;
     }
-    function desenharLado(lado, emo) {
-      const x = time(lado)[cur.at[lado]], el = lados[lado], hp = cur.hp[lado][cur.at[lado]], pc = Math.max(0, hp / x[3]) * 100;
-      el.querySelector("b").textContent = lado === 0 ? nomePk(x) : nome(x[0]); el.querySelector("small").textContent = "Nv. " + x[2];
-      const bar = el.querySelector(".tw-hp i"); bar.style.width = pc + "%"; bar.className = pc <= 20 ? "v" : pc <= 50 ? "a" : "";
-      el.querySelector(".tw-pips").innerHTML = time(lado).map((_, i) => `<i class="${cur.hp[lado][i] <= 0 ? "caiu" : ""}"></i>`).join("");
-      const ret = el.querySelector(".tw-ret"); ret.classList.toggle("ko", hp <= 0);
-      porRetrato(ret.querySelector("img"), x[0], !!x[1], emo || (hp <= 0 ? "Dizzy" : "Normal"));
+    function desenhar(lado) {
+      const x = time(lado)[cur.at[lado]], hp = cur.hp[lado][cur.at[lado]], c = caixa[lado], pc = Math.max(0, hp / x[3]) * 100; c.hidden = false;
+      c.querySelector("b").textContent = lado ? nome(x[0]) : nomePk(x); c.querySelector("small").textContent = "Nv. " + x[2];
+      const bar = c.querySelector(".tw-hp i"); bar.style.width = pc + "%"; bar.className = pc <= 20 ? "v" : pc <= 50 ? "a" : "";
+      if (!lado) c.querySelector(".hpn").textContent = `${hp}/${x[3]}`;
+      c.querySelector(".tw-pips").innerHTML = cur.hp[lado].map((h) => `<i class="${h <= 0 ? "caiu" : ""}"></i>`).join("");
     }
-    function numero(lado, v, crit) {
-      const n = document.createElement("div"); n.className = "tw-num" + (crit ? " crit" : ""); n.textContent = v ? "-" + v : "0";
-      const r = lados[lado].querySelector(".tw-ret").getBoundingClientRect(), a = arena.getBoundingClientRect();
-      n.style.left = (r.left - a.left + r.width / 2 - 14) + "px"; n.style.top = (r.top - a.top + 10) + "px"; arena.appendChild(n); setTimeout(() => n.remove(), 950);
-    }
-    function aplicar(p, animar) {   // executa um passo; devolve quanto tempo esperar (ms, em 1x)
+    function entrar(lado, s) { cur.at[lado] = s; const x = time(lado)[s], im = spr[lado]; im.classList.remove("ko", "sai"); porSpriteBatalha(im, x[0], !!x[1], lado === 0, lado ? 2.6 : 3.4); desenhar(lado); }
+    function aplicar(p, animar) {   // executa um passo; devolve quanto esperar (ms, em 1x)
       if (p.t === "comeca") {
-        cur = { b: p.b, hp: [p.b.p.map((x) => x[3]), p.b.o.map((x) => x[3])], at: [0, 0] };
+        cur = { b: p.b, Lid: p.Lid, hp: [p.b.p.map((x) => x[3]), p.b.o.map((x) => x[3])], at: [0, 0] };
         box.querySelectorAll(".tw-lutas button").forEach((x) => x.classList.toggle("on", +x.dataset.k === p.k));
-        const tr = $(".tw-treinador"); tr.removeAttribute("data-ok"); tr.dataset.sp = JSON.stringify(p.Lid.sp || []); tr.classList.add("on"); ligarSprites(arena);
-        lados.forEach((el) => (el.style.visibility = "hidden"));
-        mostrarFala(null, `<b style="display:inline;color:#0f8f85">${esc(p.Lid.tit)} ${esc(p.Lid.n)}</b> quer lutar!`); return 1300;
+        lspr.removeAttribute("data-ok"); lspr.dataset.sp = JSON.stringify(p.Lid.sp || []); ligarSprites(campo); lspr.classList.remove("fora");
+        spr.forEach((im) => im.classList.add("sai")); caixa.forEach((c) => (c.hidden = true));
+        falar(p.Lid, `<b style="display:inline">${esc(p.Lid.tit)} ${esc(p.Lid.n)}</b> quer lutar!`); return 1200;
       }
-      if (p.t === "fala") { mostrarFala(p.quem, esc(p.txt)); return 1500 + p.txt.length * 28; }
-      if (p.t === "envia") { cur.at[p.lado] = p.s; lados[p.lado].style.visibility = "visible"; desenharLado(p.lado, p.lado === 0 ? "Determined" : "Normal"); const xe = time(p.lado)[p.s]; mostrarFala("pk", esc(p.txt), [xe[0], xe[1], p.lado === 0 ? "Determined" : "Normal"]); if (p.lado === 1) $(".tw-treinador").classList.remove("on"); return 1000; }
+      if (p.t === "fala") { falar(p.quem, esc(p.txt)); return 1500 + p.txt.length * 28; }
+      if (p.t === "envia") { entrar(p.lado, p.s); const x = time(p.lado)[p.s];
+        if (p.lado === 1) { lspr.classList.add("fora"); falar(null, `${esc(cur.Lid.n)} enviou <b>${esc(nome(x[0]))}</b>!`, [x[0], 0, "Normal"]); }
+        else falar(null, `Vai, <b>${esc(nomePk(x))}</b>!`, [x[0], x[1], "Determined"]);
+        return 1000; }
       if (p.t === "golpe") {
         const [lado, ia, id, g, dano, fl] = p.e, alvo = 1 - lado, at = time(lado)[ia], df = time(alvo)[id];
         cur.at[lado] = ia; cur.at[alvo] = id; cur.hp[alvo][id] = Math.max(0, cur.hp[alvo][id] - dano);
-        const golpe = g === 2 ? "Debater-se" : at[4 + g] || "Tackle", quem = lado === 0 ? nomePk(at) : `o ${nome(at[0])} de ${cur && log.l.length ? L[cur.b.i].n : ""}`;
-        let txt = `${quem.charAt(0).toUpperCase() + quem.slice(1)} usou <b>${esc(golpe)}</b>!`;
-        if (fl & 8) txt += ` Não afeta ${esc(lado === 0 ? nome(df[0]) : nomePk(df))}…`; else { if (fl & 1) txt += " Um golpe crítico!"; if (fl & 2) txt += " É super efetivo!"; if (fl & 4) txt += " Não é muito efetivo…"; }
-        if (fl & 16) txt += ` <b>${esc(alvo === 0 ? nomePk(df) : nome(df[0]))} desmaiou!</b>`;
-        mostrarFala("pk", txt, [at[0], at[1], fl & 2 ? "Joyous" : "Determined"]);
-        desenharLado(lado, fl & 2 ? "Joyous" : "Determined"); desenharLado(alvo, fl & 16 ? "Dizzy" : dano ? "Pain" : "Normal");
-        if (animar) { const ra = lados[lado].querySelector(".tw-ret"), rb = lados[alvo].querySelector(".tw-ret"); ra.classList.remove("ataca"); rb.classList.remove("bate"); void ra.offsetWidth; ra.classList.add("ataca"); if (dano) rb.classList.add("bate"); numero(alvo, dano, fl & 1); }
+        const golpe = g === 2 ? "Debater-se" : at[4 + g] || "Tackle", quem = lado ? `O ${nome(at[0])} de ${cur.Lid.n}` : nomePk(at);
+        let txt = `${esc(quem)} usou <b>${esc(golpe)}</b>!`;
+        if (fl & 8) txt += " Não afeta…"; else { if (fl & 1) txt += " Um golpe crítico!"; if (fl & 2) txt += " É super efetivo!"; if (fl & 4) txt += " Não é muito efetivo…"; }
+        if (fl & 16) txt += ` <b>${esc(alvo ? nome(df[0]) : nomePk(df))} desmaiou!</b>`;
+        falar(null, txt, [at[0], at[1], fl & 2 ? "Joyous" : "Determined"]);
+        desenhar(alvo);
+        if (animar) { const sa = spr[lado], sd = spr[alvo]; sa.classList.remove("ataca"); sd.classList.remove("bate"); void sa.offsetWidth; sa.classList.add("ataca"); if (dano) sd.classList.add("bate");
+          const n = document.createElement("div"); n.className = "tw-num" + (fl & 1 ? " crit" : ""); n.textContent = dano ? "-" + dano : "0";
+          const r = sd.getBoundingClientRect(), a = campo.getBoundingClientRect(); n.style.left = (r.left - a.left + r.width / 2 - 14) + "px"; n.style.top = (r.top - a.top) + "px"; campo.appendChild(n); setTimeout(() => n.remove(), 950); }
+        if (fl & 16) spr[alvo].classList.add("ko");
         return fl & 16 ? 1900 : 1350;
       }
       if (p.t === "fim") {
-        const Lid = p.Lid; $(".tw-treinador").classList.add("on");
-        if (p.b.v) { desenharLado(0, "Joyous"); const w = time(0)[cur.at[0]]; mostrarFala("pk", `🏅 <b>${esc(u.n)}</b> ganhou a insígnia de <b>${esc(Lid.n)}</b>! ${icInsignia(Lid)}`, [w[0], w[1], "Joyous"]); }
-        else mostrarFala("pk", `A subida de <b>${esc(u.n)}</b> terminou em <b>${esc(Lid.n)}</b>. Treine a party e tente de novo!`);
+        lspr.classList.remove("fora"); const w = time(0)[cur.at[0]];
+        if (p.b.v) falar(null, `🏅 <b>${esc(u.n)}</b> ganhou a insígnia de <b>${esc(p.Lid.n)}</b>! ${icInsignia(p.Lid)}`, [w[0], w[1], "Joyous"]);
+        else falar(null, `A subida de <b>${esc(u.n)}</b> terminou em <b>${esc(p.Lid.n)}</b>.`, [w[0], w[1], "Sad"]);
         return 2200;
       }
       return 500;
     }
     function passo() {
       tim = null; if (!tocando) return;
-      if (ptr >= passos.length) { tocando = false; $("[data-a=pausa]").textContent = "↺ Ver de novo"; if (log.fim) mostrarFala("pk", `🏆 <b>${esc(u.n)}</b> venceu a Torre de Alola${log.pz ? " no modo pesadelo" : ""}!`); return; }
+      if (ptr >= passos.length) { tocando = false; $("[data-a=pausa]").textContent = "↺ Ver de novo"; if (log.fim) falar(null, `🏆 <b>${esc(u.n)}</b> venceu a Torre de Alola${log.pz ? " no modo pesadelo" : ""}!`); return; }
       const ms = aplicar(passos[ptr++], true); tim = setTimeout(passo, ms / vel);
     }
-    function irPara(k) {   // pula para o começo da luta k
-      arena.classList.add("ativo"); clearTimeout(tim); ptr = inicios[k] || 0; tocando = true; $(".tw-play").hidden = true; $("[data-a=pausa]").textContent = "⏸ Pausar"; passo();
-    }
+    function irPara(k) { campo.classList.add("ativo"); clearTimeout(tim); ptr = inicios[k] || 0; tocando = true; $(".tw-play").hidden = true; $("[data-a=pausa]").textContent = "⏸ Pausar"; passo(); }
     $(".tw-play").onclick = () => irPara(0);
     $("[data-a=pausa]").onclick = (e) => {
       if (ptr >= passos.length) return irPara(0);
       tocando = !tocando; e.target.textContent = tocando ? "⏸ Pausar" : "▶ Continuar"; if (tocando && !tim) passo(); else if (!tocando) { clearTimeout(tim); tim = null; } };
     $("[data-a=vel]").onclick = (e) => { vel = vel === 1 ? 2 : vel === 2 ? 4 : 1; e.target.textContent = "⏩ " + vel + "x"; };
-    $("[data-a=pula]").onclick = () => { const k = inicios.findIndex((x) => x > ptr - 1 && x >= ptr); irPara(k < 0 ? inicios.length - 1 : k); };
+    $("[data-a=pula]").onclick = () => { const k = inicios.findIndex((x) => x >= ptr); irPara(k < 0 ? inicios.length - 1 : k); };
     box.querySelectorAll(".tw-lutas button").forEach((b) => (b.onclick = () => irPara(+b.dataset.k)));
-    // antes de tocar: mostra a primeira fala, parado
-    mostrarFala(L[log.l[0].i], esc(L[log.l[0].i].ola[0]));
+    const L0 = L[log.l[0].i]; falar(L0, esc(L0.ola[0]));
   }
 
   function paginaBolas() {
@@ -2028,7 +2033,7 @@
         const novo = await baixarGist(GIST); if (!novo || !novo.t || novo.em === antes) return;
         D = novo; window.__pokedexDados = D;
         const y = scrollY, l = new URLSearchParams(location.search).get("u");
-        if (new URLSearchParams(location.search).get("p") === "torre") { if (!document.querySelector(".tw-arena.ativo")) { rota(); scrollTo(0, y); } }
+        if (new URLSearchParams(location.search).get("p") === "torre") { if (!document.querySelector(".tw-arena.ativo, .tw-campo.ativo, .tw-bt-fundo")) { rota(); scrollTo(0, y); } }
         else if (l && D.t[l]) { desenhar(l); scrollTo(0, y); }
         document.getElementById("rodape").textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       } catch (e) {}
