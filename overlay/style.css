@@ -898,3 +898,20 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .aviso.checkin .ck-itens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .aviso.checkin .ck-itens span { display: inline-flex; align-items: center; gap: 4px; font: 600 13px "Fredoka"; background: rgba(0,0,0,.28); border-radius: 999px; padding: 2px 10px 2px 4px; }
 .aviso.checkin .ck-itens img { width: 24px; height: 24px; image-rendering: pixelated; object-fit: contain; }
+/* Torre de Alola: venceu a Torre dos Líderes. Pôr do sol tropical com a torre de palha atrás do cartão */
+.chat .msg.bolha-torre, .chat.cinema .msg.bolha-torre {
+  background: radial-gradient(ellipse at 85% 120%, rgba(255,196,92,.45), transparent 55%), linear-gradient(110deg, rgba(14,120,118,.82), rgba(18,70,92,.9) 50%, rgba(40,20,60,.94));
+  border-color: #ffc45c; box-shadow: 0 0 0 1px rgba(10,40,40,.6) inset, 0 0 20px rgba(255,170,80,.28); }
+.chat .msg.bolha-torre .marca { right: 6px; width: 120px; height: 120px; margin-top: -60px; border-radius: 18px; transform: none; box-shadow: none; opacity: .6;
+  background: url(../assets/rancho/torre-alola.png) center/cover no-repeat; image-rendering: pixelated;
+  -webkit-mask: radial-gradient(ellipse at center, #000 45%, transparent 72%); mask: radial-gradient(ellipse at center, #000 45%, transparent 72%); animation: balanco-marca 7s ease-in-out infinite; }
+.chat .msg.bolha-torre .marca::after { display: none; }
+.chat .msg.bolha-torre .av { box-shadow: inset 0 0 0 2.5px #ffe7a8, 0 0 0 4px #17b3a3, 0 0 16px rgba(255,170,80,.55); }
+.chat .msg.bolha-torre .nome { color: #ffe7a8; text-shadow: 0 1px 0 #0b3b3a; }
+.chat .msg.bolha-torre::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; pointer-events: none; opacity: .7; border-radius: 0 0 inherit inherit;
+  background: radial-gradient(circle at 7px 0, #ff7a9a 4px, transparent 4.5px) 0 0/28px 10px repeat-x, radial-gradient(circle at 21px 2px, #ffd25a 3px, transparent 3.5px) 0 0/28px 10px repeat-x; }
+/* borda Torre de Alola: aro tropical (mar, areia e hibisco) nos Pokémon que venceram a torre */
+.msg .av-caixa.borda-torre::before { background: var(--reflexo) 0 0/300% 100%, conic-gradient(from var(--ang, 0deg), #17b3a3, #8ff0d8, #ffd25a, #ff7a9a, #ffd25a, #8ff0d8, #17b3a3); animation: girar 5s linear infinite; padding: 4.5px; }
+.msg .av-caixa.borda-torre::after { box-shadow: 0 0 0 1.5px #0b3b3a, 0 0 14px rgba(23,179,163,.55), 0 0 22px rgba(255,170,80,.35); }
+.msg .av-caixa.borda-torre .encaixe::after { content: "🌺"; position: absolute; right: -50px; top: -58px; font-size: 14px; animation: borda-estrela 2.6s ease-in-out infinite; }
+.aviso.borda-nova.b-torre { border-color: #17b3a3; box-shadow: 0 0 16px rgba(23,179,163,.5); }
