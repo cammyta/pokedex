@@ -8,18 +8,22 @@
   window.USUM = window.USUM || {};
   const S = () => USUM.selvagens;
   const CFG = Object.assign({ chanceDrop: 0.45, minutosEstagio: 15, pescaMinutos: 3, canteiros: 3, ovoMinutos: 20, chocarMinutos: 30, maxOvos: 6,
-    bonusForca: 0.4, amizadeBorda: 60, pedreiraMinutos: 8 }, (window.USUM_CONFIG || {}).rancho);
+    bonusForca: 0.4, amizadeBorda: 60, pedreiraMinutos: 8, apiarioMinutos: 12, chanceHiperMel: 0.1 }, (window.USUM_CONFIG || {}).rancho);
   const ler = (k, p) => { try { return JSON.parse(localStorage.getItem(k) || "null") || p; } catch (e) { return p; } };
   const gravar = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/";
   const PASTA = /github\.io$|^file:.*pokedex-site/.test(location.hostname || location.href) ? "assets/rancho/" : "pokedex-site/assets/rancho/";
-  const urlItem = (id) => id === "essencia" ? PASTA + "brilho.png" : SPR + id + ".png";
+  const LOCAIS = { essencia: "brilho.png", mel: "mel.png", "hiper-mel": "hiper-mel.png" };
+  const urlItem = (id) => LOCAIS[id] ? PASTA + LOCAIS[id] : SPR + id + ".png";
 
   /* ---------- itens ---------- */
   // c: mat (material) · pedra · troca (item de evolução por troca) · forma (muda a forma) | p: peso no sorteio | t: tipos que deixam cair mais
   const ITENS = {
     // Essência: vem de capturar (1, shiny 3, lendário 5) e de soltar Pokémon (2 cada, shiny 5). Toda Pokébola forjada gasta essência.
     "essencia": { n: "Essência", c: "mat", p: 0, t: [] },
+    // Mel: vem do apiário (Cutiefly, Ribombee, Combee, Vespiquen). !mel chama um selvagem; !hipermel tem 10% de última forma e 0,1% de lendário
+    "mel": { n: "Mel", c: "mel", p: 0, t: [] },
+    "hiper-mel": { n: "Hiper Mel", c: "mel", p: 0, t: [] },
     "red-apricorn": { n: "Apricorn Vermelho", c: "mat", p: 10, t: ["fire", "fighting"] },
     "blue-apricorn": { n: "Apricorn Azul", c: "mat", p: 10, t: ["water", "ice"] },
     "yellow-apricorn": { n: "Apricorn Amarelo", c: "mat", p: 10, t: ["electric", "ground"] },
@@ -40,7 +44,7 @@
     "dusk-stone": { n: "Pedra do Anoitecer", c: "pedra", p: 1.4, t: ["dark", "ghost"] },
     "dawn-stone": { n: "Pedra da Alvorada", c: "pedra", p: 1.4, t: ["psychic"] },
     "ice-stone": { n: "Pedra do Gelo", c: "pedra", p: 2, t: ["ice"] },
-    "metal-coat": { n: "Revestimento Metálico", c: "troca", p: 0.7, t: ["steel"] },
+    "metal-coat": { n: "Revestimento Metálico", c: "troca", p: 0, t: ["steel"] },   // só sai da pedreira (mineração)
     "kings-rock": { n: "Pedra do Rei", c: "troca", p: 0.7, t: ["water"] },
     "dragon-scale": { n: "Escama de Dragão", c: "troca", p: 0.6, t: ["dragon"] },
     "up-grade": { n: "Up-Grade", c: "troca", p: 0.5, t: ["normal"] },
@@ -77,7 +81,7 @@
   pede("fire-stone", [59, 136]); pede("water-stone", [62, 91, 121, 134, 272]); pede("thunder-stone", [26, 135, 604]);
   pede("leaf-stone", [45, 71, 103, 275, 470]); pede("moon-stone", [31, 34, 36, 40, 301, 518]); pede("sun-stone", [182, 192, 547, 549]);
   pede("shiny-stone", [407, 468, 573, 671]); pede("dusk-stone", [429, 430, 609]); pede("dawn-stone", [475, 478]); pede("ice-stone", [471]);
-  pede("metal-coat", [208, 212]); pede("kings-rock", [186, 199]); pede("dragon-scale", [230]); pede("up-grade", [233]); pede("dubious-disc", [474]);
+  pede("metal-coat", [208, 212, 462]);   // Magnezone: Revestimento Metálico + 30 min de convívio pede("kings-rock", [186, 199]); pede("dragon-scale", [230]); pede("up-grade", [233]); pede("dubious-disc", [474]);
   pede("electirizer", [466]); pede("magmarizer", [467]); pede("protector", [464]); pede("reaper-cloth", [477]); pede("prism-scale", [350]);
   pede("deep-sea-tooth", [367]); pede("deep-sea-scale", [368]); pede("razor-claw", [461]); pede("razor-fang", [472]); pede("oval-stone", [113]);
   pede("sachet", [683]); pede("whipped-dream", [685]); pede("linking-cord", [65, 68, 76, 94, 526, 534, 589, 617, 709, 711]);
@@ -335,14 +339,15 @@
   }
   function rodadaHorta() {
     const todos = ler("usum_rancho", {}), avisos = [];
-    Object.keys(todos).forEach((l) => {
+    treinadores().forEach((l) => {
       const [agua, grama] = ajudantes(l, "horta"); if (!agua || !grama) return;
+      todos[l] = todos[l] || {};
       const hz = (todos[l].hz || []).slice(0, CFG.canteiros); while (hz.length < CFG.canteiros) hz.push(0);
       const livres = hz.map((c, i) => (c ? -1 : i)).filter((i) => i >= 0); if (!livres.length) return;
       const d = Math.round(CFG.minutosEstagio * fatorTempo((forcaDe(l, agua) + forcaDe(l, grama)) / 2) * 10) / 10;
       const cores = [];
       mudarR(l, (r) => { r.hz = hz; livres.forEach((i) => { const cor = corDoPlantador(grama); r.hz[i] = { s: cor, t: Date.now(), d, a: 1 }; cores.push(cor); }); });
-      avisos.push({ l, nome: todos[l].nm || l, grama, cores });
+      avisos.push({ l, nome: todos[l].nm || nomeTreinador(l), grama, cores });
     });
     // aviso curto (só de quem tem nome conhecido), juntando todo mundo
     if (avisos.length) publicar("rancho:planta-broto", "🌱 " + avisos.slice(0, 3).map((a) => `${nomeP(a.grama)} plantou ${a.cores.length > 1 ? a.cores.length + " Apricorns" : "um Apricorn " + ({ red: "Vermelho", blue: "Azul", yellow: "Amarelo", green: "Verde", pink: "Rosa", white: "Branco", black: "Preto" }[a.cores[0]])} na horta de <b>${esc(a.nome)}</b>`).join(" · ") + (avisos.length > 3 ? ` e mais ${avisos.length - 3}` : "") + ` · colha com <b>!colher</b> quando der fruto`);
@@ -434,11 +439,11 @@
     return melhorDoTipo(login, TIPOS_PEDREIRA, fj) || melhorDoTipo(login, TIPOS_PEDREIRA);
   }
   const ACHADOS = [["hard-stone", 60], ["stardust", 12], ["star-piece", 2], ["fire-stone", 2.5], ["water-stone", 2.5], ["thunder-stone", 2.5], ["leaf-stone", 2.5],
-    ["moon-stone", 2.5], ["sun-stone", 2], ["shiny-stone", 1.5], ["dusk-stone", 1.5], ["dawn-stone", 1.5], ["ice-stone", 2], ["everstone", 0]];
+    ["moon-stone", 2.5], ["metal-coat", 3], ["sun-stone", 2], ["shiny-stone", 1.5], ["dusk-stone", 1.5], ["dawn-stone", 1.5], ["ice-stone", 2], ["everstone", 0]];
   function sortearAchado() { const l = ACHADOS.filter(([, w]) => w > 0), tot = l.reduce((a, x) => a + x[1], 0); let r = Math.random() * tot; for (const [id, w] of l) if ((r -= w) <= 0) return id; return "hard-stone"; }
   function rodadaPedreira() {
-    const todos = ler("usum_rancho", {}), avisos = [];
-    Object.keys(todos).forEach((l) => {
+    const avisos = [];
+    treinadores().forEach((l) => {
       const n = mineiro(l); if (!n) return;
       const passo = CFG.pedreiraMinutos * fatorTempo(forcaDe(l, n)) * 60e3, agora = Date.now();
       mudarR(l, (r) => {
@@ -448,12 +453,59 @@
           r.pd.ult += passo; k++;
           const id = sortearAchado(); r.it[id] = (r.it[id] || 0) + 1;
           r.pd.ac = [[id, agora]].concat(r.pd.ac || []).slice(0, 8);
-          if (ITENS[id].c === "pedra" || id === "star-piece") avisos.push({ l, nome: r.nm || l, n, id });
+          if (ITENS[id].c === "pedra" || id === "star-piece" || id === "metal-coat") avisos.push({ l, nome: r.nm || nomeTreinador(l), n, id });
         }
         if (agora - r.pd.ult > passo * 3) r.pd.ult = agora;
       });
     });
     avisos.forEach((a, i) => setTimeout(() => publicar(a.id, `⛏️ ${nomeP(a.n)} quebrou uma pedra na pedreira de <b>${esc(a.nome)}</b> e achou <b>${esc(ITENS[a.id].n)}</b>!`, a.l), i * 700));
+  }
+
+  /* ---------- Apiário: Cutiefly, Ribombee, Combee ou Vespiquen fazem Mel durante a live (Hiper Mel às vezes).
+     r.ap = { n: escolhido, quem, ult, ac: [[id, ms]] }. Usar: !mel / !hipermel chama um Pokémon selvagem na live ---------- */
+  const ABELHAS = [742, 743, 415, 416];
+  function abelha(login) {
+    const r = rancho(login), tem = new Set(donos(login)), e = r.ap && r.ap.n;
+    if (e && tem.has(e) && ABELHAS.includes(e)) return e;
+    const l = ABELHAS.filter((n) => tem.has(n)); return l.sort((a, b) => forcaDe(login, b) - forcaDe(login, a))[0] || 0;
+  }
+  // todo mundo que tem Pokémon na caixa (mesmo quem nunca mexeu no rancho)
+  const nomeTreinador = (l) => ((ler("usum_caixa", {})[l] || {}).nome) || l;
+  // quem o rancho atende a cada minuto: quem falou no chat nas últimas 3 horas (o rancho trabalha enquanto a pessoa está na live)
+  const vistosR = new Map();
+  const treinadores = () => { const lim = Date.now() - 3 * 3600e3, cx = ler("usum_caixa", {}); return [...vistosR.entries()].filter(([l, t]) => t > lim && cx[l]).map(([l]) => l); };
+  function rodadaApiario() {
+    const avisos = [];
+    treinadores().forEach((l) => {
+      const n = abelha(l); if (!n) return;
+      const passo = CFG.apiarioMinutos * fatorTempo(forcaDe(l, n)) * 60e3, agora = Date.now();
+      const chHiper = CFG.chanceHiperMel * ([743, 416].includes(n) ? 1.5 : 1);   // a forma evoluída acha Hiper Mel mais vezes
+      mudarR(l, (r) => {
+        r.ap = r.ap || {}; if (!r.ap.ult || r.ap.quem !== n) { r.ap.ult = agora; r.ap.quem = n; return; }
+        let k = 0;
+        while (agora - r.ap.ult >= passo && k < 3) {
+          r.ap.ult += passo; k++;
+          const id = Math.random() < chHiper ? "hiper-mel" : "mel"; r.it[id] = (r.it[id] || 0) + 1;
+          r.ap.ac = [[id, agora]].concat(r.ap.ac || []).slice(0, 8);
+          if (id === "hiper-mel") avisos.push({ l, nome: r.nm || nomeTreinador(l), n });
+        }
+        if (agora - r.ap.ult > passo * 3) r.ap.ult = agora;
+      });
+    });
+    avisos.forEach((a, i) => setTimeout(() => publicar("hiper-mel", `🍯 ${nomeP(a.n)} fez um <b>Hiper Mel</b> no apiário de <b>${esc(a.nome)}</b>! Use com <b>!hipermel</b>`, a.l), i * 700));
+  }
+  // pede ao encontro.html (a tela do selvagem) para chamar um Pokémon
+  function pedirSelvagem(opc) {
+    const f = ler("usum_chamar", []); f.push(Object.assign({ id: Date.now() + "-" + Math.random().toString(36).slice(2, 7) }, opc)); gravar("usum_chamar", f.slice(-10));
+  }
+  function usarMel(login, nome, hiper) {
+    const id = hiper ? "hiper-mel" : "mel";
+    if (qtd(login, id) < 1) return { erro: "semmel", id };
+    dar(login, id, -1); mudarR(login, (r) => { r.nm = nome; });
+    const opc = { tag: (hiper ? "🍯✨ Hiper Mel de " : "🍯 Mel de ") + nome, semRota: true };
+    if (hiper) { const r = Math.random(); if (r < 0.001) opc.lendario = true; else if (r < 0.101) opc.ultima = true; }
+    pedirSelvagem(opc);
+    return { ok: 1, id };
   }
   /* ---------- amizade no rancho: quem trabalha ganha 1 ponto por minuto, o Pokémon do Cantinho da Amizade ganha 2.
      Com amizadeBorda pontos (60) a espécie libera a borda "Rancho" da fotinha. r.ami = Pokémon no cantinho, r.am = {num: pontos}, r.br = [nums] ---------- */
@@ -463,12 +515,13 @@
     const hf = ajudantes(login, "horta"); if (hf[0] && hf[1] && (r.hz || []).some(Boolean)) l.push(hf[0], hf[1]);
     if (r.dc && r.dc.a && r.dc.b) l.push(r.dc.a.n, r.dc.b.n);
     const mn = mineiro(login); if (mn) l.push(mn);
+    const ab = abelha(login); if (ab) l.push(ab);
     return [...new Set(l)];
   }
   function rodadaAmizade() {
     const todos = ler("usum_rancho", {}), novas = [];
-    Object.keys(todos).forEach((l) => {
-      const r = todos[l]; if (!r) return;
+    treinadores().forEach((l) => {
+      const r = todos[l] || {};
       const tem = new Set(donos(l)), ganha = {};
       if (r.ami && tem.has(r.ami)) ganha[r.ami] = 2;
       quemTrabalha(l).forEach((n) => (ganha[n] = (ganha[n] || 0) + 1));
@@ -477,7 +530,7 @@
         x.am = x.am || {}; x.br = x.br || [];
         Object.entries(ganha).forEach(([n, p]) => {
           n = +n; x.am[n] = (x.am[n] || 0) + p;
-          if (x.am[n] >= CFG.amizadeBorda && !x.br.includes(n)) { x.br.push(n); novas.push({ login: l, nome: x.nm || l, n }); }
+          if (x.am[n] >= CFG.amizadeBorda && !x.br.includes(n)) { x.br.push(n); novas.push({ login: l, nome: x.nm || nomeTreinador(l), n }); }
         });
       });
     });
@@ -533,6 +586,25 @@
     Object.entries(c.q || {}).forEach(([l, [ini, ult, nome]]) => { if (ini <= fim - 30 * 60e3 && ult >= fim - 20 * 60e3) darBolha(l, nome || l, "cinefilo"); });
   }
 
+
+  /* ---------- Check-in: na primeira mensagem de cada live (dia), a pessoa ganha itens e aparece um cartão no chat.
+     Dias seguidos aumentam o prêmio (a cada 5 dias seguidos: Ultra Ball e Hiper Mel). usum_checkin = { login: { d: "2026-11-23", s: dias seguidos, tot } } ---------- */
+  const hojeStr = (t) => { const d = new Date(t || Date.now()); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  function checkin(m) {
+    if (USUM.offline && USUM.offline()) return;
+    if (!m.login || /bot$/i.test(m.login) || m.login === "streamelements" || m.login === "nightbot") return;
+    const todos = ler("usum_checkin", {}), eu = todos[m.login] || {}, hoje = hojeStr();
+    if (eu.d === hoje) return;
+    const ontem = hojeStr(Date.now() - 864e5), seguidos = eu.d === ontem ? (eu.s || 1) + 1 : 1;
+    todos[m.login] = { d: hoje, s: seguidos, tot: (eu.tot || 0) + 1 }; gravar("usum_checkin", todos);
+    const cores = ["red", "blue", "yellow", "green", "pink", "white", "black"], ap = cores[Math.floor(Math.random() * 7)] + "-apricorn";
+    const premio = [["bola:great", 2, "Great Balls"], ["mel", 1, "Mel"], ["essencia", 3, "Essência"], [ap, 1, ITENS[ap].n]];
+    if (seguidos % 5 === 0) premio.push(["bola:ultra", 1, "Ultra Ball"], ["hiper-mel", 1, "Hiper Mel"]);
+    premio.forEach(([id, n]) => { if (/^bola:/.test(id)) S().darBola(m.login, id.slice(5), n); else dar(m.login, id, n); });
+    mudarR(m.login, (r) => { r.nm = m.nome; });
+    publicarEv({ tipo: "checkin", login: m.login, nome: m.nome, seguidos, tot: (eu.tot || 0) + 1,
+      itens: premio.map(([id, n, nome]) => ({ img: /^bola:/.test(id) ? USUM.urlBola(id.slice(5)) : urlItem(id), n, nome })) });
+  }
   /* ---------- casinha: móveis feitos na bancada ---------- */
   const MOVEIS = {
     cama: { n: "Cama", custo: { "white-apricorn": 2, "pink-apricorn": 1 } },
@@ -575,7 +647,7 @@
   const listaCusto = (c) => Object.entries(c).map(([id, n]) => `${n} ${esc(ITENS[id].n)}`).join(" + ");
 
   /* ---------- comandos ---------- */
-  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar)\b/;
+  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário)\b/;
   let lider = false;
   const site = /github\.io$/.test(location.hostname);
   if (USUM.aoMensagem && !site && navigator.locks && navigator.locks.request) navigator.locks.request("usum_rancho", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
@@ -588,7 +660,7 @@
     if (cmd === "itens" || cmd === "item") {
       const it = rancho(L).it || {}, ks = Object.keys(it).filter((k) => ITENS[k] && it[k] > 0);
       if (!ks.length) return publicar("ic:mochila", `🎒 <b>${esc(N)}</b>, sua mochila do rancho está vazia. Capture Pokémon (com !capturar) para achar itens!`, L);
-      const ord = ["pedra", "troca", "forma", "mat"];
+      const ord = ["mel", "pedra", "troca", "forma", "mat"];
       ks.sort((a, b) => (b === "essencia") - (a === "essencia") || ord.indexOf(ITENS[a].c) - ord.indexOf(ITENS[b].c));
       return publicar("ic:mochila", `🎒 <b>${esc(N)}</b>: ` + ks.slice(0, 10).map((k) => `<img class="mini-item" src="${urlItem(k)}">${it[k]}× ${esc(ITENS[k].n)}`).join(" · ") + (ks.length > 10 ? ` e mais ${ks.length - 10}` : "") + url, L);
     }
@@ -604,8 +676,9 @@
       const r = rancho(L), [a, f] = ajudantes(L, "forja"), [ag, gr] = ajudantes(L, "horta");
       return publicar("ic:casa", `🏡 Rancho de <b>${esc(N)}</b>: forja ${a && f ? `🔥 ${nomeP(a)} + ${nomeP(f)}` : "apagada (precisa de um Pokémon de Aço, Terra ou Pedra e um de Fogo)"} · horta ${ag && gr ? `💧 ${nomeP(ag)} + ${nomeP(gr)}` : "parada (precisa de Água e Grama)"} · ${(r.mv || []).length} móveis · vara ${["velha", "boa", "super"][r.vr || 0]}` + url, L);
     }
+    if (cmd === "usar" && /^(hiper\s*)?mel\b/.test(limpa(arg))) { m = Object.assign({}, m, { texto: "!" + (/^hiper/.test(limpa(arg)) ? "hipermel" : "mel") }); return comando(m); }
     if (cmd === "usar") {
-      const id = acharItem(arg, (k) => ITENS[k].c !== "mat");
+      const id = acharItem(arg, (k) => ITENS[k].c !== "mat" && ITENS[k].c !== "mel");
       if (!id) return publicar("ic:mochila", `<b>${esc(N)}</b>, não achei esse item 🤔 (ex: <b>!usar pedra do fogo</b>, <b>!usar néctar rosa</b>)`, L);
       if (qtd(L, id) < 1) return publicar(id, `<b>${esc(N)}</b>, você não tem <b>${esc(ITENS[id].n)}</b>. Ele aparece capturando Pokémon!`, L);
       const parc = ler("usum_parceiros", {})[L];
@@ -676,6 +749,22 @@
       return publicar("num:" + r.num + (r.shiny ? ":s" : ""), `🎣 <b>${esc(N)}</b> pescou um <b>${nomeP(r.num)}</b>${r.shiny ? " ✦ SHINY" : ""}! <small class="forca">força ${r.forca}%</small>`, L);
     }
 
+    if (cmd === "mel" || cmd === "hipermel") {
+      const hiper = cmd === "hipermel" || /^hiper/.test(limpa(arg));
+      const r = usarMel(L, N, hiper);
+      if (r.erro) return publicar(r.id, `🍯 <b>${esc(N)}</b>, você não tem ${hiper ? "Hiper Mel" : "Mel"}. Ele vem do apiário do rancho (precisa de Cutiefly, Ribombee, Combee ou Vespiquen)`, L);
+      return publicar(r.id, `🍯 <b>${esc(N)}</b> passou ${hiper ? "<b>Hiper Mel</b>" : "Mel"} numa árvore… um Pokémon selvagem vem chegando!${hiper ? " <small>(10% de chance de última forma, 0,1% de lendário)</small>" : ""}`, L);
+    }
+    if (cmd === "apiario" || cmd === "apiário") {
+      if (arg) {
+        const tem = new Set(donos(L)), n = palavrasPoke(arg).map((w) => (USUM.lerPokemon(w) || {}).num).find((x) => x && tem.has(x) && ABELHAS.includes(x));
+        if (!n) return publicar("mel", `🐝 <b>${esc(N)}</b>, o apiário precisa de Cutiefly, Ribombee, Combee ou Vespiquen que você tem: <b>!apiario cutiefly</b>`, L);
+        mudarR(L, (r) => { r.nm = N; r.ap = Object.assign(r.ap || {}, { n }); });
+      }
+      const n = abelha(L);
+      if (!n) return publicar("mel", `🐝 <b>${esc(N)}</b>, o apiário precisa de uma abelha na sua caixa: Cutiefly, Ribombee, Combee ou Vespiquen`, L);
+      return publicar("num:" + n, `🐝 ${nomeP(n)} está fazendo mel no apiário de <b>${esc(N)}</b> (1 a cada ${Math.round(CFG.apiarioMinutos * fatorTempo(forcaDe(L, n)) * 10) / 10} min de live) · Mel: ${qtd(L, "mel")} · Hiper Mel: ${qtd(L, "hiper-mel")}`, L);
+    }
     if (cmd === "pedreira" || cmd === "minerar") {
       mudarR(L, (r) => { r.nm = N; });
       if (arg) {
@@ -732,22 +821,35 @@
       return publicar("rancho:movel-" + k, `🛠️ <b>${esc(N)}</b> fez <b>${esc(MOVEIS[k].n)}</b> na bancada e colocou na casinha! (${r.total}/${Object.keys(MOVEIS).length} móveis)`, L);
     }
   }
-  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  // roda numa tela só: a líder na hora; se a líder estiver com o chat caído, outra tela assume depois de ~1,5 s
+  function umaVezR(m, fn) {
+    const k = (m.id || m.login + ":" + m.texto) + "", ler_ = () => ler("usum_rancho_feitos", []);
+    const anotar = () => { const v = ler_(); v.push(k); gravar("usum_rancho_feitos", v.slice(-300)); };
+    if (lider) { if (ler_().includes(k)) return; anotar(); fn(); return; }
+    setTimeout(() => { if (ler_().includes(k)) return; anotar(); fn(); }, 1400 + Math.random() * 600);
+  }
   if (USUM.aoMensagem && !site) USUM.aoMensagem((m) => {
-    if (m.tipo || !lider) return;
+    if (m.tipo) return;
+    if (!lider) { const lw = String(m.texto || "").trim().toLowerCase(); if (CMD.test(lw) || /^!evento\s/.test(lw)) umaVezR(m, () => trata(m)); return; }
+    umaVezR(m, () => trata(m));
+  });
+  function trata(m) {
+    if (m.login) vistosR.set(m.login, Date.now());
     try {
       const lw = String(m.texto || "").trim().toLowerCase();
       if (/^!evento\s+(fim|parar)\b/.test(lw) && (m.dono || m.ajudante || m.mod)) fimDoFilme();   // não depende do pk_sessao (outra tela pode já ter encerrado o evento)
       else if (/^!evento\s+filme\b/.test(lw)) localStorage.removeItem("usum_cine_sessao");
       else anotarCinema(m);
+      checkin(m);
     } catch (e) { console.error("[rancho]", e); }
     if (!m.texto || !CMD.test(String(m.texto).trim().toLowerCase())) return;
     try { comando(m); } catch (e) { console.error("[rancho]", e); }
-  });
+  }
 
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
