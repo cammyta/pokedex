@@ -68,7 +68,16 @@
   .compor .painel .acoes { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
   .compor .painel .acoes button { border: 0; cursor: pointer; padding: 6px 12px; border-radius: 999px; font: 600 12px "Fredoka", sans-serif; color: #fff; background: rgba(255,255,255,.12); }
   .compor .painel .acoes button.prim { background: linear-gradient(90deg, #ffb347, #b07cff); }
-  .compor .painel input.busca { width: 100%; margin: 0 0 8px; padding: 6px 10px; border: 0; border-radius: 10px; background: rgba(255,255,255,.1); color: #fff; font: 13px "Poppins", sans-serif; }
+  .compor .grade.seis { grid-template-columns: repeat(3, 1fr); }
+  .compor .slot .vira { all: unset; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; width: 100%; }
+  .compor .slot .lapis { position: absolute; top: 3px; right: 3px; border: 0; cursor: pointer; width: 24px; height: 24px; border-radius: 8px; font-size: 12px; background: rgba(0,0,0,.45); }
+  .compor .slot.vazio-ed { border: 1.5px dashed rgba(255,255,255,.3); background: transparent; min-height: 74px; justify-content: center; color: rgba(255,255,255,.6); }
+  .compor .slot .mais { font-size: 22px; line-height: 1; }
+  .compor .topo-ed { position: sticky; top: -10px; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: -10px -10px 8px; padding: 10px; background: rgba(14,8,30,.98); }
+  .compor .topo-ed button { border: 0; cursor: pointer; padding: 6px 12px; border-radius: 999px; font: 600 12px "Fredoka", sans-serif; color: #fff; background: rgba(255,255,255,.14); margin-left: 4px; }
+  .compor .nao-achou { margin-top: 8px; } .compor .nao-achou button { border: 0; cursor: pointer; padding: 6px 12px; border-radius: 999px; font: 600 12px "Fredoka", sans-serif; color: #fff; background: linear-gradient(90deg, #ffb347, #b07cff); }
+  .compor .nao-achou small { color: rgba(255,255,255,.6); }
+  .compor .painel input.busca { position: sticky; top: 36px; z-index: 2; width: 100%; margin: 0 0 8px; padding: 6px 10px; border: 0; border-radius: 10px; background: rgba(255,255,255,.1); color: #fff; font: 13px "Poppins", sans-serif; }
   @keyframes ok-b { 40% { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(143,211,106,.7); } }
 </style>
 </head>
@@ -213,7 +222,7 @@
   semear(dadosPai());
   if (!D) buscarGist();
   setInterval(() => semear(dadosPai()), 20000);
-  if (!pai) setInterval(buscarGist, 5 * 60000);
+  if (!pai) setInterval(buscarGist, 2 * 60000);
   USUM.chat(document.getElementById("chat"), { espelho: true, aoComando });
 
   /* ---- escrever no chat sem sair do overlay (login da Twitch feito pela página principal) ---- */
@@ -289,7 +298,7 @@
         el.innerHTML = `<button class="entrar">🔑 Entrar com a Twitch para conversar aqui</button>`;
         el.querySelector(".entrar").onclick = entrar; return;
       }
-      el.innerHTML = `<div class="rapidos"><button type="button" data-t="!capturar">🎯 Capturar</button><button type="button" data-t="!atacar" class="raid-b">⚔️ Atacar na Raid</button><button type="button" data-t="!mel" class="mel-b">🍯 Usar Mel</button><button type="button" data-t="!itens">🎒 Itens</button><button type="button" class="abre" data-p="time">⭐ Time</button><button type="button" class="abre" data-p="bola">🔴 Bola</button></div>
+      el.innerHTML = `<div class="rapidos"><button type="button" data-t="!capturar">🎯 Capturar</button><button type="button" data-t="!atacar" class="raid-b">⚔️ Atacar na Raid</button><button type="button" data-t="!mel" class="mel-b">🍯 Usar Mel</button><button type="button" data-t="!itens">🎒 Itens</button><button type="button" class="abre" data-p="time">⭐ Time</button><button type="button" class="abre" data-p="bola">🔴 Bola</button><button type="button" class="abre" data-p="bolha">🫧 Bolha</button></div>
         <div class="painel" hidden></div>
         <form class="caixa"><div class="mini-av"></div><div class="meio"><span class="rot"></span>
           <input maxlength="500" placeholder="Mandar mensagem como ${eu}…" autocomplete="off"></div><button class="enviar" title="Enviar">➤</button></form>
@@ -309,11 +318,21 @@
       // a fotinha entra depois (como elemento), para manter a troca de imagem quando o sprite não existe
       const fotinha = (n, sh) => `<span class="ft" data-n="${n}" data-sh="${sh ? 1 : 0}"></span>`;
       const porFotinhas = () => painel.querySelectorAll(".ft").forEach((f) => { const im = USUM.imgPokemon({ num: +f.dataset.n, shiny: f.dataset.sh === "1", forma: USUM.formaRegional ? USUM.formaRegional(+f.dataset.n) : "" }, "Happy"); f.replaceWith(im); });
-      let montando = null;   // lista sendo montada no "Montar time"
+      // Time: 6 slots. Toque no Pokémon = vira parceiro. ✏️ (ou slot vazio) = escolher quem fica naquele slot (salva na hora)
+      let editando = -1, ultBusca = 0;
+      const salvarTime = (time) => {
+        mandar("!meutime " + (time.length ? time.map(([n, sh]) => nomeP(n).toLowerCase() + (sh ? " shiny" : "")).join(", ") : "limpar"));
+        const u = eu_(); u.tms = Object.assign({}, u.tms || {}, { live: time.map((x) => x.slice()) });
+      };
       function abrirPainel(qual) {
-        if (!qual) { painel.hidden = true; painel.dataset.p = ""; el.querySelectorAll(".abre").forEach((b) => b.classList.remove("on")); return; }
+        if (!qual) { painel.hidden = true; painel.dataset.p = ""; editando = -1; el.querySelectorAll(".abre").forEach((b) => b.classList.remove("on")); return; }
         painel.hidden = false; painel.dataset.p = qual;
         el.querySelectorAll(".abre").forEach((b) => b.classList.toggle("on", b.dataset.p === qual));
+        // dados frescos (Pokémon recém-capturado aparece): busca de novo, no máximo a cada 20 s
+        if (Date.now() - ultBusca > 20e3) { ultBusca = Date.now(); buscarGist().then(() => { if (painel.dataset.p === qual && editando < 0) desenharPainel(qual); }); }
+        desenharPainel(qual);
+      }
+      function desenharPainel(qual) {
         const u = eu_(), parc = USUM.parceiroDe ? USUM.parceiroDe(eu) : null, cx = u.c || {};
         if (qual === "bola") {
           const tem = Object.assign({ poke: 1 }, u.b || {}), eq = u.eq || "poke";
@@ -321,52 +340,68 @@
             Object.keys(tem).filter((k) => USUM.BOLAS[k] && (k === "poke" || tem[k] > 0)).map((k) => `<button type="button" class="slot bola ${k === eq ? "atual" : ""}" data-bola="${k}"><img src="assets/bolas/${k}-ball.png" alt=""><span>${esc(USUM.BOLAS[k].replace(" Ball", ""))}</span><em>${k === "poke" ? "∞" : "×" + tem[k]}</em></button>`).join("") + `</div>`;
           return;
         }
-        if (montando) {
-          const lista = Object.keys(cx).map(Number).sort((a, b) => nomeP(a).localeCompare(nomeP(b)));
-          painel.innerHTML = `<h4>Montar time <small>${montando.length}/6 escolhidos · toque para pôr ou tirar</small></h4><input class="busca" placeholder="Procurar Pokémon da caixa">
-            <div class="grade">${lista.map((n) => { const i = montando.findIndex((x) => x[0] === n); return `<button type="button" class="slot ${i >= 0 ? "sel" : ""}" data-escolhe="${n}" data-nome="${esc(nomeP(n).toLowerCase())}">${i >= 0 ? `<span class="num">${i + 1}</span>` : ""}${fotinha(n, i >= 0 && montando[i][1])}<span>${esc(nomeP(n))}</span></button>`; }).join("")}</div>
-            <div class="acoes"><button type="button" class="prim" data-salvar>Salvar time</button><button type="button" data-cancelar>Cancelar</button></div>`;
-          porFotinhas();
-          const bu = painel.querySelector(".busca"); bu.oninput = () => painel.querySelectorAll("[data-escolhe]").forEach((b) => (b.style.display = b.dataset.nome.includes(bu.value.toLowerCase().trim()) ? "" : "none"));
+        if (qual === "bolha") {
+          const BO = { "": ["☀️🌙", "Equipe", "a da sua equipe Sol ou Lua"], rancho: ["🌱", "Rancho", "amizade perfeita no rancho"], cinefilo: ["🎬", "Cinéfilo", "ficar num filme até o fim"], neon: ["✨", "Neon", "capturar 50 shiny"], raid: ["⚔️", "Raid", "lutar em 10 Raids"] };
+          const bh = u.bh || [[], ""], tem = new Set([""].concat(bh[0] || [])), usa = bh[1] || "";
+          painel.innerHTML = `<h4>Bolha do chat <small>como as suas mensagens aparecem na live</small></h4><div class="grade">` +
+            Object.keys(BO).map((id) => { const [ic, n, como] = BO[id], ok = tem.has(id);
+              return `<button type="button" class="slot ${id === usa ? "atual" : ""} ${ok ? "" : "vazio"}" ${ok ? `data-bolha="${id || "equipe"}"` : "disabled"} title="${esc(como)}"><span style="font-size:22px">${ic}</span><span>${n}</span><em>${id === usa ? "em uso" : ok ? "usar" : "🔒 " + esc(como)}</em></button>`; }).join("") + `</div>`;
           return;
         }
         const time = meuTime();
-        painel.innerHTML = `<h4>Seu time <small>toque em um para ser o parceiro</small></h4>` + (time.length
-          ? `<div class="grade">${time.map(([n, sh]) => { const at = parc && parc.num === n && !!parc.shiny === !!sh; return `<button type="button" class="slot ${at ? "atual" : ""}" data-parc="${n}" data-sh="${sh ? 1 : 0}">${fotinha(n, sh)}<span>${esc(nomeP(n))}${sh ? " ✦" : ""}</span>${at ? "<em>parceiro</em>" : ""}</button>`; }).join("")}${Array.from({ length: 6 - time.length }, () => `<div class="slot vazio">—</div>`).join("")}</div>`
-          : `<p style="margin:0;color:rgba(255,255,255,.7)">Você ainda não tem um time salvo. Monte com até 6 Pokémon da sua caixa e depois é só tocar para trocar o parceiro.</p>`)
-          + `<div class="acoes"><button type="button" data-montar>✏️ ${time.length ? "Mudar o time" : "Montar time"}</button></div>`;
+        if (editando >= 0) {
+          const lista = Object.keys(cx).map(Number).sort((a, b) => nomeP(a).localeCompare(nomeP(b)));
+          const atual = time[editando];
+          painel.innerHTML = `<div class="topo-ed"><b>Slot ${editando + 1}: escolha o Pokémon</b><span>${atual ? `<button type="button" data-tirar>Tirar</button>` : ""}<button type="button" data-voltar>← Voltar</button></span></div>
+            <input class="busca" placeholder="Procurar (ou digite o nome de um que acabou de capturar)">
+            <div class="grade">${lista.map((n) => { const naTime = time.findIndex((x) => x[0] === n); return `<button type="button" class="slot ${naTime === editando ? "atual" : naTime >= 0 ? "sel" : ""}" data-poe="${n}" data-nome="${esc(nomeP(n).toLowerCase())}">${naTime >= 0 ? `<span class="num">${naTime + 1}</span>` : ""}${fotinha(n, cx[n] && cx[n][1] > 0 && cx[n][0] === cx[n][1])}<span>${esc(nomeP(n))}</span></button>`; }).join("")}</div>
+            <div class="nao-achou" hidden><button type="button" class="prim" data-digitado>Pôr mesmo assim</button> <small>o overlay confere se ele está na sua caixa</small></div>`;
+          porFotinhas();
+          const bu = painel.querySelector(".busca"), na = painel.querySelector(".nao-achou");
+          bu.oninput = () => { const q = bu.value.toLowerCase().trim(); let vis = 0;
+            painel.querySelectorAll("[data-poe]").forEach((b) => { const ok = b.dataset.nome.includes(q); b.style.display = ok ? "" : "none"; if (ok) vis++; });
+            na.hidden = !(q.length >= 3 && !vis); };
+          return;
+        }
+        painel.innerHTML = `<h4>Seu time <small>toque para virar parceiro · ✏️ troca o Pokémon do slot</small></h4><div class="grade seis">` +
+          Array.from({ length: 6 }, (_, i) => { const x = time[i];
+            if (!x) return `<button type="button" class="slot vazio-ed" data-edita="${i}"><span class="mais">＋</span><span>Slot ${i + 1}</span></button>`;
+            const [n, sh] = x, at = parc && parc.num === n && !!parc.shiny === !!sh;
+            return `<div class="slot ${at ? "atual" : ""}"><button type="button" class="vira" data-parc="${n}" data-sh="${sh ? 1 : 0}">${fotinha(n, sh)}<span>${esc(nomeP(n))}${sh ? " ✦" : ""}</span>${at ? "<em>parceiro</em>" : ""}</button><button type="button" class="lapis" data-edita="${i}" title="Trocar">✏️</button></div>`; }).join("") + `</div>`;
         porFotinhas();
       }
       painel.addEventListener("click", (e) => {
         const b = e.target.closest("button"); if (!b) return;
         const u = eu_();
-        if (b.dataset.bola) {
-          const k = b.dataset.bola; mandar("!ball " + k); u.eq = k; abrirPainel("bola"); erro(""); return;
-        }
+        if (b.dataset.bolha) { const id = b.dataset.bolha; mandar("!bolha " + id); u.bh = [(u.bh || [[]])[0] || [], id === "equipe" ? "" : id];
+          const lb = ler("usum_bolhas", {}); lb[eu] = { tem: u.bh[0], usa: u.bh[1] }; gravar("usum_bolhas", lb); desenharPainel("bolha"); return; }
+        if (b.dataset.bola) { const k = b.dataset.bola; mandar("!ball " + k); u.eq = k; desenharPainel("bola"); erro(""); return; }
         if (b.dataset.parc) {
           const n = +b.dataset.parc, sh = b.dataset.sh === "1";
           mandar(`!pokemon ${nomeP(n).toLowerCase()}${sh ? " shiny" : ""}`);
           const novo = { num: n, shiny: sh, forma: USUM.formaRegional ? USUM.formaRegional(n) : "" };
           const todos = ler("usum_parceiros", {}); todos[eu] = novo; gravar("usum_parceiros", todos);
           const loc = ler("usum_parc_local", {}); loc[eu] = { p: novo, t: Date.now() }; gravar("usum_parc_local", loc);
-          emoAtual = ""; carinha(""); abrirPainel("time"); return;
+          emoAtual = ""; carinha(""); desenharPainel("time"); return;
         }
-        if (b.dataset.montar !== undefined) { montando = meuTime().map((x) => [x[0], x[1]]); abrirPainel("time"); return; }
-        if (b.dataset.cancelar !== undefined) { montando = null; abrirPainel("time"); return; }
-        if (b.dataset.escolhe) {
-          const n = +b.dataset.escolhe, i = montando.findIndex((x) => x[0] === n);
-          if (i >= 0) montando.splice(i, 1); else if (montando.length < 6) montando.push([n, 0]); else { erro("O time tem no máximo 6 Pokémon"); return; }
-          const y = painel.scrollTop, q = (painel.querySelector(".busca") || {}).value || ""; abrirPainel("time"); painel.scrollTop = y;
-          const bu = painel.querySelector(".busca"); if (bu && q) { bu.value = q; bu.oninput(); } return;
-        }
-        if (b.dataset.salvar !== undefined) {
-          if (!montando.length) { erro("Escolha pelo menos 1 Pokémon"); return; }
-          mandar("!meutime " + montando.map(([n, sh]) => nomeP(n).toLowerCase() + (sh ? " shiny" : "")).join(", "));
-          u.tms = Object.assign({}, u.tms || {}, { live: montando.map((x) => x.slice()) });
-          montando = null; abrirPainel("time"); return;
+        if (b.dataset.edita != null) { editando = +b.dataset.edita; desenharPainel("time"); painel.scrollTop = 0; const bu = painel.querySelector(".busca"); if (bu && matchMedia("(pointer:fine)").matches) bu.focus(); return; }
+        if (b.dataset.voltar != null) { editando = -1; desenharPainel("time"); return; }
+        const time = meuTime().map((x) => x.slice());
+        if (b.dataset.tirar != null) { time.splice(editando, 1); salvarTime(time); editando = -1; desenharPainel("time"); return; }
+        if (b.dataset.poe || b.dataset.digitado != null) {
+          let n;
+          if (b.dataset.poe) n = +b.dataset.poe;
+          else { const p = USUM.lerPokemon((painel.querySelector(".busca") || {}).value || ""); if (!p) { erro("Não conheço esse Pokémon"); return; } n = p.num; }
+          const cx = u.c || {}, sh = !!(cx[n] && cx[n][1] > 0 && cx[n][0] === cx[n][1]);   // só shiny se todos dessa espécie forem shiny
+          const novo = [n, sh ? 1 : 0], ja = time.findIndex((x) => x[0] === n);
+          if (ja !== editando) {
+            if (ja >= 0) { if (time[editando]) time[ja] = time[editando]; else time.splice(ja, 1); }   // já estava em outro slot: troca de lugar
+            if (editando < time.length) time[editando] = novo; else time.push(novo);
+          }
+          salvarTime(time.slice(0, 6)); editando = -1; desenharPainel("time"); erro(""); return;
         }
       });
-      el.querySelectorAll(".abre").forEach((b) => b.onclick = () => { montando = null; abrirPainel(painel.dataset.p === b.dataset.p ? "" : b.dataset.p); });
+      el.querySelectorAll(".abre").forEach((b) => b.onclick = () => { editando = -1; abrirPainel(painel.dataset.p === b.dataset.p ? "" : b.dataset.p); });
       el.querySelectorAll(".rapidos button:not(.abre)").forEach((b) => b.onclick = () => {
         if (b.dataset.semMel) { erro("Você não tem Mel na mochila 🍯"); return; }
         let t = b.dataset.t; erro("");
