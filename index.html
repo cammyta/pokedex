@@ -332,6 +332,8 @@
   .nota li .ic { flex: none; width: 34px; height: 34px; display: grid; place-items: center; font-size: 19px; background: rgba(255,255,255,.06); border-radius: 10px; }
   .nota li b { font: 600 15px "Fredoka"; } .nota li p { color: var(--txt2); font-size: 14px; margin: 2px 0 0; }
   .tag.bolha-tag.rancho { background: rgba(143,211,106,.18); border-color: rgba(143,211,106,.5); }
+  .tag.bolha-tag.neon { background: rgba(40,6,60,.6); border-color: #ff4fd8; color: #9ff8ff; box-shadow: 0 0 8px rgba(255,79,216,.5); }
+  .tag.bolha-tag.raid { background: rgba(200,24,48,.25); border-color: #ffd166; }
   .tag.bolha-tag.cinefilo { background: rgba(200,40,70,.2); border-color: rgba(232,200,121,.55); }
 
   .semear { margin-top: 12px; background: rgba(0,0,0,.2); border-radius: 14px; padding: 10px 12px; }
@@ -731,7 +733,13 @@
       ["📌", "Ajudantes fixos no rancho", "O Pokémon da pedreira, do apiário, da forja e da horta fica no lugar até você trocar. Se ele evoluir, a evolução continua no mesmo lugar."],
       ["⭐", "Time no chat do site", "No chat do site tem os botões <b>⭐ Time</b> e <b>🔴 Bola</b>. Monte um time de até 6 Pokémon da sua caixa e toque em um para ele virar o parceiro, sem digitar comando. No 🔴 Bola você escolhe qual Pokébola equipar."],
       ["🛡️", "Até 3 Pokémon na Raid", "Cada pessoa pode usar até 3 Pokémon na Raid, cada um com o seu HP. Quando um desmaia, entra sozinho o próximo do seu time (⭐ Time ou <code>!meutime</code>); ou troque com <code>!pokemon</code>. As bolinhas embaixo da sua fotinha mostram quantos ainda estão de pé."],
-      ["🎣", "Super Vara direto", "Dá para forjar a Super Vara sem ter a Vara Boa antes."] ] },
+      ["🎣", "Super Vara direto", "Dá para forjar a Super Vara sem ter a Vara Boa antes."],
+      ["💿", "TM Aleatória e Slot de Golpe", "Na forja agora dá para fazer a <b>TM Aleatória</b> (troca um golpe do Pokémon por outro aleatório que ele aprende) e o <b>Slot de Golpe</b> (dá um 2º golpe aleatório). Use pelos botões na ficha do Pokémon ou com <code>!tm pikachu</code> e <code>!slot pikachu</code>. Na Raid, quem tem 2 golpes usa sozinho o que bate mais forte no chefe."],
+      ["⭐", "Time mais fácil no chat", "No ⭐ Time do chat do site, toque no ✏️ de um slot (ou num slot vazio) e escolha o Pokémon: salva na hora. Pokémon recém-capturado aparece logo, e dá para digitar o nome se ele ainda não estiver na lista."],
+      ["🫧", "Escolher a bolha", "No chat do site, o botão <b>🫧 Bolha</b> mostra as suas bolhas e troca com um toque (ou <code>!bolha neon</code>, <code>!bolha raid</code>, <code>!bolha equipe</code> no chat)."],
+      ["🏅", "Borda e Fita da Raid", "O Pokémon que você mais usa nas Raids (a partir de 5) ganha a <b>borda Raid</b> na fotinha do chat. Vencer 50 Raids dá a <b>Fita Vitória de Raid</b>."],
+      ["✨", "Bolhas Neon e Raid", "Duas bolhas novas no chat: <b>Neon</b> ✨ para quem capturar 50 shiny e <b>Raid</b> ⚔️ (com uma Pokébola girando no fundo) para quem lutar em 10 Raids. Veja quanto falta com <code>!bolha</code>."],
+      ["🎁", "Itens: Raid dá mais", "Pokémon da Raid são 50% mais fáceis de capturar e sempre deixam 3 itens. Os da grama agora deixam item menos vezes."] ] },
     { v: "Níveis", d: "23/11/2026", t: "Níveis, golpes e Raid com HP", itens: [
       ["📈", "Níveis no lugar do convívio", "Cada mensagem no chat dá XP para o seu parceiro (uma a cada 15 s). Até o nível 63 sobe rápido; do 63 ao 100 fica bem mais difícil. Veja com <code>!nivel</code>."],
       ["✨", "Evolução por nível, como nos jogos", "O parceiro libera a evolução quando chega no nível do jogo (ex: Charmander no 16, Charmeleon no 36). Evoluções por pedra ou item continuam pedindo o item e não precisam de nível."],
@@ -898,7 +906,7 @@
         ${linha("!pescar", "Joga a linha no rio do rancho (1 vez a cada 3 min). Vem Magikarp, outros peixes que entram na sua caixa, ou itens. Com Vara Boa e Super Vara aparecem peixes mais raros (Feebas, Dratini, Gyarados…)")}
         ${linha("!daycare pikachu eevee", "Igual ao jogo: precisa de dois Pokémon diferentes, do mesmo grupo de ovo, um macho ♂ e uma fêmea ♀ (ou um Ditto com quase qualquer um). Lendários e bebês não botam ovo, e o ovo é da espécie da mãe. Deixa dois Pokémon da sua caixa no <b>Day Care</b> (clique no ninho de ovos no seu rancho para ver). A cada 20 min aparece um ovo, até 6. 30 min depois ele pode ser chocado com <code>!chocar</code>, e nasce a forma mais básica (Pichu, Togepi, Riolu…), com força herdada dos pais. É o <b>único jeito</b> de conseguir Pokémon bebê. <code>!daycare</code> mostra como está, <code>!daycare tirar</code> busca os pais")}
         ${linha("!rancho pikachu", "Deixa um Pokémon morando no <b>Cantinho da Amizade</b> do rancho: ele ganha 2 de amizade por minuto de live (quem trabalha na forja, na horta ou no Day Care ganha 1). Com 60 de amizade, a espécie libera a <b>borda Rancho 🌱</b> da fotinha (escolha com <code>!borda</code>). <code>!rancho tirar</code> tira")}
-        ${linha("!bolha", "Bolhas de chat conquistadas, além da sua equipe: <b>Rancho</b> 🌱 (faça uma amizade perfeita no rancho) e <b>Cinéfilo</b> 🎬 (fique numa live de filme até o fim, conversando no começo e nos últimos 20 minutos). A nova já entra em uso. <code>!bolha cinefilo</code>, <code>!bolha rancho</code> ou <code>!bolha equipe</code> para trocar")}
+        ${linha("!bolha", "Bolhas de chat conquistadas, além da sua equipe: <b>Neon</b> ✨ (capture 50 shiny), <b>Raid</b> ⚔️ (lute em 10 Raids), <b>Rancho</b> 🌱 (faça uma amizade perfeita no rancho) e <b>Cinéfilo</b> 🎬 (fique numa live de filme até o fim, conversando no começo e nos últimos 20 minutos). A nova já entra em uso. <code>!bolha cinefilo</code>, <code>!bolha rancho</code> ou <code>!bolha equipe</code> para trocar")}
         ${linha("Força dos ajudantes", "Quanto mais forte o Pokémon (a % de força), melhor ele trabalha: a horta cresce até 40% mais rápido, o Day Care bota ovo até 40% mais rápido e a forja tem chance de fazer uma bola a mais")}
         ${linha("Entrar com a Twitch", "No seu perfil, clique em <b>Entrar com a Twitch</b> para fazer tudo isso clicando (forjar, plantar, colher, pescar, Day Care, móveis, escolher parceiro, soltar). Os botões mandam o comando no chat da live por você, então só funcionam com a live ligada")}
         ${linha("!fazer sofá", "A bancada faz móveis para a casinha (cama, sofá, TV, pelúcias…). Com 8 móveis a casinha vira um chalé")}
@@ -915,7 +923,7 @@
       </table>
       <table class="tabela">
         ${linha("!borda", "Mostra as bordas que você já liberou com o seu parceiro atual")}
-        ${linha("!borda prata", "Usa essa borda (bronze, prata, ouro, esmeralda, shiny ou arcoiris). Cada espécie guarda a sua escolha")}
+        ${linha("!borda prata", "Usa essa borda (bronze, prata, ouro, esmeralda, shiny, arcoiris, rancho ou raid). Cada espécie guarda a sua escolha")}
         ${linha("!borda nenhuma", "Fica sem borda. <code>!borda auto</code> volta a usar a mais rara")}
       </table>
       <p class="sub secao">Conta o total de capturas na grama (soltar e capturar de novo também conta); trocas, evoluções e o inicial não contam. Parceiro <b>shiny</b> ganha estrelinhas piscando em volta da foto, com qualquer borda.</p>
@@ -1132,7 +1140,7 @@
             ${u.jf && JOGO(u.jf) ? `<span class="tag">${capa(JOGO(u.jf), "mini-capa")} Jogo favorito: <b>${esc(JOGO(u.jf).nome)}</b></span>` : ""}
             ${u.g && GEN[u.g] ? `<span class="tag">${u.g === "nb" ? "" : GEN[u.g][0] + " "}${GEN[u.g][1]}</span>` : ""}
             ${u.fc ? `<span class="tag fc" id="fc" title="Clique para copiar">🎮 Friend code: <b>${esc(u.fc)}</b></span>` : ""}
-            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${id === "rancho" ? "🌱 Bolha Rancho" : "🎬 Bolha Cinéfilo"}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
+            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${({ rancho: "🌱 Bolha Rancho", cinefilo: "🎬 Bolha Cinéfilo", neon: "✨ Bolha Neon", raid: "⚔️ Bolha Raid" })[id] || id}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
           </div>
           <div class="acoes"><button id="compartilhar">Compartilhar perfil</button></div>
           <div class="nums">
@@ -1430,7 +1438,7 @@
         <a class="obj pesca" href="#r-pesca" title="Pescar"><img src="${RA}boia.png" alt="Pesca"></a>
       </div>`;
     // ---- mochila ----
-    const ord = ["mel", "pedra", "troca", "forma", "mat"], NOMEC = { mel: "Mel (chama Pokémon selvagem)", pedra: "Pedras de evolução", troca: "Itens de evolução", forma: "Itens de forma", mat: "Materiais" };
+    const ord = ["mel", "tm", "pedra", "troca", "forma", "mat"], NOMEC = { tm: "Golpes (use na ficha do Pokémon, em Pokédex)", mel: "Mel (chama Pokémon selvagem)", pedra: "Pedras de evolução", troca: "Itens de evolução", forma: "Itens de forma", mat: "Materiais" };
     const qr = (ranchoBusca || "").trim().toLowerCase();
     const ks = Object.keys(it).filter((k) => R.ITENS[k] && it[k] > 0 && (!qr || R.ITENS[k].n.toLowerCase().includes(qr)));
     h += `<section class="painel" id="r-mochila"><h3><img src="${RA}ic-mochila.png" alt="">Mochila do rancho</h3><input type="search" class="r-busca" placeholder="Procurar item" value="${esc(ranchoBusca)}">` + (ks.length
@@ -1458,7 +1466,7 @@
       <div class="vara"><img src="${RA}${VK[vr]}.png" alt=""><div><b>${VN[vr]}</b><p class="sub">${ctl ? btn("!pescar", "🎣 Pescar") + "<br>" : ""}Digite <b>!pescar</b> no chat (1 vez a cada ${R.CFG.pescaMinutos} min). ${vr < 2 ? "Forje uma vara melhor para peixes mais raros." : "Sua vara é a melhor!"}</p></div></div>
       <div class="peixes">${R.PEIXES[vr].map(([n]) => `<img src="${mini(n)}" alt="" title="${esc(nome(n))}" class="${(u.c || {})[n] ? "tem" : ""}">`).join("")}</div></section>`;
     // ---- forja ----
-    const bolas = Object.keys(R.RECEITAS).filter((k) => !/^vara/.test(k));
+    const bolas = Object.keys(R.RECEITAS).filter((k) => !/^vara/.test(k) && !R.RECEITAS[k].item);
     h += `<section class="painel largo" id="r-forja"><h3><img src="${RA}ic-forja.png" alt="">Forja</h3>
       <div class="dupla">${[["Aço, Terra ou Pedra", aco], ["Fogo", fogo]].map(([t, n]) => `<div class="vaga ${n ? "ok" : ""}">${n ? pmdSpr(n, false, "vaga-spr") : `<span>?</span>`}<small>${t}</small><b>${n ? esc(nome(n)) : "falta"}${fzTxt(n)}</b></div>`).join("")}</div>
       ${pend.fj ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}${trocaDupla("!forja", ["steel", "ground", "rock"], "fire", aco, fogo)}
@@ -1466,6 +1474,7 @@
       <p class="sub">✨ Toda Pokébola gasta <b>Essência</b> (você tem <b>${tem("essencia")}</b>): ganhe capturando Pokémon e soltando com <b>!release</b>.</p><p class="sub">${forjaOn ? "A forja está acesa! Forje com <b>!forjar great</b> (ou <b>!forjar great 5</b> para fazer várias)." : "Para acender, você precisa ter na caixa um Pokémon de <b>Aço, Terra ou Pedra</b> e um de <b>Fogo</b>. Escolha quem trabalha com <b>!forja geodude litten</b>."}</p>
       <div class="receitas">` + bolas.map((k) => { const r = R.RECEITAS[k];
         return `<div class="rec ${pode(r.custo) ? "pode" : ""}"><img class="b" src="assets/bolas/${k}-ball.png" alt=""><div><b>${r.sai}× ${esc(BOLAS[k] || k.charAt(0).toUpperCase() + k.slice(1) + " Ball")}</b><div class="cs">${custo(r.custo)}</div>${ctl ? btn("!forjar " + k, "Forjar", pode(r.custo)) : `<code>!forjar ${k}</code>`}</div></div>`; }).join("") +
+      [["tm", "TM Aleatória", "!forjar tm", "Troca o golpe de um Pokémon por um aleatório"], ["slot-golpe", "Slot de Golpe", "!forjar slot", "Dá um 2º golpe aleatório"]].filter(([k]) => R.RECEITAS[k]).map(([k, n, c, d]) => `<div class="rec ${pode(R.RECEITAS[k].custo) ? "pode" : ""}"><img class="b" src="${R.urlItem(k)}" alt=""><div><b>${n}</b> <small>(tem ${tem(k)})</small><div class="sub" style="margin:2px 0">${d}</div><div class="cs">${custo(R.RECEITAS[k].custo)}</div>${ctl ? btn(c, "Forjar", pode(R.RECEITAS[k].custo)) : `<code>${c}</code>`}</div></div>`).join("") +
       [["vara-boa", "Vara Boa", 1], ["vara-super", "Super Vara", 2]].map(([k, n, v]) => `<div class="rec ${vr >= v ? "feito" : pode(R.RECEITAS[k].custo) ? "pode" : ""}"><img class="b" src="${RA}${k}.png" alt=""><div><b>${n}${vr >= v ? " ✓" : ""}</b><div class="cs">${custo(R.RECEITAS[k].custo)}</div>${ctl ? (vr >= v ? "" : btn("!forjar " + k.replace("-", " "), "Forjar", pode(R.RECEITAS[k].custo))) : `<code>!forjar ${k.replace("-", " ")}</code>`}</div></div>`).join("") +
       `</div></section>`;
     // ---- pedreira ----
@@ -1655,7 +1664,7 @@
   const NATUREZAS = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty",
     "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0 }; })
+    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "" }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
   }
   const custoNivel = (L) => (L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);   // igual ao overlay
@@ -1664,7 +1673,21 @@
     if (!x.lv) return "";
     const g = x.m && (window.USUM_GOLPES || {})[x.m], prox = x.lv >= 100 ? 0 : custoNivel(x.lv);
     return `<div class="ind-nv"><b>Nv. ${x.lv}</b>${prox ? `<div class="xp-barra" title="${x.xp}/${prox} XP"><i style="width:${Math.min(100, (x.xp / prox) * 100)}%"></i></div><small>${x.xp}/${prox} XP</small>` : "<small>nível máximo</small>"}
-      ${x.m ? `<span class="golpe t-${g ? g[0] : "normal"}">⚔️ ${esc(x.m)}${g ? ` <em>${NOME_TIPO[g[0]] || g[0]} · poder ${g[1]}</em>` : ""}</span>` : ""}</div>`;
+      ${[x.m, x.m2].filter(Boolean).map((mv) => { const gg = (window.USUM_GOLPES || {})[mv]; return `<span class="golpe t-${gg ? gg[0] : "normal"}">⚔️ ${esc(mv)}${gg ? ` <em>${NOME_TIPO[gg[0]] || gg[0]} · poder ${gg[1]}</em>` : ""}</span>`; }).join("")}</div>`;
+  }
+  // botões de TM (troca o golpe por um aleatório) e Slot de Golpe (2º golpe aleatório) na ficha
+  function tmBotoes(u, n, x, i) {
+    const it = ((u.rn || {}).it) || {}, ntm = it.tm || 0, nsl = it["slot-golpe"] || 0, nm = nome(n).toLowerCase(), q = i + 1;
+    const b = (cmd, txt, ok, conf) => `<button type="button" data-cmd="${esc(cmd)}" ${ok ? "" : "disabled"} title="${ok ? "" : "Forje na forja do rancho"}" data-confirma="${esc(conf)}">${txt}</button>`;
+    let h = "";
+    if (x.m2) {
+      h += b(`!tm ${nm} ${q}`, `💿 TM no 1º golpe (${ntm})`, ntm > 0, `Usar 1 TM Aleatória em ${nome(n)} #${q}? ${x.m || "O 1º golpe"} vai ser trocado por um golpe aleatório.`);
+      h += b(`!tm ${nm} ${q} g2`, `💿 TM no 2º golpe (${ntm})`, ntm > 0, `Usar 1 TM Aleatória em ${nome(n)} #${q}? ${x.m2} vai ser trocado por um golpe aleatório.`);
+    } else {
+      h += b(`!tm ${nm} ${q}`, `💿 Usar TM (${ntm})`, ntm > 0, `Usar 1 TM Aleatória em ${nome(n)} #${q}? ${x.m || "O golpe"} vai ser trocado por um golpe aleatório.`);
+      h += b(`!slot ${nm} ${q}`, `➕ 2º golpe (${nsl})`, nsl > 0, `Usar 1 Slot de Golpe em ${nome(n)} #${q}? Ele ganha um 2º golpe aleatório.`);
+    }
+    return h;
   }
   function fichaPokemon(u, n) {
     const e = (u.c || {})[n]; if (!e) return;
@@ -1681,7 +1704,7 @@
         ${nivelHTML(x)}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
-        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button><button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
+        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
       </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}</div>
       <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code> Para dar um nome: <code>!apelido ${esc(nome(n).toLowerCase())} 1 Nome</code> (até 12 letras).</p>
     </div>`;
