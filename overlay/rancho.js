@@ -723,7 +723,8 @@
     raid: { n: "Raid", ic: "⚔️", como: "participe de 10 Raids", ganhou: "lutou em 10 Raids" },
     dojo: { n: "Dojo", ic: "🥋", como: "complete 10 treinos no dojo do rancho", ganhou: "completou 10 treinos no dojo" },
     sub: { n: "Sub", ic: "💜", como: "seja sub do canal", ganhou: "é sub do canal" },
-    bits: { n: "Bits", ic: "💎", como: "mande 200 bits no canal (somando tudo)", ganhou: "mandou 200 bits" } };
+    bits: { n: "Bits", ic: "💎", como: "mande 200 bits no canal (somando tudo)", ganhou: "mandou 200 bits" },
+    torre: { n: "Torre de Alola", ic: "🗼", como: "vença a Torre dos Líderes de Alola inteira (!torre)", ganhou: "venceu a Torre de Alola" } };
   // total de bits que a pessoa já mandou (as fitas guardam em pk_treinadores)
   const bitsDe = (login) => { try { return ((JSON.parse(localStorage.getItem("pk_treinadores") || "{}")[login]) || {}).bits || 0; } catch (e) { return 0; } };
   // contadores das bolhas novas: r.sh (shiny capturados) e r.rd (Raids que lutou)
@@ -1142,6 +1143,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { bitsDe, itemSegurar, rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { darBolha, BOLHAS, bitsDe, itemSegurar, rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
