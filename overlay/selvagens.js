@@ -350,11 +350,11 @@
 
   /* ---- Pokédex de verdade: toda espécie que a pessoa já teve fica registrada, mesmo se evoluiu, trocou ou soltou ----
      usum_registro = { login: [num, num...] } */
-  /* Pokédex "vistos": espécies que a pessoa tentou capturar (pegou ou escapou) · usum_vistos = { login: [num...] } */
+  /* Pokédex "vistos": espécies que a pessoa tentou capturar (pegou ou escapou) · usum_dex_vistos = { login: [num...] } */
   function verPokemon(login, num) {
     if (!login || !num) return;
-    const r = ler("usum_vistos", {}), l = r[login] || (r[login] = []);
-    if (!l.includes(+num)) { l.push(+num); gravar("usum_vistos", r); }
+    const r = ler("usum_dex_vistos", {}), l = r[login] || (r[login] = []);
+    if (!l.includes(+num)) { l.push(+num); gravar("usum_dex_vistos", r); }
   }
   function registrar(login, num) {
     const r = ler("usum_registro", {}), l = r[login] || (r[login] = []);
@@ -444,6 +444,7 @@
     if (USUM.rancho && USUM.rancho.temBordaRancho(login, num)) l.push({ id: "rancho", nome: "Rancho" });   // amizade cheia no rancho
     if (USUM.rancho && USUM.rancho.bordaRaid && USUM.rancho.bordaRaid(login) === +num) l.push({ id: "raid", nome: "Raid" });   // o Pokémon que ela mais usou em Raids
     if (USUM.rancho && USUM.rancho.bitsDe && USUM.rancho.bitsDe(login) >= 100) l.push({ id: "bits", nome: "Bits" });   // mandou 100 bits (vale para todos)
+    if ((((ler("usum_rancho", {})[login] || {}).tw || {}).cmp || []).includes(+num)) l.push({ id: "torre", nome: "Torre de Alola" });   // estava na party quando venceu a Torre de Alola
     if (individuos(login, num).some((x) => evTotal(x.ev) >= 510 && (shiny == null || !!x.s === !!shiny))) l.push({ id: "dojo", nome: "Dojo" });   // treino máximo no dojo (510 EVs)
     const confere = shiny === undefined || shiny === null;
     if (e.sh && (confere || shiny)) l.push({ id: "shiny", nome: "Shiny" });
