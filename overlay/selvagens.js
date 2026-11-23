@@ -208,6 +208,20 @@
     gravar("usum_caixa", todos);
     return { antes, lv: ind.lv, xp: ind.xp, prox: custoNivel(ind.lv) };
   }
+  /* ---- EVs (treino no Dojo do rancho): até 252 por atributo e 510 no total, como nos jogos ---- */
+  const EV_NOMES = { hp: "HP", at: "Ataque", df: "Defesa", sa: "Ataque Esp.", sd: "Defesa Esp.", ve: "Velocidade" };
+  const evTotal = (ev) => Object.values(ev || {}).reduce((a, b) => a + (b || 0), 0);
+  function treinarEV(login, num, shiny, stat, qtd) {
+    if (!EV_NOMES[stat]) return null;
+    const todos = ler("usum_caixa", {}), u = todos[login], e = u && u.p && u.p[num];
+    if (!e) return null;
+    completar(e);
+    const l = ordenar(e.l), ind = l.find((x) => !!x.s === !!shiny) || l[0]; if (!ind) return null;
+    const ev = ind.ev = ind.ev || {}, livre = Math.max(0, 510 - evTotal(ev)), add = Math.min(qtd, 252 - (ev[stat] || 0), livre);
+    if (add <= 0) return { add: 0, ev: Object.assign({}, ev), cheio: true };
+    ev[stat] = (ev[stat] || 0) + add; gravar("usum_caixa", todos);
+    return { add, ev: Object.assign({}, ev) };
+  }
   function nivelParaEvoluir(alvo) { const v = (window.USUM_NIVEL_EVO || {})[alvo]; return v == null ? 20 : v; }
 
   /* ---- golpes: cada Pokémon tem 1 golpe de dano, sorteado entre os que ele aprende no USUM (learnsets do Pokémon Showdown).
@@ -520,7 +534,7 @@
   }
 
   USUM.selvagens = { C, registrar, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
-    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
+    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, EV_NOMES, evTotal, treinarEV, estagio, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
       const id = USUM.homeId && USUM.formaRegional ? USUM.homeId(num, USUM.formaRegional(num)) : num;
