@@ -328,7 +328,7 @@
       } else if (ev.tipo === "borda") {
         d.className = "aviso borda-nova b-" + (ev.borda || "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
-        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
       } else if (ev.tipo === "surto") {
         d.className = "aviso surto";
         d.innerHTML = ev.modo === "rapido"
@@ -348,14 +348,28 @@
         d.className = "aviso"; d.innerHTML = `<span class="t">Recompensa <b>${esc(ev.nomeRecompensa || "")}</b> registrada ✓</span>`;
       } else if (ev.tipo === "comprou") {
         d.className = "aviso " + (times()[ev.login] || "");
-        d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(ev.bola)}"><span class="t"><b>${esc(ev.nome)}</b> comprou uma ${USUM.BOLAS[ev.bola]}! (tem ${ev.qtd} · para usar: <b>!ball ${esc(ev.bola)}</b>)</span>`;
+        d.innerHTML = ev.pacote
+          ? `<img class="ret bola" src="${USUM.urlBola(ev.bola)}"><span class="t"><b>${esc(ev.nome)}</b> comprou <b>10 ${USUM.BOLAS[ev.bola]}s</b> e ganhou 1 Premier Ball de brinde! (tem ${ev.qtd} · para usar: <b>!ball ${esc(ev.bola)}</b>)</span>`
+          : `<img class="ret bola" src="${USUM.urlBola(ev.bola)}"><span class="t"><b>${esc(ev.nome)}</b> comprou uma ${USUM.BOLAS[ev.bola]}! (tem ${ev.qtd} · para usar: <b>!ball ${esc(ev.bola)}</b>)</span>`;
       } else if (ev.tipo === "evoluiu") {
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
-        d.insertAdjacentHTML("beforeend", `<span class="t">O ${esc(ev.de)} de <b>${esc(ev.nome)}</b> evoluiu para <b>${esc(ev.para)}</b>!</span>`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">O ${esc(ev.de)} de <b>${esc(ev.nome)}</b> evoluiu para <b>${esc(ev.para)}</b>!${ev.item ? " (usou " + esc(ev.item) + ")" : ""}</span>`);
+      } else if (ev.tipo === "rancho") {
+        d.className = "aviso rancho " + (times()[ev.login] || "");
+        const ic = String(ev.img || ""), RA = /github\.io$|^file:.*pokedex-site/.test(location.hostname || location.href) ? "assets/rancho/" : "pokedex-site/assets/rancho/";
+        if (/^num:/.test(ic)) { const [, n, s, f] = ic.split(":"); const im = USUM.imgPokemon({ num: +n, forma: f || USUM.formaRegional(+n), shiny: s === "s" }, "Joyous"); im.className = "ret"; d.appendChild(im); }
+        else if (ic) d.insertAdjacentHTML("beforeend", `<img class="ret item" src="${/^bola:/.test(ic) ? USUM.urlBola(ic.slice(5)) : /^rancho:/.test(ic) ? RA + ic.slice(7) + ".png" : /^ic:/.test(ic) ? RA + "ic-" + ic.slice(3) + ".png" : "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/" + ic + ".png"}">`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">${ev.html}</span>`);
+      } else if (ev.tipo === "naoevolui" && ev.motivo === "requisitos") {
+        d.className = "aviso";
+        const pt = [ev.falta ? `conversar com ele no chat por <b>${ev.precisa} min</b> (faltam ${ev.falta} min, veja com <b>!convivio</b>)` : "", ev.item ? `ter uma <b>${esc(ev.item)}</b> na mochila (ela cai capturando Pokémon)` : ""].filter(Boolean);
+        d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, para ${esc(ev.de || "")} evoluir para ${esc(ev.pnome || "")} você precisa ${pt.join(" e ")} (o streamer pode devolver os pontos)</span>`;
       } else if (ev.tipo === "naoevolui") {
         d.className = "aviso";
-        d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, ${ev.motivo === "semparceiro" ? "escolha um parceiro com !pokemon antes de evoluir" : ev.motivo === "cheio" ? "você já tem " + (ev.limite || 5) + " " + esc(ev.pnome || "") + ", solte um antes de evoluir" : esc(ev.pnome || "") + " não evolui mais"} (o streamer pode devolver os pontos)</span>`;
+        d.innerHTML = ev.motivo === "convivio"
+          ? `<span class="t"><b>${esc(ev.nome)}</b>, seu ${esc(ev.de || "")} ainda não confia em você para evoluir para ${esc(ev.pnome || "")}: converse com ele no chat por <b>${ev.precisa} min</b> (faltam ${ev.falta} min). Veja com <b>!convivio</b> (o streamer pode devolver os pontos)</span>`
+          : `<span class="t"><b>${esc(ev.nome)}</b>, ${ev.motivo === "semparceiro" ? "escolha um parceiro com !pokemon antes de evoluir" : ev.motivo === "cheio" ? "você já tem " + (ev.limite || 5) + " " + esc(ev.pnome || "") + ", solte um antes de evoluir" : esc(ev.pnome || "") + " não evolui mais"} (o streamer pode devolver os pontos)</span>`;
       } else if (ev.tipo === "vitoria") {
         d.className = "aviso " + ev.venc; d.innerHTML = `<span class="t">🏆 Equipe <b>${ev.venc === "sol" ? "Sol" : "Lua"}</b> venceu a live (${ev.sol} × ${ev.lua})! Quem é da equipe ganhou a Fita Memória de Batalha</span>`;
       } else if (ev.tipo === "tempowild") {
@@ -502,7 +516,10 @@
           const chanceIni = ((window.USUM_CONFIG || {}).selvagens || {}).chanceShinyInicial ?? 0.1;
           const sorteado = !!(SV && SV.iniciais.has(p.num) && (hash(m.login + ":" + p.num + ":inicial") % 1000) < chanceIni * 1000);
           p.shiny = !!((p.shiny && (livre || SV.pode(m.login, p.num, true))) || sorteado);
-          const novo = p.kanto ? { num: p.num, forma: "", shiny: p.shiny, kanto: true } : { num: p.num, forma: p.forma, shiny: p.shiny }; mudar(m, "usum_parceiros", (x) => (x[m.login] = novo));
+          const novo = p.kanto ? { num: p.num, forma: "", shiny: p.shiny, kanto: true } : { num: p.num, forma: p.forma, shiny: p.shiny };
+          // forma do Pokémon que a pessoa capturou (Oricorio Pom-Pom, Flabébé amarela...): vale a do melhor da caixa
+          if (SV && !p.forma && !p.kanto) { const ind = SV.individuos(m.login, p.num).find((x) => !!x.s === !!p.shiny && x.f); if (ind) novo.forma = ind.f; }
+          mudar(m, "usum_parceiros", (x) => (x[m.login] = novo));
           // o inicial escolhido vai para a Pokédex da pessoa (com status sorteados), uma vez só por espécie
           let ganhou = false;
           if (SV && SV.iniciais.has(p.num) && !SV.individuos(m.login, p.num).length && !((ler("usum_iniciais_ganhos", {})[m.login] || []).includes(p.num))) {
@@ -534,11 +551,22 @@
           if (!USUM.modoDemo && !(SV.mochila(m.login)[b] > 0)) {
             aviso("", `<b>${esc(m.nome)}</b>, você não tem ${USUM.BOLAS[b]}. Compre com pontos do canal!`); return;
           }
+        } else if ((b === "premier" || (SV && (SV.JOHTO || []).includes(b))) && SV && (SV.mochila(m.login)[b] || 0) > 0) {
+          // Premier Ball de brinde (pacote de 10): qualquer um usa enquanto tiver
         } else if (b !== "poke" && !(m.sub || m.dono || m.ajudante)) { aviso("", `Pokébolas especiais são só pra subs ✦`); return; }
         mudar(m, "usum_bolas", (x) => (x[m.login] = b));
         const d = document.createElement("div"); d.className = "aviso " + (times()[m.login] || "");
         d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(b)}"><span class="t"><b>${esc(m.nome)}</b> agora usa a ${USUM.BOLAS[b]}!</span>`;
         adicionar(d); return;
+      }
+      if ((cmd === "!convivio" || cmd === "!convívio" || cmd === "!amizadepokemon") && USUM.selvagens) {
+        const SV = USUM.selvagens, pc = ler("usum_parceiros", {})[m.login];
+        if (!pc) { aviso(times()[m.login], `<b>${esc(m.nome)}</b>, escolha um parceiro com <b>!pokemon</b> primeiro`); return; }
+        const min = SV.minutosCom(m.login, pc.num), filhos = SV.evolucoes(pc.num);
+        const prec = filhos.length ? Math.min(...filhos.map((f) => SV.minutosParaEvoluir(f))) : 0;
+        aviso(times()[m.login], `<b>${esc(m.nome)}</b> já conversou <b>${min} min</b> com ${esc(USUM.nomeDe(pc.num))}` +
+          (filhos.length ? (min >= prec ? " — pronto para evoluir! ✨" : ` (precisa de ${prec} min para evoluir)`) : " (não evolui mais)"), pc);
+        return;
       }
       if ((cmd === "!caixa" || cmd === "!box" || cmd === "!pokedex") && USUM.selvagens) {
         const r = USUM.selvagens.resumoCaixa(m.login);
@@ -700,11 +728,13 @@
       if ((cmd === "!release" || cmd === "!soltar") && USUM.selvagens) {
         const SV = USUM.selvagens, arg = txt.slice(cmd.length).trim(), t = times()[m.login];
         const pend = ler("usum_release", {});
-        if (/^(sim|confirmar|confirmo|s)$/i.test(arg)) {
-          const pd = pend[m.login];
-          if (!pd || Date.now() > pd.ate) { aviso(t, `<b>${esc(m.nome)}</b>, primeiro digite <b>!release nome</b> (ex: !release magikarp)`); return; }
-          const nomeP = USUM.nomeDe(pd.num);
+        const executar = (pd) => {
+          const nomeP = USUM.nomeDe(pd.num), R = USUM.rancho;
+          // essência do rancho: quantos (e quais) vão ser soltos
+          const lis = SV.individuos(m.login, pd.num), sai = pd.qual === "todos" ? lis : [SV.escolher(lis, pd.qual, false)].filter(Boolean);
+          const ess = R ? R.essenciaPorSoltar(sai) : 0;
           umaVez(m, () => {
+            if (ess) R.ganharEssencia(m.login, m.nome, ess);
             const r0 = SV.soltar(m.login, pd.num, pd.qual);
             if (r0 && r0.acabou) {   // não sobrou nenhum: perde a fotinha (volta a ser ovo) e sai do time da live
               const pa = ler("usum_parceiros", {});
@@ -714,11 +744,19 @@
             }
             const r = ler("usum_release", {}); delete r[m.login]; gravar("usum_release", r);
           });
-          aviso(t, `<b>${esc(m.nome)}</b> soltou ${pd.qual === "todos" ? "todos os " : ""}${esc(nomeP)}${pd.forca != null ? ` (força ${pd.forca}%)` : ""}. Tchau! 👋`, { num: pd.num, forma: USUM.formaRegional(pd.num), shiny: false });
-          return;
+          aviso(t, `<b>${esc(m.nome)}</b> soltou ${pd.qual === "todos" ? "todos os " : ""}${esc(nomeP)}${pd.forca != null ? ` (força ${pd.forca}%)` : ""}. Tchau! 👋${ess ? ` <small>+${ess} essência ✨</small>` : ""}`, { num: pd.num, forma: USUM.formaRegional(pd.num), shiny: false });
+        };
+        if (/^(sim|confirmar|confirmo|s)$/i.test(arg)) {
+          const pd = pend[m.login];
+          if (!pd || Date.now() > pd.ate) { aviso(t, `<b>${esc(m.nome)}</b>, primeiro digite <b>!release nome</b> (ex: !release magikarp)`); return; }
+          executar(pd); return;
         }
+        // rápido: "!release pikachu já" (ou "agora") solta na hora, sem pedir !release sim.
+        // Só pede confirmação se for shiny, todos, ou o último dessa espécie (sai da Pokédex)
+        let rapido = false;
+        const argR = arg.replace(/\s+(ja|já|agora|rapido|rápido)$/i, () => { rapido = true; return ""; });
         // "!release pikachu", "!release pikachu 3" (número da lista no site) ou "!release pikachu todos"
-        const mm = arg.match(/^(.*?)(?:\s+(\d+|todos|tudo))?$/i);
+        const mm = argR.match(/^(.*?)(?:\s+(\d+|todos|tudo))?$/i);
         const p = USUM.lerPokemon(mm[1] || "");
         if (!p) { aviso(t, `Use <b>!release nome</b> (solta o mais fraco), <b>!release nome 2</b> (o número da lista no site) ou <b>!release nome todos</b>`); return; }
         const lista = SV.individuos(m.login, p.num);
@@ -728,11 +766,13 @@
         if (qual !== "todos") { alvo = SV.escolher(lista, qual, false); if (!alvo) { aviso(t, `<b>${esc(m.nome)}</b>, você só tem ${lista.length} ${esc(p.nome)} (veja a lista no site)`); return; } }
         const f = alvo ? SV.forcaIV(alvo.iv) : null;
         const ultimo = qual === "todos" || lista.length === 1;
-        mudar(m, "usum_release", (x) => (x[m.login] = { num: p.num, qual: qual === "todos" ? "todos" : lista.indexOf(alvo) + 1, forca: f, ate: Date.now() + 60000 }));
+        const pedido = { num: p.num, qual: qual === "todos" ? "todos" : lista.indexOf(alvo) + 1, forca: f, ate: Date.now() + 60000 };
+        if (rapido && qual !== "todos" && !ultimo && !(alvo && alvo.s)) { executar(pedido); return; }
+        mudar(m, "usum_release", (x) => (x[m.login] = pedido));
         const parc = parceiroDe(m.login).num === p.num;
         const qualTxt = qual === "todos" ? `todos os ${lista.length} ${esc(p.nome)}${lista.some((x) => x.s) ? " (inclusive shiny)" : ""}`
           : `${lista.length > 1 && !qual ? "o seu " + esc(p.nome) + " mais fraco" : esc(p.nome)} (força ${f}% · ${SV.nota(f)}${alvo.s ? " · shiny ✦" : ""})`;
-        aviso(t, `<b>${esc(m.nome)}</b>, soltar ${qualTxt}?${ultimo ? ` Ele sai da sua Pokédex${parc ? " e da sua fotinha do chat" : ""}.` : ""} Para confirmar, digite <b>!release sim</b> em até 1 minuto`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!(alvo && alvo.s) });
+        aviso(t, `<b>${esc(m.nome)}</b>, soltar ${qualTxt}?${ultimo ? ` Ele sai da sua Pokédex${parc ? " e da sua fotinha do chat" : ""}.` : ""} Para confirmar, digite <b>!release sim</b> em até 1 minuto (dica: <b>!release nome já</b> solta o mais fraco na hora)`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!(alvo && alvo.s) });
         return;
       }
       /* ---- perfil do treinador: região, favorito e time (aparecem na Pokédex online) ---- */
@@ -844,6 +884,7 @@
         aviso(times()[m.login], `<b>${esc(m.nome)}</b>, para evoluir seu parceiro use a recompensa <b>Evoluir meu Pokémon</b> nos pontos do canal`); return;
       }
       if (/^!capturar\b/.test(low)) return;
+      if (USUM.rancho && USUM.rancho.ehComando(low)) return;   // comandos do rancho: respondidos pelo core/rancho.js
       if (/^!(subs|meta)\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;                       // conta no encontro.html
       if ((m.dono || m.ajudante) && /^!registrar\b/.test(low)) return;
       if ((m.dono || m.ajudante) && /^!selvagem\b/.test(low)) return;
@@ -865,6 +906,9 @@
       const time = times()[m.login] || "";
       if (primeiraVez(m.id + ":c")) {   // conta mensagens para os destaques da tela final
         const d = ler("usum_destaques", {}); d[m.login] = { nome: m.nome, n: ((d[m.login] || {}).n || 0) + 1 }; gravar("usum_destaques", d);
+        // convívio com o parceiro (para evoluir): conta os minutos em que a pessoa conversou com ele na live
+        const pcv = ler("usum_parceiros", {})[m.login];
+        if (pcv && USUM.selvagens && USUM.selvagens.anotarConversa && !(USUM.offline && USUM.offline())) USUM.selvagens.anotarConversa(m.login, pcv.num);
       }
       pontuar(time, 1, m.id); if (time && !cine) pulsar(time); atualizarPlacar();
       const cor = corDe(m.login);   // cor do cartão: equipe (ou o voto, no cineminha)
@@ -883,6 +927,9 @@
       d.innerHTML = `<div class="marca"></div>${CFG.mostrarParceiro ? '<div class="av-caixa"><div class="av"></div><div class="encaixe"></div></div>' : ""}
         <div class="corpo"><div class="quem"><span class="nome">${esc(m.nome)}</span>${chip}${badges}</div>${amizadeHtml(m, txt)}<div class="texto">${html}</div></div>`;
       // fita escolhida pendurada no canto direito do cartão
+      // bolha conquistada (Rancho, Cinéfilo): troca o visual do cartão (o chip da equipe continua)
+      const bolha = USUM.rancho && USUM.rancho.bolhaDe ? USUM.rancho.bolhaDe(m.login) : "";
+      if (bolha) d.classList.add("bolha-" + bolha);
       // comprou um filme do cartaz (comentário no Letterboxd): balão de ingresso
       const comp = USUM.compradorDe(m.login);
       if (comp) {
