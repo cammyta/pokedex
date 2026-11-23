@@ -332,7 +332,7 @@
       } else if (ev.tipo === "borda") {
         d.className = "aviso borda-nova b-" + (ev.borda || "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
-        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : ev.borda === "raid" ? "(o Pokémon que mais lutou nas Raids ⚔️)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : ev.borda === "raid" ? "(o Pokémon que mais lutou nas Raids ⚔️)" : ev.borda === "dojo" ? "(treino máximo no dojo 🥋)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
       } else if (ev.tipo === "surto") {
         d.className = "aviso surto";
         d.innerHTML = ev.modo === "rapido"
@@ -697,7 +697,7 @@
         const arg = txt.split(/\s+/).slice(1).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
         const NOMES = { bronze: "bronze", prata: "prata", silver: "prata", ouro: "ouro", gold: "ouro", esmeralda: "esmeralda", emerald: "esmeralda",
           arcoiris: "arcoiris", rainbow: "arcoiris", shiny: "shiny", brilhante: "shiny", neon: "arcoiris", arcoirisneon: "arcoiris", nenhuma: "nenhuma", nenhum: "nenhuma", sem: "nenhuma", off: "nenhuma", tirar: "nenhuma",
-          auto: "auto", automatica: "auto", melhor: "auto", raid: "raid", rancho: "rancho" };
+          auto: "auto", automatica: "auto", melhor: "auto", raid: "raid", rancho: "rancho", dojo: "dojo" };
         const alvo = NOMES[arg];
         if (!arg || !alvo) {
           aviso(t, lib.length ? `<b>${esc(m.nome)}</b>, bordas de ${esc(pn)}: ${lib.map((b) => "<b>" + b.nome + "</b>").join(", ")} · use <b>!borda prata</b>, <b>!borda nenhuma</b> ou <b>!borda auto</b>`
@@ -931,19 +931,26 @@
       const time = times()[m.login] || "";
       if (primeiraVez(m.id + ":c")) {   // conta mensagens para os destaques da tela final
         const d = ler("usum_destaques", {}); d[m.login] = { nome: m.nome, n: ((d[m.login] || {}).n || 0) + 1 }; gravar("usum_destaques", d);
-        // XP do parceiro: cada mensagem na live dá 3 XP (no máximo 1 vez a cada 15 s por pessoa)
+        // XP: cada mensagem na live dá 3 XP para o parceiro E para o resto do time salvo (!meutime / ⭐ Time), até 6 Pokémon
+        // (no máximo 1 vez a cada 15 s por pessoa). Só o parceiro avisa a cada 5 níveis; o resto avisa quando libera evolução ou chega no 100.
         const pcv = ler("usum_parceiros", {})[m.login], SVx = USUM.selvagens;
-        if (pcv && SVx && SVx.ganharXP && !(USUM.offline && USUM.offline())) {
+        if (SVx && SVx.ganharXP && !(USUM.offline && USUM.offline())) {
           const ux = ler("usum_xp_ult", {});
           if (Date.now() - (ux[m.login] || 0) >= 15000) {
             ux[m.login] = Date.now(); gravar("usum_xp_ult", ux);
-            const r = SVx.ganharXP(m.login, pcv.num, !!pcv.shiny, 3);
-            if (r && r.lv > r.antes && USUM.publicarFeed) {
-              const libera = SVx.evolucoes(pcv.num).filter((f) => { const nv = SVx.nivelParaEvoluir(f); return nv > r.antes && nv <= r.lv; });
-              if (libera.length || r.lv % 5 === 0 || r.lv === 100)
-                USUM.publicarFeed({ tipo: "rancho", login: m.login, img: "num:" + pcv.num + (pcv.shiny ? ":s" : ""),
-                  html: `⬆️ O ${esc(USUM.nomeDe(pcv.num))} de <b>${esc(m.nome)}</b> subiu para o <b>nível ${r.lv}</b>!` + (libera.length ? ` ✨ Já pode evoluir para ${libera.map((f) => "<b>" + esc(USUM.nomeDe(f)) + "</b>").join(" ou ")}: resgate <b>Evoluir meu Pokémon</b>` : "") });
-            }
+            const pf = ler("usum_perfil", {})[m.login] || {}, timeSalvo = ((pf.times || {}).live || pf.time || []);
+            const grupo = [], viu = new Set();
+            [pcv ? [pcv.num, pcv.shiny ? 1 : 0] : null].concat(timeSalvo).forEach((x) => { if (!x || !x[0]) return; const k = x[0] + ":" + (x[1] ? 1 : 0); if (viu.has(k) || grupo.length >= 6) return; viu.add(k); grupo.push([+x[0], !!x[1]]); });
+            const avisos = [];
+            grupo.forEach(([num, sh], i) => {
+              const r = SVx.ganharXP(m.login, num, sh, 3);
+              if (!r || r.lv <= r.antes) return;
+              const libera = SVx.evolucoes(num).filter((f) => { const nv = SVx.nivelParaEvoluir(f); return nv > r.antes && nv <= r.lv; });
+              const parceiro = pcv && i === 0;
+              if (libera.length || r.lv === 100 || (parceiro && r.lv % 5 === 0)) avisos.push({ num, sh, lv: r.lv, libera });
+            });
+            avisos.slice(0, 2).forEach((a, k) => USUM.publicarFeed && setTimeout(() => USUM.publicarFeed({ tipo: "rancho", login: m.login, img: "num:" + a.num + (a.sh ? ":s" : ""),
+              html: `⬆️ O ${esc(USUM.nomeDe(a.num))} de <b>${esc(m.nome)}</b> subiu para o <b>nível ${a.lv}</b>!` + (a.libera.length ? ` ✨ Já pode evoluir para ${a.libera.map((f) => "<b>" + esc(USUM.nomeDe(f)) + "</b>").join(" ou ")}: resgate <b>Evoluir meu Pokémon</b>` : "") }), k * 900));
           }
         }
       }
