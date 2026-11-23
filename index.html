@@ -171,7 +171,7 @@
   .tw-lid .ins { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; background: var(--tc); box-shadow: 0 0 0 2px #ffe7a8, 0 0 10px var(--tc); }
   .tw-lid.falta .ins { filter: grayscale(1) brightness(.5); box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
   .tw-lid.prox { box-shadow: 0 0 0 2px #ffd25a, 0 0 18px rgba(255,210,90,.35); }
-  .tw-lid.prox.meu { cursor: crosshair; } .tw-lid.prox.meu::after { content: "⚔️ Batalhar"; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); font: 600 12.5px "Fredoka", sans-serif; padding: 3px 12px; border-radius: 999px; background: linear-gradient(90deg, #0f8f85, #e08a2c); color: #fff; white-space: nowrap; box-shadow: 0 3px 8px rgba(0,0,0,.35); }
+  .tw-lid.prox.meu { cursor: pointer; } .tw-lid.prox.meu::after { content: "⚔️ Batalhar"; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); font: 600 12.5px "Fredoka", sans-serif; padding: 3px 12px; border-radius: 999px; background: linear-gradient(90deg, #0f8f85, #e08a2c); color: #fff; white-space: nowrap; box-shadow: 0 3px 8px rgba(0,0,0,.35); }
   .tw-lid.prox::before { content: "próximo"; position: absolute; top: 8px; left: 8px; font: 600 11px "Fredoka", sans-serif; padding: 1px 7px; border-radius: 999px; background: #ffd25a; color: #3a2400; }
   .tw-time { display: flex; justify-content: center; gap: 2px; margin-top: 6px; flex-wrap: wrap; }
   .tw-time img { width: 30px; height: 30px; object-fit: contain; image-rendering: pixelated; border-radius: 6px; background: rgba(255,255,255,.07); }
@@ -899,6 +899,7 @@
   function ir(url) { history.pushState(null, "", url); rota(); window.scrollTo(0, 0); }
   document.getElementById("topo").onclick = (e) => {
     const a = e.target.closest("a"); if (!a || !D) return; e.preventDefault();
+    if (a.dataset.p === "torre") { const l = TWX.eu && D.t[TWX.eu] ? TWX.eu : achar(lembrado()); return ir("?p=torre" + (l ? "&u=" + encodeURIComponent(l) : "")); }
     if (a.dataset.p === "perfil") { const l = achar(lembrado()); return ir(l ? "?u=" + encodeURIComponent(l) : "?p=perfil"); }
     ir("?p=" + a.dataset.p);
   };
@@ -930,7 +931,7 @@
     if (pag === "creditos") { marcar(""); return paginaCreditos(); }
     if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
     if (pag === "bolas") { marcar("bolas"); return paginaBolas(); }
-    if (pag === "torre") { marcar("torre"); return paginaTorre(login); }
+    if (pag === "torre") { marcar("torre"); return paginaTorre(login || (TWX.eu && D.t[TWX.eu] ? TWX.eu : achar(lembrado())) || ""); }
     if (login) { marcar("perfil"); return perfil(login); }
     if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada minuto durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
     marcar("inicio"); inicio(u);
@@ -1385,7 +1386,7 @@
           <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · subidas hoje: <b>${usadas}/${T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
           ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia ? "disabled" : ""}>${usadas >= T.CFG.porDia ? "Volte amanhã" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes. Quer que a party lute sozinha? Mande <code>!torre</code> com <b>${T.CFG.bitsAuto} bits</b> no chat da live.</small></div>`
             : barraLogin(login)}
-          <div id="tw-replay"></div>` : `<p class="sub">Digite seu nome lá em cima (ou abra pelo seu perfil) para ver suas insígnias e a sua última subida. No chat da live: <code>!torre</code>, <code>!torre pesadelo</code> e <code>!insignias</code>.</p>`}</div>
+          <div id="tw-replay"></div>` : `${barraLogin("")}<p class="sub">Entre com a Twitch para ver suas insígnias e batalhar clicando nos líderes.</p>`}</div>
       </section>`;
     ligarSprites(app);
     app.querySelector("[data-ir]").onclick = () => document.getElementById("tw-alola").scrollIntoView({ behavior: "smooth" });
