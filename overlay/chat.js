@@ -332,7 +332,7 @@
       } else if (ev.tipo === "borda") {
         d.className = "aviso borda-nova b-" + (ev.borda || "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: false }, "Joyous"); im.className = "ret"; d.appendChild(im);
-        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">🏅 <b>${esc(ev.nome)}</b> liberou a borda <b>${esc(ev.bordaNome)}</b> de ${esc(ev.pnome)}! ${ev.borda === "arcoiris" ? "(capturou um com força 100%)" : ev.borda === "shiny" ? "(capturou um shiny)" : ev.borda === "rancho" ? "(amizade cheia no rancho 🏡)" : ev.borda === "raid" ? "(o Pokémon que mais lutou nas Raids ⚔️)" : `(${ev.n} capturados)`} · aparece na fotinha quando ${esc(ev.pnome)} é o parceiro</span>`);
       } else if (ev.tipo === "surto") {
         d.className = "aviso surto";
         d.innerHTML = ev.modo === "rapido"
@@ -589,7 +589,7 @@
         const nv = ind ? SV.nivelDe(ind, pc.num) : 1, filhos = SV.evolucoes(pc.num), g = ind && SV.golpeDe(ind, pc.num), G = window.USUM_GOLPES || {};
         const evo = filhos.map((f) => { const n = SV.nivelParaEvoluir(f), it = USUM.rancho ? USUM.rancho.itemParaEvoluir(f) : ""; return esc(USUM.nomeDe(f)) + (n ? ` no nível ${n}` : "") + (it ? ` com ${esc(USUM.rancho.ITENS[it].n)}` : ""); });
         aviso(times()[m.login], `<b>${esc(m.nome)}</b>: ${esc(USUM.nomeDe(pc.num))} <b>nível ${nv}</b>${nv < 100 ? ` (${ind && ind.xp || 0}/${SV.custoNivel(nv)} XP)` : " (máximo!)"}` +
-          (g ? ` · golpe: <b>${esc(g)}</b> (${esc(G[g][0])}, poder ${G[g][1]})` : "") + (filhos.length ? ` · evolui: ${evo.join(", ")}` : " · não evolui mais"), pc);
+          (g ? ` · golpe${ind.m2 && G[ind.m2] ? "s" : ""}: <b>${esc(g)}</b> (${esc(G[g][0])}, poder ${G[g][1]})` + (ind.m2 && G[ind.m2] ? ` e <b>${esc(ind.m2)}</b> (${esc(G[ind.m2][0])}, poder ${G[ind.m2][1]})` : "") : "") + (filhos.length ? ` · evolui: ${evo.join(", ")}` : " · não evolui mais"), pc);
         return;
       }
       if ((cmd === "!caixa" || cmd === "!box" || cmd === "!pokedex") && USUM.selvagens) {
@@ -697,7 +697,7 @@
         const arg = txt.split(/\s+/).slice(1).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
         const NOMES = { bronze: "bronze", prata: "prata", silver: "prata", ouro: "ouro", gold: "ouro", esmeralda: "esmeralda", emerald: "esmeralda",
           arcoiris: "arcoiris", rainbow: "arcoiris", shiny: "shiny", brilhante: "shiny", neon: "arcoiris", arcoirisneon: "arcoiris", nenhuma: "nenhuma", nenhum: "nenhuma", sem: "nenhuma", off: "nenhuma", tirar: "nenhuma",
-          auto: "auto", automatica: "auto", melhor: "auto" };
+          auto: "auto", automatica: "auto", melhor: "auto", raid: "raid", rancho: "rancho" };
         const alvo = NOMES[arg];
         if (!arg || !alvo) {
           aviso(t, lib.length ? `<b>${esc(m.nome)}</b>, bordas de ${esc(pn)}: ${lib.map((b) => "<b>" + b.nome + "</b>").join(", ")} · use <b>!borda prata</b>, <b>!borda nenhuma</b> ou <b>!borda auto</b>`
