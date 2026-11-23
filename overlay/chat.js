@@ -368,8 +368,8 @@
         d.insertAdjacentHTML("beforeend", `<span class="t">${ev.html}</span>`);
       } else if (ev.tipo === "naoevolui" && ev.motivo === "requisitos") {
         d.className = "aviso";
-        const pt = [ev.falta ? `conversar com ele no chat por <b>${ev.precisa} min</b> (faltam ${ev.falta} min, veja com <b>!convivio</b>)` : "", ev.item ? `ter uma <b>${esc(ev.item)}</b> na mochila (ela cai capturando Pokémon)` : ""].filter(Boolean);
-        d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, para ${esc(ev.de || "")} evoluir para ${esc(ev.pnome || "")} você precisa ${pt.join(" e ")} (o streamer pode devolver os pontos)</span>`;
+        const pt = [ev.precisaNv ? `chegar no <b>nível ${ev.precisaNv}</b> (ele está no nível ${ev.nivel}: converse no chat para ele ganhar XP, veja com <b>!nivel</b>)` : "", ev.item ? `ter uma <b>${esc(ev.item)}</b> na mochila` : ""].filter(Boolean);
+        d.innerHTML = `<span class="t"><b>${esc(ev.nome)}</b>, para ${esc(ev.de || "")} evoluir para ${esc(ev.pnome || "")} ele precisa ${pt.join(" e ")} (o streamer pode devolver os pontos)</span>`;
       } else if (ev.tipo === "naoevolui") {
         d.className = "aviso";
         d.innerHTML = ev.motivo === "convivio"
@@ -564,13 +564,14 @@
         d.innerHTML = `<img class="ret bola" src="${USUM.urlBola(b)}"><span class="t"><b>${esc(m.nome)}</b> agora usa a ${USUM.BOLAS[b]}!</span>`;
         adicionar(d); return;
       }
-      if ((cmd === "!convivio" || cmd === "!convívio" || cmd === "!amizadepokemon") && USUM.selvagens) {
+      if ((cmd === "!nivel" || cmd === "!nível" || cmd === "!lv" || cmd === "!xp" || cmd === "!convivio" || cmd === "!convívio" || cmd === "!amizadepokemon" || cmd === "!golpe") && USUM.selvagens) {
         const SV = USUM.selvagens, pc = ler("usum_parceiros", {})[m.login];
         if (!pc) { aviso(times()[m.login], `<b>${esc(m.nome)}</b>, escolha um parceiro com <b>!pokemon</b> primeiro`); return; }
-        const min = SV.minutosCom(m.login, pc.num), filhos = SV.evolucoes(pc.num);
-        const prec = filhos.length ? Math.min(...filhos.map((f) => SV.minutosParaEvoluir(f))) : 0;
-        aviso(times()[m.login], `<b>${esc(m.nome)}</b> já conversou <b>${min} min</b> com ${esc(USUM.nomeDe(pc.num))}` +
-          (filhos.length ? (min >= prec ? " — pronto para evoluir! ✨" : ` (precisa de ${prec} min para evoluir)`) : " (não evolui mais)"), pc);
+        const l = SV.individuos(m.login, pc.num), ind = l.find((x) => !!x.s === !!pc.shiny) || l[0];
+        const nv = ind ? SV.nivelDe(ind, pc.num) : 1, filhos = SV.evolucoes(pc.num), g = ind && SV.golpeDe(ind, pc.num), G = window.USUM_GOLPES || {};
+        const evo = filhos.map((f) => { const n = SV.nivelParaEvoluir(f), it = USUM.rancho ? USUM.rancho.itemParaEvoluir(f) : ""; return esc(USUM.nomeDe(f)) + (n ? ` no nível ${n}` : "") + (it ? ` com ${esc(USUM.rancho.ITENS[it].n)}` : ""); });
+        aviso(times()[m.login], `<b>${esc(m.nome)}</b>: ${esc(USUM.nomeDe(pc.num))} <b>nível ${nv}</b>${nv < 100 ? ` (${ind && ind.xp || 0}/${SV.custoNivel(nv)} XP)` : " (máximo!)"}` +
+          (g ? ` · golpe: <b>${esc(g)}</b> (${esc(G[g][0])}, poder ${G[g][1]})` : "") + (filhos.length ? ` · evolui: ${evo.join(", ")}` : " · não evolui mais"), pc);
         return;
       }
       if ((cmd === "!caixa" || cmd === "!box" || cmd === "!pokedex") && USUM.selvagens) {
@@ -912,9 +913,21 @@
       const time = times()[m.login] || "";
       if (primeiraVez(m.id + ":c")) {   // conta mensagens para os destaques da tela final
         const d = ler("usum_destaques", {}); d[m.login] = { nome: m.nome, n: ((d[m.login] || {}).n || 0) + 1 }; gravar("usum_destaques", d);
-        // convívio com o parceiro (para evoluir): conta os minutos em que a pessoa conversou com ele na live
-        const pcv = ler("usum_parceiros", {})[m.login];
-        if (pcv && USUM.selvagens && USUM.selvagens.anotarConversa && !(USUM.offline && USUM.offline())) USUM.selvagens.anotarConversa(m.login, pcv.num);
+        // XP do parceiro: cada mensagem na live dá 3 XP (no máximo 1 vez a cada 15 s por pessoa)
+        const pcv = ler("usum_parceiros", {})[m.login], SVx = USUM.selvagens;
+        if (pcv && SVx && SVx.ganharXP && !(USUM.offline && USUM.offline())) {
+          const ux = ler("usum_xp_ult", {});
+          if (Date.now() - (ux[m.login] || 0) >= 15000) {
+            ux[m.login] = Date.now(); gravar("usum_xp_ult", ux);
+            const r = SVx.ganharXP(m.login, pcv.num, !!pcv.shiny, 3);
+            if (r && r.lv > r.antes && USUM.publicarFeed) {
+              const libera = SVx.evolucoes(pcv.num).filter((f) => { const nv = SVx.nivelParaEvoluir(f); return nv > r.antes && nv <= r.lv; });
+              if (libera.length || r.lv % 5 === 0 || r.lv === 100)
+                USUM.publicarFeed({ tipo: "rancho", login: m.login, img: "num:" + pcv.num + (pcv.shiny ? ":s" : ""),
+                  html: `⬆️ O ${esc(USUM.nomeDe(pcv.num))} de <b>${esc(m.nome)}</b> subiu para o <b>nível ${r.lv}</b>!` + (libera.length ? ` ✨ Já pode evoluir para ${libera.map((f) => "<b>" + esc(USUM.nomeDe(f)) + "</b>").join(" ou ")}: resgate <b>Evoluir meu Pokémon</b>` : "") });
+            }
+          }
+        }
       }
       pontuar(time, 1, m.id); if (time && !cine) pulsar(time); atualizarPlacar();
       const cor = corDe(m.login);   // cor do cartão: equipe (ou o voto, no cineminha)
