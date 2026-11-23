@@ -146,6 +146,31 @@
   // retratos que o canal fez e que não existem no PMD (ficam em Pokemon Assets/portrait no PC e em assets/retratos no site)
   USUM.RETRATOS_PROPRIOS = ["0019/0001", "0089", "0068", "0045", "0047", "0053/0001", "0088/0001", "0075/0001", "0076/0001", "0089/0001", "0020/0001", "0051/0001"];
 
+  /* Formas que não são regionais (Oricorio Pom-Pom, Flabébé amarela, Furfrou...): o número da forma no jogo -> nome da imagem
+     HOME do Pokémon Showdown. Usada quando o PMD não tem carinha dessa forma (assim não aparece a forma errada). */
+  const FORMA_SD = {
+    741: ["", "pompom", "pau", "sensu"],
+    669: ["", "yellow", "orange", "blue", "white"], 670: ["", "yellow", "orange", "blue", "white", "eternal"], 671: ["", "yellow", "orange", "blue", "white"],
+    676: ["", "heart", "star", "diamond", "debutante", "matron", "dandy", "lareine", "kabuki", "pharaoh"],
+    492: ["", "sky"], 487: ["", "origin"], 479: ["", "heat", "wash", "frost", "fan", "mow"], 745: ["", "midnight", "dusk"],
+    412: ["", "sandy", "trash"], 413: ["", "sandy", "trash"], 422: ["", "east"], 423: ["", "east"],
+    585: ["", "summer", "autumn", "winter"], 586: ["", "summer", "autumn", "winter"], 386: ["", "attack", "defense", "speed"],
+    550: ["", "bluestriped"], 641: ["", "therian"], 642: ["", "therian"], 645: ["", "therian"], 646: ["", "white", "black"],
+    648: ["", "pirouette"], 720: ["", "unbound"], 746: ["", "school"], 800: ["", "duskmane", "dawnwings", "ultra"]
+  };
+  USUM.FORMA_SD = FORMA_SD;
+  const idSD = (num) => String(USUM.nomeDe(num) || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/♀/g, "f").replace(/♂/g, "m").replace(/[^a-z0-9]/g, "");
+  // imagem HOME de uma forma não regional (ou "" se não for o caso)
+  USUM.urlFormaHome = (num, forma, shiny) => {
+    const i = parseInt(forma, 10), nomes = FORMA_SD[num];
+    if (!i || !nomes || !nomes[i] || regiaoDaForma(num, forma)) return "";
+    return "https://play.pokemonshowdown.com/sprites/home" + (shiny ? "-shiny" : "") + "/" + idSD(num) + "-" + nomes[i] + ".png";
+  };
+  // nome da forma para mostrar (Oricorio Pom-Pom...)
+  const NOME_FORMA = { pompom: "Pom-Pom", pau: "Pa'u", sensu: "Sensu", sky: "Céu", origin: "Origem", midnight: "Meia-noite", dusk: "Crepúsculo" };
+  USUM.nomeForma = (num, forma) => { const i = parseInt(forma, 10), n = (FORMA_SD[num] || [])[i]; return n ? NOME_FORMA[n] || n.charAt(0).toUpperCase() + n.slice(1) : ""; };
+
   /* Lista de endereços em ordem de preferência */
   USUM.urlsRetrato = function (p, emocao) {
     const n4 = String(p.num).padStart(4, "0");
@@ -161,8 +186,11 @@
         (USUM.EMOCAO_PARECIDA[emocao] || []).forEach((par) => urls.push(raiz + caminho + "/" + par + ".png"));
       }
       urls.push(raiz + caminho + "/Normal.png");
-      if (p.shiny || p.forma) urls.push(raiz + base.split("/")[0] + "/Normal.png");
     });
+    // forma sem carinha no PMD (ex: Flabébé amarela): a imagem HOME certa vem antes da carinha da forma padrão
+    const sd = USUM.urlFormaHome(p.num, p.forma, p.shiny);
+    if (sd) urls.push(sd);
+    raizes.forEach((raiz) => { if (p.shiny || p.forma) urls.push(raiz + base.split("/")[0] + "/Normal.png"); });
     urls.push(P.pastaHOME + (p.shiny ? "shiny/" : "") + USUM.homeId(p.num, p.forma) + ".png");
     return urls;
   };
