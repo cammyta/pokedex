@@ -756,3 +756,44 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .msg .av-caixa .sh-brilho i:nth-child(3) { right: 6px; bottom: -6px; font-size: 14px; animation-delay: 1.1s; }
 .msg .av-caixa .sh-brilho i:nth-child(4) { left: 24px; top: -8px; font-size: 11px; animation-delay: 1.65s; }
 @keyframes sh-pisca { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 40%, 60% { opacity: 1; transform: scale(1.15) rotate(30deg); } }
+
+/* ---- Rancho Pokéfriends (itens, forja, horta, pesca) ---- */
+.aviso .ret.item { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,.18); image-rendering: pixelated; object-fit: contain; padding: 2px; box-sizing: border-box; }
+.aviso .mini-item { width: 22px; height: 22px; vertical-align: -6px; margin-right: 2px; image-rendering: pixelated; }
+.aviso.rancho small { opacity: .85; }
+
+/* borda Rancho: madeira com folhinhas (amizade cheia no rancho) */
+.msg .av-caixa.borda-rancho::before { background: var(--reflexo) 0 0/300% 100%, linear-gradient(135deg, #f3c98b, #9a6230 28%, #8fd36a 48%, #6b4220 70%, #c9905a); animation: metal-brilho 3s linear infinite; }
+.msg .av-caixa.borda-rancho::after { box-shadow: 0 0 14px rgba(143,211,106,.55); }
+.msg .av-caixa.borda-rancho .encaixe::after { content: "🌱"; position: absolute; right: -50px; top: -58px; font-size: 14px; animation: borda-estrela 2.6s ease-in-out infinite; }
+.aviso.borda-nova.b-rancho { border-color: #8fd36a; box-shadow: 0 0 16px rgba(143,211,106,.4); }
+
+/* ---------- Bolhas conquistadas (no lugar do visual Sol/Lua; o chip da equipe continua) ---------- */
+/* Rancho: amizade perfeita no rancho */
+.chat .msg.bolha-rancho, .chat.cinema .msg.bolha-rancho {
+  background: linear-gradient(110deg, rgba(143,211,106,.46), rgba(255,217,138,.16) 45%, rgba(38,30,18,.86) 75%);
+  border-color: rgba(170,225,120,.72); box-shadow: 0 0 22px rgba(143,211,106,.22); }
+.chat .msg.bolha-rancho .marca { background: url(../assets/rancho/planta-frutos.png) center/contain no-repeat; -webkit-mask: none; box-shadow: none;
+  border-radius: 0; transform: none; opacity: .3; image-rendering: pixelated; animation: balanco-marca 6s ease-in-out infinite; }
+.chat .msg.bolha-rancho .marca::after { display: none; }
+.chat .msg.bolha-rancho .av { box-shadow: inset 0 0 0 2.5px #8fd36a, 0 0 16px rgba(143,211,106,.5); }
+.chat .msg.bolha-rancho .nome { color: #dcf8b8; }
+.chat .msg.bolha-rancho::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px; pointer-events: none; opacity: .55;
+  background: radial-gradient(circle at 6px 9px, #8fd36a 5px, transparent 5.5px) 0 0/12px 9px repeat-x; }
+/* Cinéfilo: ficou no filme até o fim. Um cineminha (tela, cortina vermelha e poltronas) atrás do cartão */
+.chat .msg.bolha-cinefilo, .chat.cinema .msg.bolha-cinefilo {
+  background: linear-gradient(110deg, rgba(150,20,44,.55), rgba(232,200,121,.12) 45%, rgba(24,10,18,.9) 75%);
+  border-color: rgba(232,200,121,.8); box-shadow: 0 0 22px rgba(200,40,70,.22); }
+.chat .msg.bolha-cinefilo .marca { right: 56px; width: 150px; height: 90px; margin-top: -45px; border-radius: 8px; -webkit-mask: none; box-shadow: none; transform: none; opacity: .34; animation: none;
+  background:
+    radial-gradient(ellipse at 50% 0, rgba(255,240,200,.85), transparent 55%),
+    linear-gradient(#f6eed5, #cdbf98) 50% 40%/58% 52% no-repeat,
+    repeating-linear-gradient(90deg, #8b1026 0 7px, #c0283f 7px 11px) left top/22% 100% no-repeat,
+    repeating-linear-gradient(90deg, #8b1026 0 7px, #c0283f 7px 11px) right top/22% 100% no-repeat,
+    linear-gradient(#4a0a18, #1c0510); }
+.chat .msg.bolha-cinefilo .marca::after { content: ""; display: block; position: absolute; inset: auto 6px 4px 6px; height: 16px; border-radius: 0;
+  background: radial-gradient(ellipse at 50% 100%, #12060c 7px, transparent 7.5px) 0 0/16px 16px repeat-x; }
+.chat .msg.bolha-cinefilo .av { box-shadow: inset 0 0 0 2.5px #e8c879, 0 0 16px rgba(232,200,121,.5); }
+.chat .msg.bolha-cinefilo .nome { color: #f6e3b0; }
+.chat .msg.bolha-cinefilo::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7px; pointer-events: none; opacity: .5;
+  background: radial-gradient(circle, rgba(255,240,200,.9) 2px, transparent 2.5px) 0 0/7px 9px repeat-y; }
