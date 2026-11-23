@@ -200,24 +200,26 @@
     const txt = limpa(opc.texto).replace(/ /g, "");
     let alvo = filhos.find((f) => txt.includes(limpa(USUM.nomeDe(f)).replace(/ /g, "")));
     if (!alvo && opc.item) alvo = filhos.find((f) => itemParaEvoluir(f) === opc.item);
-    if (!alvo) { const ok = filhos.filter((f) => !itemParaEvoluir(f) || qtd(opc.login, itemParaEvoluir(f)) > 0); alvo = (ok.length ? ok : filhos)[Math.floor(Math.random() * (ok.length || filhos.length))]; }
+    // o Pokémon de verdade: o melhor da caixa (shiny ou não, igual ao parceiro). O nível dele decide
+    const lista = SV.individuos(opc.login, parc.num), pos = lista.findIndex((x) => !!x.s === !!parc.shiny);
+    const melhor = pos >= 0 ? lista[pos] : null, nivel = melhor ? SV.nivelDe(melhor, parc.num) : 1;
+    const pode = (f) => nivel >= SV.nivelParaEvoluir(f) && (!itemParaEvoluir(f) || qtd(opc.login, itemParaEvoluir(f)) > 0);
+    if (!alvo) { const ok = filhos.filter(pode); alvo = (ok.length ? ok : filhos)[Math.floor(Math.random() * (ok.length || filhos.length))]; }
     const de = USUM.nomeDe(parc.num), para = USUM.nomeDe(alvo);
     const item = itemParaEvoluir(alvo);
-    // confere tudo de uma vez e avisa o que falta: tempo de convívio, a pedra/item, ou os dois
-    const precisa = SV.minutosParaEvoluir(alvo), tem = SV.minutosCom(opc.login, parc.num);
-    const faltaItem = !!item && qtd(opc.login, item) < 1, faltaMin = Math.max(0, precisa - tem);
-    if (faltaItem || faltaMin) { publicarEv({ tipo: "naoevolui", nome: opc.nome, motivo: "requisitos", de, pnome: para, precisa, falta: faltaMin, item: faltaItem ? ITENS[item].n : "" }); return false; }
+    // confere tudo de uma vez e avisa o que falta: nível, a pedra/item, ou os dois (quem evolui só com item não precisa de nível)
+    const precisaNv = SV.nivelParaEvoluir(alvo);
+    const faltaItem = !!item && qtd(opc.login, item) < 1, faltaNv = precisaNv > 0 && nivel < precisaNv;
+    if (faltaItem || faltaNv) { publicarEv({ tipo: "naoevolui", nome: opc.nome, motivo: "requisitos", de, pnome: para, precisaNv: faltaNv ? precisaNv : 0, nivel, item: faltaItem ? ITENS[item].n : "" }); return false; }
     if (SV.cheio(opc.login, alvo)) { publicarEv({ tipo: "naoevolui", nome: opc.nome, motivo: "cheio", pnome: para, limite: SV.C.limitePorEspecie }); return false; }
     if (item) dar(opc.login, item, -1);
     const todos = ler("usum_parceiros", {});
     todos[opc.login] = { num: alvo, forma: (USUM.formaRegional ? USUM.formaRegional(alvo) : "") || (parc.forma && USUM.urlFormaHome && USUM.urlFormaHome(alvo, parc.forma, false) ? parc.forma : ""), shiny: !!parc.shiny };
     gravar("usum_parceiros", todos);
-    // o próprio Pokémon evolui: o melhor da caixa (shiny ou não, igual ao parceiro) sai e volta como a evolução, com a mesma força, natureza e apelido
-    const lista = SV.individuos(opc.login, parc.num), pos = lista.findIndex((x) => !!x.s === !!parc.shiny);
-    const melhor = pos >= 0 ? lista[pos] : null;
+    // o próprio Pokémon evolui: sai da caixa e volta como a evolução, com a mesma força, natureza, apelido, nível e golpe
     if (melhor) SV.tirarUm(opc.login, parc.num, !!parc.shiny, pos + 1);
-    SV.guardar(opc.login, opc.nome, alvo, !!parc.shiny, melhor && melhor.iv, melhor && melhor.a, melhor ? melhor.n : undefined, melhor && melhor.f);
-    publicarEv({ tipo: "evoluiu", login: opc.login, nome: opc.nome, de, para, num: alvo, shiny: !!parc.shiny, item: item ? ITENS[item].n : "" });
+    SV.guardar(opc.login, opc.nome, alvo, !!parc.shiny, melhor && melhor.iv, melhor && melhor.a, melhor ? melhor.n : undefined, melhor && melhor.f, { lv: nivel, xp: melhor && melhor.xp, m: melhor && melhor.m });
+    publicarEv({ tipo: "evoluiu", login: opc.login, nome: opc.nome, de, para, num: alvo, shiny: !!parc.shiny, item: item ? ITENS[item].n : "", nivel });
     return true;
   }
 
@@ -231,6 +233,7 @@
   // ajudantes que valem agora: os escolhidos (se ainda estão na caixa) ou os melhores que a pessoa tem
   function ajudantes(login, qual) {
     const r = rancho(login), par = PARES[qual], esc_ = (qual === "forja" ? r.fj : r.hf) || [];
+    if (esc_ === "off") return [0, 0];   // a pessoa escolheu não deixar ninguém
     const tem = new Set(donos(login));
     const a = esc_[0] && tem.has(esc_[0]) && temTipo(esc_[0], par[0]) ? esc_[0] : melhorDoTipo(login, par[0]);
     const b = esc_[1] && tem.has(esc_[1]) && temTipo(esc_[1], par[1]) && esc_[1] !== a ? esc_[1] : melhorDoTipo(login, par[1], a);
@@ -242,11 +245,13 @@
   function forcaDe(login, n) { const l = n ? S().individuos(login, n) : []; return l.length ? Math.max(...l.map((x) => S().forcaIV(x.iv))) / 100 : 0; }
   // quanto mais forte, mais rápido: com força 100% o tempo cai bonusForca (40%)
   const fatorTempo = (f) => 1 - CFG.bonusForca * Math.max(0, Math.min(1, f || 0));
+  const NINGUEM = /^(nenhum|ninguem|tirar|sair|vazio|off|nada)$/;
   function escolherAjudantes(login, qual, texto) {
+    if (NINGUEM.test(limpa(texto))) { mudarR(login, (r) => { r[qual === "forja" ? "fj" : "hf"] = "off"; }); return [0, 0]; }
     const par = PARES[qual], tem = new Set(donos(login));
     const nums = palavrasPoke(texto).map((w) => (USUM.lerPokemon(w) || {}).num).filter((n) => n && tem.has(n));
     const a = nums.find((n) => temTipo(n, par[0])), b = nums.find((n) => temTipo(n, par[1]) && n !== a);
-    mudarR(login, (r) => { const k = qual === "forja" ? "fj" : "hf", v = r[k] || [0, 0]; if (a) v[0] = a; if (b) v[1] = b; r[k] = v; });
+    mudarR(login, (r) => { const k = qual === "forja" ? "fj" : "hf", v = Array.isArray(r[k]) ? r[k] : [0, 0]; if (a) v[0] = a; if (b) v[1] = b; r[k] = v; });
     return [a, b];
   }
 
@@ -434,6 +439,7 @@
      Acha 1 coisa a cada pedreiraMinutos (mais rápido se for forte), durante a live. r.pd = { n: escolhido, ult: ms, ac: [[id, ms]] } ---------- */
   function mineiro(login) {
     const r = rancho(login), tem = new Set(donos(login)), esc_ = r.pd && r.pd.n;
+    if (esc_ === -1) return 0;   // ninguém na pedreira
     if (esc_ && tem.has(esc_) && temTipo(esc_, TIPOS_PEDREIRA)) return esc_;
     const fj = ajudantes(login, "forja")[0];
     return melhorDoTipo(login, TIPOS_PEDREIRA, fj) || melhorDoTipo(login, TIPOS_PEDREIRA);
@@ -466,6 +472,7 @@
   const ABELHAS = [742, 743, 415, 416];
   function abelha(login) {
     const r = rancho(login), tem = new Set(donos(login)), e = r.ap && r.ap.n;
+    if (e === -1) return 0;   // ninguém no apiário
     if (e && tem.has(e) && ABELHAS.includes(e)) return e;
     const l = ABELHAS.filter((n) => tem.has(n)); return l.sort((a, b) => forcaDe(login, b) - forcaDe(login, a))[0] || 0;
   }
@@ -698,6 +705,8 @@
       if (FORMA_ITEM[id]) return publicar(id, `<b>${esc(N)}</b>, ${esc(ITENS[id].n)} só funciona com ${[].concat(FORMA_ITEM[id][0]).map(nomeP).join(" / ")} como parceiro`, L);
       return publicar(id, `<b>${esc(N)}</b>, não precisa usar ${esc(ITENS[id].n)}: ela sai sozinha da mochila quando você resgata <b>Evoluir meu Pokémon</b> (ex: escreva <i>vaporeon</i> no resgate)`, L);
     }
+    if (cmd === "forja" && arg && NINGUEM.test(limpa(arg))) { escolherAjudantes(L, "forja", arg); return publicar("rancho:forja-apagada", `🔨 <b>${esc(N)}</b> apagou a forja (ninguém trabalhando)`, L); }
+    if (cmd === "horta" && arg && NINGUEM.test(limpa(arg))) { escolherAjudantes(L, "horta", arg); return publicar("rancho:terra-seca", `🌱 <b>${esc(N)}</b> deixou a horta sem ajudantes`, L); }
     if (cmd === "forja" && arg) {
       const [a, b] = escolherAjudantes(L, "forja", arg);
       const [aa, ff] = ajudantes(L, "forja");
@@ -756,6 +765,7 @@
       return publicar(r.id, `🍯 <b>${esc(N)}</b> passou ${hiper ? "<b>Hiper Mel</b>" : "Mel"} numa árvore… um Pokémon selvagem vem chegando!${hiper ? " <small>(10% de chance de última forma, 0,1% de lendário)</small>" : ""}`, L);
     }
     if (cmd === "apiario" || cmd === "apiário") {
+      if (arg && NINGUEM.test(limpa(arg))) { mudarR(L, (r) => { r.nm = N; r.ap = Object.assign(r.ap || {}, { n: -1 }); }); return publicar("mel", `🐝 <b>${esc(N)}</b> deixou o apiário vazio (ninguém fazendo mel)`, L); }
       if (arg) {
         const tem = new Set(donos(L)), n = palavrasPoke(arg).map((w) => (USUM.lerPokemon(w) || {}).num).find((x) => x && tem.has(x) && ABELHAS.includes(x));
         if (!n) return publicar("mel", `🐝 <b>${esc(N)}</b>, o apiário precisa de Cutiefly, Ribombee, Combee ou Vespiquen que você tem: <b>!apiario cutiefly</b>`, L);
@@ -767,6 +777,7 @@
     }
     if (cmd === "pedreira" || cmd === "minerar") {
       mudarR(L, (r) => { r.nm = N; });
+      if (arg && NINGUEM.test(limpa(arg))) { mudarR(L, (r) => { r.pd = Object.assign(r.pd || {}, { n: -1 }); }); return publicar("hard-stone", `⛏️ <b>${esc(N)}</b> deixou a pedreira vazia (ninguém trabalhando)`, L); }
       if (arg) {
         const tem = new Set(donos(L)), n = palavrasPoke(arg).map((w) => (USUM.lerPokemon(w) || {}).num).find((x) => x && tem.has(x) && temTipo(x, TIPOS_PEDREIRA));
         if (!n) return publicar("hard-stone", `⛏️ <b>${esc(N)}</b>, a pedreira precisa de um Pokémon de <b>Pedra</b> ou <b>Terra</b> que você tem: <b>!pedreira geodude</b>`, L);
@@ -821,7 +832,8 @@
       return publicar("rancho:movel-" + k, `🛠️ <b>${esc(N)}</b> fez <b>${esc(MOVEIS[k].n)}</b> na bancada e colocou na casinha! (${r.total}/${Object.keys(MOVEIS).length} móveis)`, L);
     }
   }
-  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  if (USUM.aoMensagem && !site && S() && S().carregarGolpes) S().carregarGolpes();   // lista de golpes que cada Pokémon aprende
+  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); if (S().garantirGolpes) treinadores().forEach((l) => S().garantirGolpes(l)); } catch (e) { console.error("[rancho]", e); } }, 60e3);
   // roda numa tela só: a líder na hora; se a líder estiver com o chat caído, outra tela assume depois de ~1,5 s
   function umaVezR(m, fn) {
     const k = (m.id || m.login + ":" + m.texto) + "", ler_ = () => ler("usum_rancho_feitos", []);
@@ -845,6 +857,8 @@
     } catch (e) { console.error("[rancho]", e); }
     if (!m.texto || !CMD.test(String(m.texto).trim().toLowerCase())) return;
     try { comando(m); } catch (e) { console.error("[rancho]", e); }
+    // manda para o site logo (em vez de esperar o minuto)
+    clearTimeout(trata._pub); trata._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
   }
 
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
