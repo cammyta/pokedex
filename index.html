@@ -376,6 +376,43 @@
   .cena { grid-column: 1 / -1; position: relative; aspect-ratio: 1376 / 768; background-size: cover; border-radius: 22px; overflow: hidden;
     box-shadow: 0 0 0 4px #6b4a2a, 0 0 0 8px #3a2614, 0 18px 40px rgba(0,0,0,.45); image-rendering: pixelated; }
   .cena .obj { position: absolute; display: block; transition: transform .15s; }
+  /* cena nova (o terreno já traz casa, pedreira, forja, horta, dojo, apiário e lago desenhados): áreas clicáveis por cima */
+  .ind-ev { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11.5px; margin: -2px 0 6px; } .ind-ev span { background: rgba(255,179,71,.18); border-radius: 6px; padding: 0 6px; }
+  .evs { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; margin: 4px 0 8px; }
+  .ev-l { display: grid; grid-template-columns: 86px 1fr 30px; align-items: center; gap: 6px; font-size: 12px; }
+  .ev-l i { display: block; height: 7px; border-radius: 4px; background: linear-gradient(90deg, #ffb347 var(--p), rgba(255,255,255,.16) var(--p)); }
+  .ev-l b { font: 600 12px "Fredoka"; text-align: right; }
+  .ev-caixa { margin-top: 8px; } .ev-caixa > b { font: 600 14px "Fredoka"; }
+  .cena.nova .zona { border-radius: 18px; background: none; border: 0; padding: 0; cursor: pointer; }
+  .cena.nova .zona:hover, .cena.nova .zona:focus-visible { background: rgba(255,240,180,.16); box-shadow: inset 0 0 0 2px rgba(255,236,170,.7); transform: none; outline: none; }
+  .cena.nova .rot { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); white-space: nowrap; font: 600 clamp(9px, 1.05vw, 13px) "Fredoka"; color: #fff; background: rgba(58,38,20,.72);
+    padding: 1px 8px; border-radius: 99px; opacity: 0; transition: opacity .15s; pointer-events: none; }
+  .cena.nova .zona:hover .rot, .cena.nova .zona:focus-visible .rot, .cena.nova .horta:hover .rot, .cena.nova .pesca:hover .rot { opacity: 1; }
+  .cena.nova .casa { left: 5%; top: 14%; width: 17%; height: 29%; }
+  .cena.nova .pedreira { left: 44.5%; top: 18%; width: 11%; height: 17%; }
+  .cena.nova .pedreira .picareta { right: 8%; top: 18%; }
+  .cena.nova .pedreira b { right: 2%; top: 4%; }
+  .cena.nova .pedreira::before { display: none; }
+  .cena.nova .forja { left: 70%; top: 18%; width: 27%; height: 26%; }
+  .cena.nova .fogo-forja { position: absolute; left: 77.6%; top: 27.5%; width: 3.6%; height: 6.5%; border-radius: 40% 40% 20% 20%; pointer-events: none; transition: opacity .4s; }
+  .cena.nova:not(.forja-on) .fogo-forja { background: radial-gradient(circle at 50% 60%, #2a1a12 0 55%, rgba(42,26,18,.85) 70%, transparent 75%); }
+  .cena.nova.forja-on .fogo-forja { background: radial-gradient(circle, rgba(255,200,90,.65), transparent 70%); animation: brasa 1.6s ease-in-out infinite; }
+  .cena.nova .horta { left: 39%; top: 52.5%; width: 22%; height: 17.5%; border-radius: 6px; }
+  .cena.nova .horta .planta { width: 24%; left: calc(8% + var(--i) * 30%); bottom: 14%; }
+  .cena.nova .horta .agua-horta { position: absolute; inset: 0; border-radius: 6px; background: rgba(40,24,60,.0); transition: background .6s; pointer-events: none; }
+  .cena.nova.molhada .horta .agua-horta { background: linear-gradient(180deg, rgba(30,40,80,.32), rgba(20,30,60,.38)); mix-blend-mode: multiply; }
+  .cena.nova .horta .rot { bottom: auto; top: -14%; }
+  .cena.nova .dojo { left: 1%; top: 55%; width: 27%; height: 37%; }
+  .cena.nova .apiario { left: 39.5%; top: 84%; width: 23.5%; height: 14%; }
+  .cena.nova .apiario b { right: 44%; top: -8%; }
+  .cena.nova .pesca { left: 82.5%; top: 77%; width: 5%; }
+  .cena.nova .pesca .rot { bottom: -70%; }
+  .cena.nova .ajud.parc { left: 30%; top: 52%; }
+  .cena.nova .ajud.aco { left: 74.5%; top: 45%; } .cena.nova .ajud.fogo { left: 90.5%; top: 47%; }
+  .cena.nova .ajud.agua { left: 35.5%; top: 67%; } .cena.nova .ajud.grama { left: 64.5%; top: 67%; }
+  .cena.nova .ajud.mineiro { left: 51%; top: 37.5%; }
+  .cena.nova .ajud.abelha { left: 56.5%; top: 96%; }
+  .cena.nova .ajud.dojo1 { left: 17%; top: 86%; } .cena.nova .ajud.dojo2 { left: 23.5%; top: 86%; }
   .cena .obj img { width: 100%; display: block; }
   .cena a.obj:hover { transform: translateY(-3px) scale(1.03); }
   .cena .casa { left: 5%; top: 9%; width: 21%; }
@@ -518,6 +555,24 @@
 <script>
 (function () {
   const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
+  // Lê os dados publicados pela live. Usa o link "raw" do Gist (não tem limite de acessos);
+  // a API do GitHub só entra se o raw falhar, porque ela deixa só 60 acessos por hora para cada internet.
+  const DONO_GIST = "cammyta";
+  async function baixarGist(id) {
+    let dono = DONO_GIST; try { dono = localStorage.getItem("pokedex_gist_dono") || DONO_GIST; } catch (e) {}
+    try {
+      const r = await fetch(`https://gist.githubusercontent.com/${dono}/${id}/raw/dados.json?t=${Date.now()}`, { cache: "no-store" });
+      if (r.ok) return JSON.parse(await r.text());
+    } catch (e) {}
+    try {
+      const r = await fetch("https://api.github.com/gists/" + id, { cache: "no-store" }); if (!r.ok) return null;
+      const g = await r.json(); if (g.owner && g.owner.login) try { localStorage.setItem("pokedex_gist_dono", g.owner.login); } catch (e) {}
+      const f = g.files && g.files["dados.json"]; let txt = f && f.content;
+      if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
+      return JSON.parse(txt || "{}");
+    } catch (e) { return null; }
+  }
+
   // Login da Twitch para escrever no chat direto do site (app criado em dev.twitch.tv). Vazio = usa a barra da Twitch.
   const TWITCH_CLIENT_ID = "qfe3wqgnadh2rwi3ve7vkun6woub75";
   const TW = "pokedex_twitch";
@@ -567,16 +622,10 @@
   let D = null, aba = "dex", filtro = "cap", busca = "", ordem = "num", forcaMin = 0, periodo = 0, buscaMochila = "", ordemMochila = "nome";
 
   async function carregar() {
-    try {
-      const r = await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" });
-      const g = await r.json();
-      const f = g.files && g.files["dados.json"];
-      let txt = f && f.content;
-      if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
-      D = JSON.parse(txt || "{}");
-    } catch (e) { D = null; }
+    D = await baixarGist(GIST);
     window.__pokedexDados = D;
-    if (!D || !D.t) { app.innerHTML = `<p class="vazio">Ainda não tem dados publicados. Volte depois da próxima live!</p>`; return; }
+    if (!D) { app.innerHTML = `<p class="vazio">Não consegui carregar os dados agora. Tentando de novo…</p>`; setTimeout(carregar, 20e3); return; }
+    if (!D.t) { app.innerHTML = `<p class="vazio">Ainda não tem dados publicados. Volte depois da próxima live!</p>`; return; }
     document.getElementById("nomes").innerHTML = Object.values(D.t).map((u) => `<option value="${esc(u.n)}">`).join("");
     chatAoVivo();
     document.getElementById("rodape").textContent = D.em ? "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live"
@@ -680,17 +729,14 @@
   setInterval(async () => {
     if (!D || document.hidden || document.body.classList.contains("com-chat")) return;   // com o chat aberto, ele já atualiza
     try {
-      const g = await (await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" })).json();
-      const f = g.files && g.files["dados.json"]; let txt = f && f.content;
-      if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
-      const n = JSON.parse(txt || "{}");
-      if (!n.t || n.em === D.em) return;
+      const n = await baixarGist(GIST);
+      if (!n || !n.t || n.em === D.em) return;
       D = n; window.__pokedexDados = n;
       const ocupado = document.querySelector(".ficha-fundo") || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
       const rodape = document.getElementById("rodape"); if (rodape) rodape.textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       if (!ocupado) { const y = scrollY; rota(); scrollTo(0, y); }
     } catch (e) {}
-  }, 2 * 60e3);
+  }, 60e3);
 
   function rota() {
     const p = new URLSearchParams(location.search);
@@ -725,6 +771,12 @@
 
   /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
   const PATCH = [
+    { v: "Dojo", d: "23/11/2026", t: "Rancho novo, Dojo com EVs e Raids mais duras", itens: [
+      ["🏡", "Rancho de cara nova", "O rancho ganhou um mapa novo, com casa, pedreira, forja, horta, dojo, apiário e lago no mesmo terreno. Passe o mouse para ver o nome de cada lugar e clique para abrir."],
+      ["🥋", "Dojo", "Deixe até 2 Pokémon no dojo (<code>!dojo pikachu eevee</code> ou pelo site). A cada hora de live com você no chat, eles ganham XP (uns 2 níveis) e +24 EV no atributo que você escolher (<code>!dojo ev ataque</code>)."],
+      ["📊", "EVs", "Como nos jogos: até 252 por atributo e 510 no total. Na Raid, Ataque/Ataque Esp. dão mais dano, HP dá mais vida, Defesa segura os golpes do chefe e Velocidade dá mais críticos. Aparecem na ficha do Pokémon."],
+      ["⚔️", "Raids mais duras", "O chefe agora tem nível: lendário (nível 75) e última forma (55) têm bem mais HP, e parceiro de nível baixo bate pouco neles. Upe e treine no dojo para dar mais dano."],
+      ["🔧", "Site mais estável", "O site lê os dados por outro caminho e não some mais quando muita gente abre ao mesmo tempo."] ] },
     { v: "Equipes", d: "23/11/2026", t: "Mega Raio, Raid por equipe, reforço e Day Care do jogo", itens: [
       ["⚡", "Mega Raio", "Na Raid, cada ataque enche a barra do Mega Raio. Com 100 ataques do chat, todos os parceiros atacam juntos e o chefe perde 10% do HP."],
       ["🏅", "Raid vale pontos para a equipe", "No fim da Raid, quem mais bateu leva pontos para o seu time (5, 3 e 2 para os três primeiros), e a equipe que deu mais dano ganha +3."],
@@ -736,6 +788,8 @@
       ["🎣", "Super Vara direto", "Dá para forjar a Super Vara sem ter a Vara Boa antes."],
       ["💿", "TM Aleatória e Slot de Golpe", "Na forja agora dá para fazer a <b>TM Aleatória</b> (troca um golpe do Pokémon por outro aleatório que ele aprende) e o <b>Slot de Golpe</b> (dá um 2º golpe aleatório). Use pelos botões na ficha do Pokémon ou com <code>!tm pikachu</code> e <code>!slot pikachu</code>. Na Raid, quem tem 2 golpes usa sozinho o que bate mais forte no chefe."],
       ["⭐", "Time mais fácil no chat", "No ⭐ Time do chat do site, toque no ✏️ de um slot (ou num slot vazio) e escolha o Pokémon: salva na hora. Pokémon recém-capturado aparece logo, e dá para digitar o nome se ele ainda não estiver na lista."],
+      ["🔁", "Trocar pelo chat do site", "Botão <b>🔁 Trocar</b>: escolha a pessoa, o seu Pokémon e (se quiser) o dela, e mande a proposta. Quem recebe vê a oferta na janelinha e aceita ou recusa com um toque, com uma animaçãozinha de troca."],
+      ["🎯", "Botões reorganizados", "No chat do site, <b>Capturar</b> e <b>Atacar</b> ficaram grandes, lado a lado, logo acima da caixa de mensagem; Time, Bola, Trocar, Mel, Itens e Bolha ficam em cima."],
       ["🫧", "Escolher a bolha", "No chat do site, o botão <b>🫧 Bolha</b> mostra as suas bolhas e troca com um toque (ou <code>!bolha neon</code>, <code>!bolha raid</code>, <code>!bolha equipe</code> no chat)."],
       ["🏅", "Borda e Fita da Raid", "O Pokémon que você mais usa nas Raids (a partir de 5) ganha a <b>borda Raid</b> na fotinha do chat. Vencer 50 Raids dá a <b>Fita Vitória de Raid</b>."],
       ["✨", "Bolhas Neon e Raid", "Duas bolhas novas no chat: <b>Neon</b> ✨ para quem capturar 50 shiny e <b>Raid</b> ⚔️ (com uma Pokébola girando no fundo) para quem lutar em 10 Raids. Veja quanto falta com <code>!bolha</code>."],
@@ -1322,9 +1376,7 @@
       if (document.hidden || document.querySelector(".dc-fundo, .ficha-fundo") || (document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName))) return;
       const antes = D && D.em;
       try {
-        const g = await (await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" })).json(), f = g.files && g.files["dados.json"];
-        let txt = f && f.content; if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
-        const novo = JSON.parse(txt || "{}"); if (!novo.t || novo.em === antes) return;
+        const novo = await baixarGist(GIST); if (!novo || !novo.t || novo.em === antes) return;
         D = novo; window.__pokedexDados = D;
         const y = scrollY, l = new URLSearchParams(location.search).get("u");
         if (l && D.t[l]) { desenhar(l); scrollTo(0, y); }
@@ -1413,29 +1465,32 @@
     const btn = (cmd, txt, ok = true, conf) => ctl ? `<button type="button" class="r-btn" data-cmd="${esc(cmd)}" ${ok ? "" : "disabled"} ${conf ? `data-confirma="${esc(conf)}"` : ""}>${txt}</button>` : "";
     const trocaDupla = (cmd, t1, t2, a, b, off = (cmd === "!forja" ? rn.fj : rn.hf) === "off") => ctl ? `<div class="r-form" data-form><select aria-label="${t1}">${opts(doTipo(t1), a, off)}</select><select aria-label="${t2}">${opts(doTipo(t2), b, off)}</select><button type="button" class="r-btn" data-cmd="${cmd} {0} {1}">Trocar</button></div>` : "";
     const fzTxt = (n) => n && fz[n] != null ? ` <em class="fz-mini">${fz[n]}%</em>` : "";
-    const pok = (n, cls, tit) => !(n > 0) ? "" : pmdSpr(n, false, "ajud " + cls, tit + ": " + nome(n), { aco: 1, fogo: 7, agua: 1, grama: 7, mineiro: 7, abelha: 6 }[cls] || 0);
+    const pok = (n, cls, tit) => !(n > 0) ? "" : pmdSpr(n, false, "ajud " + cls, tit + ": " + nome(n), { aco: 1, fogo: 7, agua: 1, grama: 7, mineiro: 7, abelha: 6, dojo1: 2, dojo2: 6 }[cls] || 0);
     const pokVelho = (n, cls, tit) => n ? `<img class="ajud ${cls}" src="${ani(n)}" alt="" title="${esc(tit + ": " + nome(n))}" loading="lazy">` : "";
     const casaImg = mv.length >= 8 ? "casa-2" : "casa";
+    const dj = rn.dj || {};
     const dc = rn.dc || {}, dcOv = (dc.ov || []).map(([n, s2, t]) => ({ n, s: s2, pronto: agora - t >= R.CFG.chocarMinutos * 60e3, min: Math.max(0, Math.ceil((t + R.CFG.chocarMinutos * 60e3 - agora) / 60e3)) }));
     ranchoPD = { pd: rn.pd || {}, nome: u.n || login };
     ranchoDC = { dc, dcOv, nome: u.n || login, eu: ctl, cx, dp: rn.dp, fz, pend: !!pend.dc };
     // ---- cena ----
     let h = `<div class="rancho">
-      <div class="cena" style="background-image:url(${RA}terreno-horta-${hortaOn && hz.some(Boolean) ? "molhada" : "seca"}.jpg)">
-        <a class="obj casa" href="#r-casa" title="Casinha"><img src="${RA}${casaImg}.png" alt="Casinha"></a>
+      <div class="cena nova ${hortaOn && hz.some(Boolean) ? "molhada" : ""} ${forjaOn ? "forja-on" : ""}" style="background-image:url(${RA}terreno-rancho.jpg)">
+        <a class="obj zona casa" href="#r-casa" title="Casinha"><span class="rot">🏠 Casa</span></a>
         ${parc ? pmdSpr(parc[0], parc[1], "ajud parc", "Parceiro: " + nome(parc[0])) : ""}
-        <a class="obj forja ${forjaOn ? "on" : ""}" href="#r-forja" title="Forja"><img src="${RA}forja-${forjaOn ? "acesa" : "apagada"}.png" alt="Forja"></a>
+        <a class="obj zona forja ${forjaOn ? "on" : ""}" href="#r-forja" title="Forja"><span class="rot">🔨 Forja</span></a>
+        <span class="fogo-forja" aria-hidden="true"></span>
         ${pok(aco, "aco", "Aço/Terra/Pedra")}${pok(fogo, "fogo", "Fogo")}
-        <a class="horta" href="#r-horta" title="Horta">${hz.map((c, i) => c ? `<img class="planta" style="--i:${i}" src="${RA}${R.ESTAGIOS[est(c)]}.png" alt="">` : "").join("")}
-          ${hortaOn && hz.some(Boolean) ? `<img class="regar" src="${RA}regar.png" alt="">` : ""}</a>
-        <img class="obj placa" src="${RA}placa.png" alt="Horta" title="Horta">
+        <a class="horta" href="#r-horta" title="Horta"><span class="agua-horta" aria-hidden="true"></span>${hz.map((c, i) => c ? `<img class="planta" style="--i:${i}" src="${RA}${R.ESTAGIOS[est(c)]}.png" alt="">` : "").join("")}
+          ${hortaOn && hz.some(Boolean) ? `<img class="regar" src="${RA}regar.png" alt="">` : ""}<span class="rot">🌱 Horta</span></a>
         ${pok(agua, "agua", "Rega a horta")}${pok(grama, "grama", "Aduba a horta")}
-        <button type="button" class="obj pedreira pedreira-ic" title="Pedreira: ver o que foi achado"><img class="p1" src="${R.urlItem("hard-stone")}" alt=""><img class="p2" src="${R.urlItem("hard-stone")}" alt=""><span class="picareta" aria-hidden="true">⛏️</span>${(rn.pd && rn.pd.ac || []).length ? `<b>${rn.pd.ac.length}</b>` : ""}</button>
+        <button type="button" class="obj zona pedreira pedreira-ic" title="Pedreira: ver o que foi achado"><span class="picareta" aria-hidden="true">⛏️</span>${(rn.pd && rn.pd.ac || []).length ? `<b>${rn.pd.ac.length}</b>` : ""}<span class="rot">⛏️ Pedreira</span></button>
         ${pok(rn.pd && rn.pd.n, "mineiro", "Quebrando pedra")}
-        <a class="obj apiario" href="#r-apiario" title="Apiário"><img src="${RA}mel.png" alt="Apiário">${(it.mel || 0) + (it["hiper-mel"] || 0) ? `<b>${(it.mel || 0) + (it["hiper-mel"] || 0)}</b>` : ""}</a>
+        <a class="obj zona apiario" href="#r-apiario" title="Apiário">${(it.mel || 0) + (it["hiper-mel"] || 0) ? `<b>${(it.mel || 0) + (it["hiper-mel"] || 0)}</b>` : ""}<span class="rot">🐝 Apiário</span></a>
         ${pok(rn.ap && rn.ap.n, "abelha", "Fazendo mel")}
+        <a class="obj zona dojo" href="#r-dojo" title="Dojo"><span class="rot">🥋 Dojo</span></a>
+        ${pok(dj.a, "dojo1", "Treinando no dojo")}${pok(dj.b, "dojo2", "Treinando no dojo")}
         <button class="obj daycare-ic" type="button" title="Day Care"><img src="${RA}ic-daycare.png" alt="Day Care">${dcOv.length ? `<b>${dcOv.length}</b>` : ""}</button>
-        <a class="obj pesca" href="#r-pesca" title="Pescar"><img src="${RA}boia.png" alt="Pesca"></a>
+        <a class="obj pesca" href="#r-pesca" title="Pescar"><img src="${RA}boia.png" alt="Pesca"><span class="rot">🎣 Pesca</span></a>
       </div>`;
     // ---- mochila ----
     const ord = ["mel", "tm", "pedra", "troca", "forma", "mat"], NOMEC = { tm: "Golpes (use na ficha do Pokémon, em Pokédex)", mel: "Mel (chama Pokémon selvagem)", pedra: "Pedras de evolução", troca: "Itens de evolução", forma: "Itens de forma", mat: "Materiais" };
@@ -1492,8 +1547,22 @@
       ${ctl ? `<div class="r-form" data-form><select aria-label="Abelha">${opts(cx.filter((n) => R.ABELHAS.includes(n)), ab, ab === -1)}</select><button type="button" class="r-btn" data-cmd="!apiario {0}">Trocar</button></div>` : ""}
       <p class="sub">${ab ? `${esc(nome(ab))} faz um pote de <b>Mel</b> a cada <b>${ap.m || R.CFG.apiarioMinutos} min</b> de live, e às vezes um <b>Hiper Mel</b>.` : "Precisa de <b>Cutiefly</b>, <b>Ribombee</b>, <b>Combee</b> ou <b>Vespiquen</b> na caixa."} Use o mel para chamar um Pokémon selvagem na live. O <b>Hiper Mel</b> tem 10% de chance de chamar um Pokémon na última forma e 0,1% de um lendário.</p>
       <div class="r-acoes">${ctl ? btn("!mel", `<img src="${RA}mel.png" alt="">Usar Mel (${it.mel || 0})`, (it.mel || 0) > 0) + btn("!hipermel", `<img src="${RA}hiper-mel.png" alt="">Usar Hiper Mel (${it["hiper-mel"] || 0})`, (it["hiper-mel"] || 0) > 0) : ""}</div></section>`;
+    // ---- dojo ----
+    {
+      const EVN = { hp: "HP", at: "Ataque", df: "Defesa", sa: "Ataque Esp.", sd: "Defesa Esp.", ve: "Velocidade" }, EVK = ["hp", "at", "df", "sa", "sd", "ve"];
+      const evDe = (n) => { const l = individuos((u.c || {})[n] || [0, 0, []]); return (l[0] && l[0].ev) || null; };
+      const barrasEV = (n) => { const ev = evDe(n); if (!ev) return `<small class="sub">sem EV ainda</small>`;
+        return `<div class="evs">${EVK.map((k, i) => `<div class="ev-l"><span>${EVN[k]}</span><i style="--p:${Math.min(100, (ev[i] || 0) / 252 * 100)}%"></i><b>${ev[i] || 0}</b></div>`).join("")}</div>`; };
+      const evAt = dj.ev || "at", prox = dj.u ? Math.max(0, Math.ceil((dj.u * 1000 + (dj.m || 60) * 60e3 - agora) / 60e3)) : 0;
+      h += `<section class="painel" id="r-dojo"><h3>🥋 Dojo</h3>
+        <div class="dupla">${[dj.a, dj.b].map((n, i) => `<div class="vaga ${n ? "ok" : ""}">${n ? pmdSpr(n, false, "vaga-spr") : `<span>?</span>`}<small>Treinando ${i + 1}</small><b>${n ? esc(nome(n)) : "vazio"}</b></div>`).join("")}</div>
+        ${[dj.a, dj.b].filter(Boolean).map((n) => `<div class="ev-caixa"><b>${esc(nome(n))}</b> ${barrasEV(n)}</div>`).join("")}
+        ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon 1">${opts(cx, dj.a, !dj.a && !dj.b && rn.dj)}</select><select aria-label="Pokémon 2">${opts(cx, dj.b)}</select><button type="button" class="r-btn" data-cmd="!dojo {0} {1}">Trocar</button></div>
+          <div class="r-form" data-form><select aria-label="EV">${EVK.map((k) => `<option value="${k}" ${k === evAt ? "selected" : ""}>${EVN[k]}</option>`).join("")}</select><button type="button" class="r-btn" data-cmd="!dojo ev {0}">Treinar esse EV</button></div>` : ""}
+        <p class="sub">A cada <b>${dj.m || R.CFG.dojoMinutos} min</b> de live (com você no chat), os Pokémon do dojo ganham <b>XP</b> (sobem de nível mais rápido) e <b>+${R.CFG.dojoEV} EV</b> de <b>${EVN[evAt]}</b>${dj.a || dj.b ? (prox ? ` · próximo treino em ~${prox} min de live` : " · próximo treino na próxima rodada da live") : ""}. EV vai até 252 por atributo (510 no total) e ajuda na Raid: Ataque/Ataque Esp. dão mais dano, HP dá mais vida, Defesa segura os golpes do chefe e Velocidade dá mais críticos.</p></section>`;
+    }
     // ---- cantinho da amizade ----
-    const trab = [...new Set([rn.ap && rn.ap.n ? [rn.ap.n] : [], rn.pd && rn.pd.n ? [rn.pd.n] : [], aco && fogo ? [aco, fogo] : [], agua && grama && hz.some(Boolean) ? [agua, grama] : [], dc.a && dc.b ? [dc.a[0], dc.b[0]] : []].flat())];
+    const trab = [...new Set([rn.ap && rn.ap.n > 0 ? [rn.ap.n] : [], rn.pd && rn.pd.n > 0 ? [rn.pd.n] : [], aco && fogo ? [aco, fogo] : [], agua && grama && hz.some(Boolean) ? [agua, grama] : [], dc.a && dc.b ? [dc.a[0], dc.b[0]] : []].flat())];
     const amigos = [...new Set([rn.ami, ...trab, ...Object.keys(am).map(Number)].filter(Boolean))].slice(0, 12);
     h += `<section class="painel largo" id="r-amizade"><h3><img src="${RA}ic-casa.png" alt="">Cantinho da Amizade</h3>
       <p class="sub">Deixe um Pokémon morando no rancho com <b>!rancho pikachu</b>: ele ganha 2 de amizade por minuto de live. Quem trabalha na forja, na horta ou no Day Care ganha 1. Com <b>${LIM}</b> de amizade a espécie libera a <b>borda Rancho</b> 🌱 da fotinha.</p>
@@ -1664,7 +1733,7 @@
   const NATUREZAS = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty",
     "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "" }; })
+    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2, ev]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "", ev: ev || null }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
   }
   const custoNivel = (L) => (L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);   // igual ao overlay
@@ -1701,7 +1770,7 @@
         <select class="fi-f"><option value="0">qualquer força</option><option value="50">50%+</option><option value="70">70%+</option><option value="90">90%+</option></select></div>` : ""}
       <div class="fi-lista">${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}" data-i="${i}" data-f="${x.f}" data-t="${x.t || 0}" data-a="${esc((x.a || "").toLowerCase())}">
         <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${x.n || notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
-        ${nivelHTML(x)}
+        ${nivelHTML(x)}${x.ev && x.ev.some(Boolean) ? `<div class="ind-ev">EV: ${["HP", "Atq", "Def", "AtqE", "DefE", "Vel"].map((t, k) => x.ev[k] ? `<span>${t} ${x.ev[k]}</span>` : "").join("")}</div>` : ""}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
         ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
@@ -1738,10 +1807,7 @@
     // enquanto o chat está aberto, puxa os dados novos da live de vez em quando (parceiros, equipes, fitas)
     const atualizar = async () => {
       try {
-        const g = await (await fetch("https://api.github.com/gists/" + GIST, { cache: "no-store" })).json();
-        const f = g.files && g.files["dados.json"]; let txt = f && f.content;
-        if (f && f.truncated) txt = await (await fetch(f.raw_url)).text();
-        const n = JSON.parse(txt || "{}"); if (n && n.t) { D = n; window.__pokedexDados = n; }
+        const n = await baixarGist(GIST); if (n && n.t) { D = n; window.__pokedexDados = n; }
       } catch (e) {}
     };
     const abrir = (on) => {
@@ -1751,7 +1817,7 @@
         p.querySelector(".f-twitch").src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`;
       }
       p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
-      clearInterval(timer); if (on) timer = setInterval(atualizar, 75000);   // chat aberto: dados (e avisos) novos a cada 75 s
+      clearInterval(timer); if (on) timer = setInterval(atualizar, 40000);   // chat aberto: dados (e avisos) novos a cada 40 s
     };
     b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
     // desprender: abre o chat numa janelinha própria, para deixar a live numa tela e o chat em outra (ou do lado)
