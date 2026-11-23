@@ -141,6 +141,30 @@
 
   .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
   .pk.reg img { opacity: .55; filter: saturate(.6); }
+  .pk.vis img { opacity: .35; filter: grayscale(1) brightness(.8); }
+  .pk .na-box { display: block; margin-top: 3px; font-size: 11px; color: var(--txt2); }
+  .dex-prog { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 14px; text-align: center; }
+  .dex-prog > div > b { display: block; font: 600 24px/1 "Fredoka", sans-serif; } .dex-prog > div > span { font-size: 12px; color: var(--txt2); }
+  .dex-barra { grid-column: 1 / -1; position: relative; height: 10px; border-radius: 999px; background: rgba(0,0,0,.35); overflow: hidden; }
+  .dex-barra i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; } .dex-barra .v { background: rgba(255,255,255,.25); } .dex-barra .c { background: linear-gradient(90deg, var(--sun1), #7fb8ff); }
+  .dex-prog p { grid-column: 1 / -1; margin: 4px 0 0; text-align: left; }
+  .box-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .bx { position: relative; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 8px 8px 10px; text-align: center; cursor: pointer; transition: transform .15s; }
+  .bx:hover, .bx:focus-visible { transform: translateY(-3px); outline: none; border-color: var(--fc); }
+  .bx.shiny { border-color: rgba(255,246,194,.7); box-shadow: 0 0 14px rgba(255,210,240,.3); }
+  .bx .sh { position: absolute; top: 6px; left: 9px; color: #fff6c2; }
+  .bx .bx-hi { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; }
+  .bx .bx-img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+  .bx .bx-nome { display: block; font: 600 14px/1.2 "Fredoka", sans-serif; overflow-wrap: anywhere; }
+  .bx .bx-esp { display: block; font-size: 11px; color: var(--txt2); margin: 2px 0 4px; }
+  .bx .fz { display: inline-block; font: 600 11.5px "Fredoka", "Poppins", sans-serif; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--fc); }
+  .bx .renomear { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 6px; cursor: default; }
+  .renomear button { font-size: 12px; padding: 4px 10px; }
+  .ren-form { display: inline-flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .ren-form[hidden], .renomear [hidden] { display: none !important; }
+  .ren-form input { width: 120px; font: 13px "Poppins"; color: #fff; background: rgba(0,0,0,.35); border: 1px solid var(--borda); border-radius: 10px; padding: 5px 8px; }
+  .bx-mais { grid-column: 1 / -1; justify-self: center; }
+  @media (max-width: 560px) { .dex-prog { grid-template-columns: repeat(2, 1fr); } .box-grade { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); } }
   .pk { position: relative; background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 8px 8px 10px; text-align: center; }
   .pk img { width: 100%; aspect-ratio: 1; object-fit: contain; }
   .pk .n { font-size: 11px; color: var(--txt2); }
@@ -630,7 +654,7 @@
       return x ? `<div class="slot ${x[1] ? "shiny" : ""}"><img src="${home(x[0], x[1])}" alt="" loading="lazy"><b>${esc(x[2] || nome(x[0]))}</b>${x[2] ? `<small class="sub">${esc(nome(x[0]))}</small>` : ""}</div>`
                : `<div class="slot vago"><span></span></div>`; }).join("")}</div>`;
   }
-  let D = null, aba = "dex", filtro = "cap", busca = "", ordem = "num", forcaMin = 0, periodo = 0, buscaMochila = "", ordemMochila = "nome";
+  let D = null, aba = "dex", bxBusca = "", bxOrdem = "forca", bxForca = 0, bxPeriodo = 0, bxShiny = false, bxMax = 120, filtro = "cap", busca = "", ordem = "num", forcaMin = 0, periodo = 0, buscaMochila = "", ordemMochila = "nome";
 
   async function carregar() {
     D = await baixarGist(GIST);
@@ -753,7 +777,7 @@
     const p = new URLSearchParams(location.search);
     const u = p.get("u") || location.hash.slice(1);
     const pag = p.get("p") || (u ? "perfil" : "inicio");
-    if (["dex", "fitas", "amigos", "mochila", "rancho"].includes(p.get("aba"))) aba = p.get("aba");
+    if (["dex", "box", "fitas", "amigos", "mochila", "rancho"].includes(p.get("aba"))) aba = p.get("aba");
     const login = achar(u);
     if (u) document.getElementById("q").value = (login && D.t[login].n) || u;
     if (login) lembrar(login);
@@ -782,6 +806,10 @@
 
   /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
   const PATCH = [
+    { v: "Box", d: "23/11/2026", t: "Pokédex e Box separadas", itens: [
+      ["📖", "Pokédex", "Agora a Pokédex é a lista das espécies: as que você <b>viu</b> (tentou capturar) e as que você <b>capturou</b>, com o progresso até 807."],
+      ["📦", "Box", "A aba Box mostra cada Pokémon guardado, um por um, com nível, força, apelido e item. Dá para procurar e ordenar por força, nível ou data."],
+      ["✏️", "Mudar nome", "Na Box (e na ficha do Pokémon) tem o botão <b>Dar nome</b> / <b>Mudar nome</b>: escreva até 12 letras e salve. É o mesmo que <code>!apelido pikachu 1 Nome</code>."]] },
     { v: "Dojo", d: "23/11/2026", t: "Rancho novo, Dojo com EVs e Raids mais duras", itens: [
       ["🏡", "Rancho de cara nova", "O rancho ganhou um mapa novo, com casa, pedreira, forja, horta, dojo, apiário e lago no mesmo terreno. Passe o mouse para ver o nome de cada lugar e clique para abrir."],
       ["🥋", "Dojo", "Deixe até 2 Pokémon no dojo (<code>!dojo pikachu eevee</code> ou pelo site). A cada hora de live eles ganham XP (uns 2 níveis) e +24 EV no atributo que você escolher (<code>!dojo ev ataque</code>)."],
@@ -789,7 +817,7 @@
       ["⚔️", "Raids mais duras", "O chefe agora tem nível: lendário (nível 75) e última forma (55) têm bem mais HP, e parceiro de nível baixo bate pouco neles. Upe e treine no dojo para dar mais dano."],
       ["🌙", "Dojo offline", "O dojo agora treina até com a live desligada, só que 50% mais devagar (1 treino a cada 2 horas). Quando a live volta, os treinos atrasados entram de uma vez."],
       ["✦", "Raid shiny", "A Raid agora pode vir com um chefe shiny, brilhando. Se o chat vencer, quem lutou tenta capturar ele shiny."],
-      ["🎒", "Itens de segurar", "Agora dá para forjar os itens que deixam o Pokémon mais forte: Carvão (Fogo), Água Mística (Água), Semente Milagrosa (Grama), Ímã (Elétrico), Lenço de Seda (Normal) e mais 13, um para cada tipo. A receita é cara (Essência, Pedaço de Estrela, Pó Estelar e uma pedra ou material do tipo). Equipe na ficha do Pokémon ou com <code>!segurar pikachu ímã</code>: +20% de dano na Raid com golpes do tipo do item."],
+      ["🎒", "Itens de segurar", "Agora dá para forjar os itens que deixam o Pokémon mais forte: Carvão (Fogo), Água Mística (Água), Semente Milagrosa (Grama), Ímã (Elétrico), Lenço de Seda (Normal) e mais 13, um para cada tipo. A receita é cara: 10 Apricorns, Essência, Pedaço de Estrela, Pó Estelar e uma pedra ou material do tipo. Equipe na ficha do Pokémon ou com <code>!segurar pikachu ímã</code>: +20% de dano na Raid com golpes do tipo do item."],
       ["💰", "Borda e Bolha de Bits", "Quem mandar 100 bits no canal (somando tudo) libera a <b>borda Bits</b>, um aro de ouro com a <b>Moeda Amuleto</b> (o item que dobra o dinheiro nos jogos), que vale para qualquer parceiro. Com 200 bits ganha a <b>bolha Bits</b> 💎, com a Moeda Amuleto brilhando atrás."],
       ["🫧", "Bolhas Dojo e Sub", "Duas bolhas novas: <b>Dojo</b> 🥋 (tatame com o saco de pancadas do rancho), para quem completar 10 treinos no dojo, e <b>Sub</b> 💜 (roxo com brilhos e a Fita Real Deslumbrante), para quem é sub do canal. A bolha Rancho ganhou uma Apricorn nova."],
       ["🥋", "Borda Dojo", "O Pokémon que chegar no treino máximo do dojo (510 EVs) libera a <b>borda Dojo</b>, preta com listra vermelha como a faixa do karatê. Escolha com <code>!borda dojo</code>."],
@@ -958,7 +986,7 @@
         ${linha("!caixa", "Resumo no chat de quantos Pokémon você já capturou")}
         ${linha("!release magikarp", "Solta o seu Magikarp <b>mais fraco</b>. <code>!release magikarp 2</code> solta o #2 da lista (veja os números clicando nele na sua Pokédex) e <code>!release magikarp todos</code> solta todos. Se não sobrar nenhum e ele era o seu parceiro, você <b>perde a fotinha</b> e volta a ser um ovo. O chat pede confirmação: <code>!release sim</code> em até 1 minuto. <b>Rápido:</b> <code>!release magikarp já</code> solta o mais fraco na hora, sem confirmar (shiny, todos ou o último ainda pedem confirmação). Não tem volta")}
         ${linha("!pokedex", "Link desta página já aberta no seu perfil")}
-        ${linha("!apelido pikachu Faísca", "Dá um nome (até 12 letras) ao seu Pikachu nº 1. <code>!apelido pikachu 2 Faísca</code> para o nº 2, <code>!apelido pikachu shiny Brilho</code> para o shiny e <code>!apelido pikachu limpar</code> para tirar. Nomes ofensivos são bloqueados")}
+        ${linha("!apelido pikachu Faísca", "Dá um nome (até 12 letras) ao seu Pikachu nº 1. <code>!apelido pikachu 2 Faísca</code> para o nº 2, <code>!apelido pikachu shiny Brilho</code> para o shiny e <code>!apelido pikachu limpar</code> para tirar. Nomes ofensivos são bloqueados. No site, dá para usar o botão <b>✏️ Dar nome</b> na aba <b>Box</b> do seu perfil")}
         ${linha("!showname / !hidename", "Mostra (ou esconde) o apelido do seu parceiro embaixo da sua fotinha no chat. Por padrão fica escondido")}
       </table>
       <p class="sub secao"><b>Iniciais:</b> quem ainda não capturou nada pode escolher Rowlet, Litten, Popplio, Pikachu, Eevee ou Clefairy. O inicial escolhido
@@ -1232,7 +1260,7 @@
       ${timeHtml(u)}
       ${barraLogin(login)}
       <nav class="abas">
-        <button data-a="dex">Pokédex</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button><button data-a="rancho">🏡 Rancho</button>
+        <button data-a="dex">📖 Pokédex</button><button data-a="box">📦 Box</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button><button data-a="rancho">🏡 Rancho</button>
       </nav>
       <div id="conteudo"></div>`;
     app.querySelectorAll(".abas button").forEach((b) => b.onclick = () => { aba = b.dataset.a; desenhar(login); });
@@ -1328,9 +1356,10 @@
     let cmd = b.dataset.cmd;
     const form = b.closest("[data-form]");
     if (form) { const radios = [...new Set([...form.querySelectorAll("input[type=radio]")].map((x) => x.name))];
-      const vals = [...form.querySelectorAll("select")].map((x) => x.value).concat(radios.map((nm) => (form.querySelector(`input[name="${nm}"]:checked`) || {}).value || ""));
+      const vals = [...form.querySelectorAll("select, input[type=text]")].map((x) => x.tagName === "INPUT" ? x.value.replace(/[^\p{L}\p{N} '.\-✦♥]/gu, "").replace(/\s+/g, " ").trim() : x.value).concat(radios.map((nm) => (form.querySelector(`input[name="${nm}"]:checked`) || {}).value || ""));
       if (vals.includes("nenhum")) vals.length = 0, cmd = cmd.split(" ")[0] + " nenhum";   // deixar o lugar vazio
-      if (vals.some((v) => !v)) { TWX.aviso("Escolha uma opção primeiro 🙂", true); return; } cmd = cmd.replace(/\{(\d)\}/g, (_, i) => vals[+i]); }
+      if (vals.some((v) => !v)) { TWX.aviso(form.querySelector("input[type=text]") ? "Escreva um nome primeiro 🙂" : "Escolha uma opção primeiro 🙂", true); return; }
+      if (form.querySelector("input[type=text]") && vals.some((v) => [...v].length > 12)) { TWX.aviso("O nome pode ter no máximo 12 letras", true); return; } cmd = cmd.replace(/\{(\d)\}/g, (_, i) => vals[+i]); }
     if (!TWX.eu) { if (confirm("Para fazer isso clicando, entre com a sua conta da Twitch. Entrar agora?")) TWX.entrar(); return; }
     if (b.dataset.confirma && !confirm(b.dataset.confirma)) return;
     TWX.enviar(cmd);
@@ -1668,23 +1697,44 @@
     const u = D.t[login], el = document.getElementById("conteudo");
     app.querySelectorAll(".abas button").forEach((b) => b.classList.toggle("on", b.dataset.a === aba));
     if (aba === "dex") {
-      el.innerHTML = `<div class="filtros">
+      const c = u.c || {}, reg = new Set(u.rg || []), vi = new Set(u.vi || []);
+      const nCap = Object.keys(c).length, nReg = nCap + [...reg].filter((n) => !c[n]).length, nVis = nReg + [...vi].filter((n) => !c[n] && !reg.has(n)).length;
+      const nSh = Object.keys(c).filter((k) => c[k][1]).length, pct = (x) => Math.min(100, (x / TOTAL) * 100).toFixed(1);
+      el.innerHTML = `<div class="dex-prog">
+          <div><b>${nVis}</b><span>vistos</span></div><div><b>${nReg}</b><span>capturados</span></div><div><b>${nSh}</b><span>shiny ✦</span></div><div><b>${TOTAL}</b><span>no total</span></div>
+          <div class="dex-barra" title="${nReg} capturados e ${nVis - nReg} só vistos, de ${TOTAL}"><i class="v" style="width:${pct(nVis)}%"></i><i class="c" style="width:${pct(nReg)}%"></i></div>
+          <p class="sub">A Pokédex é a lista das espécies: <b>vista</b> é a que você tentou capturar, <b>capturada</b> é a que você já teve (mesmo que tenha evoluído, trocado ou soltado). Seus Pokémon guardados ficam na aba <a href="#" class="ir-box">📦 Box</a>.</p></div>
+        <div class="filtros">
           <label><input type="radio" name="f" value="cap" ${filtro === "cap" ? "checked" : ""}> Capturados</label>
+          <label><input type="radio" name="f" value="vis" ${filtro === "vis" ? "checked" : ""}> Vistos</label>
           <label><input type="radio" name="f" value="todos" ${filtro === "todos" ? "checked" : ""}> Pokédex completa</label>
           <label><input type="radio" name="f" value="shiny" ${filtro === "shiny" ? "checked" : ""}> Só shiny</label>
           <input type="search" id="fb" placeholder="Procurar por nome ou número" value="${esc(busca)}">
-        </div>
-        <div class="filtros filtros2">
-          <label>Ordem <select id="fo">${[["num", "Número"], ["nome", "Nome (A-Z)"], ["recente", "Captura mais recente"], ["antiga", "Captura mais antiga"], ["forca", "Mais forte"]].map(([v, t]) => `<option value="${v}" ${ordem === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-          <label>Força <select id="ff">${[[0, "qualquer"], [50, "50% ou mais"], [70, "70% ou mais"], [90, "90% ou mais"], [100, "só 100%"]].map(([v, t]) => `<option value="${v}" ${forcaMin === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-          <label>Capturado <select id="fp">${[[0, "em qualquer data"], [1, "hoje"], [7, "nos últimos 7 dias"], [30, "nos últimos 30 dias"]].map(([v, t]) => `<option value="${v}" ${periodo === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+          <label>Ordem <select id="fo">${[["num", "Número"], ["nome", "Nome (A-Z)"]].map(([v, t]) => `<option value="${v}" ${ordem === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
         </div><div class="grade" id="grade"></div>`;
+      if (!["num", "nome"].includes(ordem)) ordem = "num";
+      el.querySelector(".ir-box").onclick = (e) => { e.preventDefault(); aba = "box"; desenhar(login); };
       el.querySelectorAll("input[name=f]").forEach((r) => r.onchange = () => { filtro = r.value; grade(u); });
       el.querySelector("#fb").oninput = (e) => { busca = e.target.value; grade(u); };
       el.querySelector("#fo").onchange = (e) => { ordem = e.target.value; grade(u); };
-      el.querySelector("#ff").onchange = (e) => { forcaMin = +e.target.value; grade(u); };
-      el.querySelector("#fp").onchange = (e) => { periodo = +e.target.value; grade(u); };
       grade(u);
+    } else if (aba === "box") {
+      el.innerHTML = `<div class="filtros">
+          <input type="search" id="bb" placeholder="Procurar por nome, apelido ou número" value="${esc(bxBusca)}">
+          <label><input type="checkbox" id="bs" ${bxShiny ? "checked" : ""}> Só shiny</label>
+        </div>
+        <div class="filtros filtros2">
+          <label>Ordem <select id="bo">${[["forca", "Mais forte"], ["nivel", "Maior nível"], ["recente", "Captura mais recente"], ["antiga", "Captura mais antiga"], ["num", "Número da Pokédex"], ["nome", "Nome (A-Z)"]].map(([v, t]) => `<option value="${v}" ${bxOrdem === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+          <label>Força <select id="bf">${[[0, "qualquer"], [50, "50% ou mais"], [70, "70% ou mais"], [90, "90% ou mais"], [100, "só 100%"]].map(([v, t]) => `<option value="${v}" ${bxForca === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+          <label>Capturado <select id="bp">${[[0, "em qualquer data"], [1, "hoje"], [7, "nos últimos 7 dias"], [30, "nos últimos 30 dias"]].map(([v, t]) => `<option value="${v}" ${bxPeriodo === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+        </div><p class="sub bx-conta" id="bxc"></p><div class="box-grade" id="box"></div>`;
+      const re = () => { bxMax = 120; caixaBox(u, login); };
+      el.querySelector("#bb").oninput = (e) => { bxBusca = e.target.value; re(); };
+      el.querySelector("#bs").onchange = (e) => { bxShiny = e.target.checked; re(); };
+      el.querySelector("#bo").onchange = (e) => { bxOrdem = e.target.value; re(); };
+      el.querySelector("#bf").onchange = (e) => { bxForca = +e.target.value; re(); };
+      el.querySelector("#bp").onchange = (e) => { bxPeriodo = +e.target.value; re(); };
+      caixaBox(u, login);
     } else if (aba === "fitas") {
       const tem = new Set(u.f || []);
       el.innerHTML = `<p class="sub" style="margin:14px 0">${tem.size} de ${(window.FITAS || []).length} fitas</p><div class="fitas">` +
@@ -1728,8 +1778,8 @@
 
   function grade(u) {
     const c = u.c || {}, q = busca.trim().toLowerCase();
-    const reg = new Set(u.rg || []);   // já teve (evoluiu, trocou ou soltou): conta na Pokédex
-    let nums = filtro === "todos" ? Array.from({ length: TOTAL }, (_, i) => i + 1) : [...new Set([...Object.keys(c).map(Number), ...reg])].sort((a, b) => a - b);
+    const reg = new Set(u.rg || []), vi = new Set(u.vi || []);   // já teve (evoluiu, trocou ou soltou) / só viu (tentou capturar)
+    let nums = filtro === "todos" ? Array.from({ length: TOTAL }, (_, i) => i + 1) : [...new Set([...Object.keys(c).map(Number), ...reg, ...(filtro === "vis" ? vi : [])])].sort((a, b) => a - b);
     if (filtro === "shiny") nums = nums.filter((n) => c[n] && c[n][1]);
     if (q) nums = nums.filter((n) => nome(n).toLowerCase().includes(q) || String(n) === q);
     // força e data de captura (do melhor / do mais recente de cada espécie)
@@ -1743,15 +1793,17 @@
     const g = document.getElementById("grade");
     if (!nums.length) { g.innerHTML = `<p class="vazio">${filtro === "cap" && !q ? "Nenhum Pokémon capturado ainda. Fique de olho na grama durante a live e digite !capturar!" : "Nada por aqui."}</p>`; return; }
     g.innerHTML = nums.map((n) => {
-      const e = c[n], tem = !!e, sh = tem && e[1] > 0, foi = !tem && reg.has(n);
+      const e = c[n], tem = !!e, sh = tem && e[1] > 0, foi = !tem && reg.has(n), viu = !tem && !foi && vi.has(n);
       const img = tem || foi ? home(n, sh) : mini(n);
+      if (viu) return `<div class="pk vis" data-n="${n}" title="Visto: você tentou capturar, mas ainda não pegou"><span class="q">👁️</span>
+        <img src="${home(n, false)}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b><span class="fz f-raz">visto</span></div>`;
       if (foi) return `<div class="pk reg" data-n="${n}" title="Já teve: evoluiu, trocou ou soltou"><span class="q">📘</span>
-        <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b><span class="fz f-raz">registrado</span></div>`;
+        <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b><span class="fz f-raz">capturado antes</span></div>`;
       const melhor = tem ? Math.max(0, ...individuos(e).map((x) => x.f)) : 0;
       return `<div class="pk ${tem ? "tem" : "falta"} ${sh ? "shiny" : ""} ${LEND.has(n) && tem ? "lend" : ""}" data-n="${n}">
         ${tem && e[0] > 1 ? `<span class="q">×${e[0]}</span>` : ""}
         <img src="${img}" alt="" loading="lazy"><div class="n">#${String(n).padStart(3, "0")}</div><b>${esc(nome(n))}</b>
-        ${tem && (e[2] || []).length ? `<span class="fz ${classeForca(melhor)}">${melhor === 100 ? "✦ " : ""}${melhor}%</span>` : ""}</div>`;
+        ${tem && (e[2] || []).length ? `<span class="fz ${classeForca(melhor)}">${melhor === 100 ? "✦ " : ""}${melhor}%</span>` : ""}${tem ? `<small class="na-box">${e[0]} na Box</small>` : ""}</div>`;
     }).join("");
     g.querySelectorAll(".pk.tem").forEach((el) => (el.onclick = () => fichaPokemon(u, +el.dataset.n)));
   }
@@ -1814,6 +1866,51 @@
     if (rn.dc && ((rn.dc.a && rn.dc.a[0] === n) || (rn.dc.b && rn.dc.b[0] === n))) l.push(`🥚 No <b>Day Care</b>`);
     return l.length ? `<div class="ficha-rancho">${l.map((t) => `<div>${t}</div>`).join("")}</div>` : "";
   }
+  // ✏️ mudar o nome (apelido) de um Pokémon da Box: manda !apelido <pokémon> <nº> <Nome>
+  function renomearHTML(n, x, i) {
+    const nm = esc(nome(n).toLowerCase());
+    return `<span class="renomear"><button type="button" class="bt-ren" title="Mudar o nome">✏️ ${x.a ? "Mudar nome" : "Dar nome"}</button>
+      <span class="r-form ren-form" data-form hidden><input type="text" maxlength="12" placeholder="Novo nome (até 12)" value="${esc(x.a || "")}" aria-label="Novo nome de ${esc(nome(n))}"><button type="button" data-cmd="!apelido ${nm} ${i + 1} {0}">Salvar</button></span>
+      ${x.a ? `<button type="button" class="ren-tirar" hidden data-cmd="!apelido ${nm} ${i + 1} limpar" data-confirma="Tirar o nome “${esc(x.a)}”?">Tirar nome</button>` : ""}</span>`;
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".bt-ren"); if (!b) return; e.preventDefault(); e.stopPropagation();
+    const r = b.closest(".renomear"), f = r.querySelector(".ren-form"), t = r.querySelector(".ren-tirar"), abrir = f.hidden;
+    f.hidden = !abrir; if (t) t.hidden = !abrir; b.hidden = abrir;
+    if (abrir) { const i = f.querySelector("input"); i.focus(); i.select(); }
+  }, true);
+  document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.closest && e.target.closest(".ren-form input")) { e.preventDefault(); e.target.closest(".ren-form").querySelector("[data-cmd]").click(); } });
+
+  // 📦 Box: todos os Pokémon guardados, um card por Pokémon
+  function caixaBox(u, login) {
+    const c = u.c || {}, meu = souEu(login), q = bxBusca.trim().toLowerCase(), box = document.getElementById("box"), cnt = document.getElementById("bxc");
+    let todos = [];
+    Object.keys(c).forEach((k) => { const n = +k; individuos(c[k]).forEach((x, i) => todos.push({ n, x, i })); });
+    const total = todos.length;
+    if (q) todos = todos.filter(({ n, x }) => nome(n).toLowerCase().includes(q) || (x.a || "").toLowerCase().includes(q) || String(n) === q);
+    if (bxShiny) todos = todos.filter(({ x }) => x.s);
+    if (bxForca) todos = todos.filter(({ x }) => x.f >= bxForca);
+    if (bxPeriodo) { const desde = bxPeriodo === 1 ? new Date().setHours(0, 0, 0, 0) : Date.now() - bxPeriodo * 864e5; todos = todos.filter(({ x }) => x.t >= desde); }
+    const ord = { forca: (a, b) => b.x.f - a.x.f || a.n - b.n, nivel: (a, b) => b.x.lv - a.x.lv || b.x.f - a.x.f, recente: (a, b) => b.x.t - a.x.t, antiga: (a, b) => (a.x.t || Infinity) - (b.x.t || Infinity),
+      num: (a, b) => a.n - b.n || a.i - b.i, nome: (a, b) => nome(a.n).localeCompare(nome(b.n)) || a.i - b.i }[bxOrdem];
+    if (ord) todos.sort(ord);
+    cnt.textContent = !total ? "" : todos.length === total ? `${total} ${total === 1 ? "Pokémon guardado" : "Pokémon guardados"}` : `${todos.length} de ${total} Pokémon`;
+    if (!todos.length) { box.innerHTML = `<p class="vazio">${total ? "Nada com esses filtros." : "A Box está vazia. Fique de olho na grama durante a live e digite !capturar!"}</p>`; return; }
+    const R = USUM.rancho;
+    box.innerHTML = todos.slice(0, bxMax).map(({ n, x, i }) => `<div class="bx ${classeForca(x.f)} ${x.s ? "shiny" : ""}" data-n="${n}" tabindex="0">
+        ${x.s ? '<span class="sh">✦</span>' : ""}${x.hi && R && R.ITENS[x.hi] ? `<img class="bx-hi" src="${R.urlItem(x.hi)}" alt="" title="Segura ${esc(R.ITENS[x.hi].n)}">` : ""}
+        <img class="bx-img" src="${home(n, x.s)}" alt="" loading="lazy">
+        <b class="bx-nome">${x.a ? `“${esc(x.a)}”` : esc(nome(n))}</b>
+        <small class="bx-esp">${x.a ? esc(nome(n)) + " · " : ""}nº ${i + 1}${x.lv ? ` · Nv. ${x.lv}` : ""}</small>
+        <span class="fz ${classeForca(x.f)}">${x.f === 100 ? "✦ " : ""}${x.f}%</span>
+        ${meu ? renomearHTML(n, x, i) : ""}</div>`).join("")
+      + (todos.length > bxMax ? `<button type="button" class="r-btn bx-mais">Mostrar mais (${todos.length - bxMax})</button>` : "");
+    box.querySelectorAll(".bx").forEach((d) => { const abrir = () => fichaPokemon(u, +d.dataset.n);
+      d.onclick = (e) => { if (e.target.closest(".renomear")) return; abrir(); };
+      d.onkeydown = (e) => { if (e.key === "Enter" && e.target === d) abrir(); }; });
+    const mais = box.querySelector(".bx-mais"); if (mais) mais.onclick = () => { bxMax += 240; caixaBox(u, login); };
+  }
+
   function fichaPokemon(u, n) {
     const e = (u.c || {})[n]; if (!e) return;
     const lista = individuos(e), login = Object.keys(D.t).find((k) => D.t[k] === u) || "";
@@ -1821,7 +1918,7 @@
     fundo.innerHTML = `<div class="ficha">
       <button class="fechar-ficha" title="Fechar">✕</button>
       <div class="ficha-topo"><img src="${home(n, e[1] > 0)}" alt=""><div><small>#${String(n).padStart(3, "0")}</small><h3>${esc(nome(n))}</h3>
-        <span>${e[0]} ${e[0] === 1 ? "capturado" : "capturados"}${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
+        <span>${e[0]} na Box${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
       ${trabalhoNoRancho(u, n)}
       ${lista.length > 1 ? `<div class="filtros ficha-filtros"><input type="search" class="fi-b" placeholder="Procurar apelido"><select class="fi-o"><option value="forca">Mais forte</option><option value="recente">Mais recente</option><option value="antiga">Mais antigo</option></select>
         <select class="fi-f"><option value="0">qualquer força</option><option value="50">50%+</option><option value="70">70%+</option><option value="90">90%+</option></select></div>` : ""}
@@ -1830,7 +1927,7 @@
         ${nivelHTML(x)}${itemSegurarHTML(u, n, x, i, souEu(login))}${x.ev && x.ev.some(Boolean) ? `<div class="ind-ev">EV: ${["HP", "Atq", "Def", "AtqE", "DefE", "Vel"].map((t, k) => x.ev[k] ? `<span>${t} ${x.ev[k]}</span>` : "").join("")}</div>` : ""}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
-        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
+        ${souEu(login) ? `<div class="acoes-ind">${renomearHTML(n, x, i)}<button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
       </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}</div>
       <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code> Para dar um nome: <code>!apelido ${esc(nome(n).toLowerCase())} 1 Nome</code> (até 12 letras).</p>
     </div>`;
