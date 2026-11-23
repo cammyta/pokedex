@@ -350,6 +350,12 @@
 
   /* ---- Pokédex de verdade: toda espécie que a pessoa já teve fica registrada, mesmo se evoluiu, trocou ou soltou ----
      usum_registro = { login: [num, num...] } */
+  /* Pokédex "vistos": espécies que a pessoa tentou capturar (pegou ou escapou) · usum_vistos = { login: [num...] } */
+  function verPokemon(login, num) {
+    if (!login || !num) return;
+    const r = ler("usum_vistos", {}), l = r[login] || (r[login] = []);
+    if (!l.includes(+num)) { l.push(+num); gravar("usum_vistos", r); }
+  }
   function registrar(login, num) {
     const r = ler("usum_registro", {}), l = r[login] || (r[login] = []);
     if (!l.includes(+num)) { l.push(+num); gravar("usum_registro", r); }
@@ -542,7 +548,7 @@
     return evolucoes(alvo).length ? (r.minutosEvoluir ?? 10) : (r.minutosEvoluirFinal ?? 15);
   }
 
-  USUM.selvagens = { C, registrar, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
+  USUM.selvagens = { C, registrar, verPokemon, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
     forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, segurarItem, EV_NOMES, evTotal, treinarEV, estagio, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
