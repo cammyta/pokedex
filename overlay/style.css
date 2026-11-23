@@ -810,6 +810,26 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .chat .msg.bolha-sub .nome { color: #f1e6ff; text-shadow: 0 0 8px rgba(191,148,255,.9); }
 .chat .msg.bolha-sub::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: .6;
   background: radial-gradient(circle, #fff 1px, transparent 1.7px) 0 0/26px 20px, radial-gradient(circle, #ffe08a 1px, transparent 1.7px) 13px 10px/26px 20px; animation: neon-brilho 2.6s ease-in-out infinite; }
+/* Bits: mandou 200 bits. Roxo escuro com uma Moeda Amuleto (o item que dobra o dinheiro) brilhando e faíscas coloridas */
+.chat .msg.bolha-bits, .chat.cinema .msg.bolha-bits {
+  background: radial-gradient(circle at 88% 50%, rgba(255,255,255,.14), transparent 40%), linear-gradient(110deg, rgba(64,30,120,.78), rgba(30,16,64,.9) 55%, rgba(12,6,28,.95));
+  border-color: transparent; box-shadow: 0 0 0 2px rgba(155,120,255,.7) inset, 0 0 22px rgba(0,200,255,.25); }
+.chat .msg.bolha-bits .marca { right: 10px; width: 104px; height: 104px; margin-top: -52px; border-radius: 0; transform: none; box-shadow: none; -webkit-mask: none; mask: none; opacity: .8;
+  background: url(../assets/rancho/moeda-amuleto.png) center/contain no-repeat; image-rendering: pixelated;
+  animation: bits-gira 6s linear infinite, balanco-marca 4s ease-in-out infinite; filter: drop-shadow(0 0 12px rgba(255,210,90,.7)); }
+.chat .msg.bolha-bits .marca::after { display: none; }
+.chat .msg.bolha-bits.com-fita .marca { right: 58px; }
+@keyframes bits-gira { 0%, 100% { filter: drop-shadow(0 0 10px rgba(255,210,90,.6)); } 50% { filter: drop-shadow(0 0 20px rgba(111,240,255,.8)); } }
+.chat .msg.bolha-bits .av { box-shadow: inset 0 0 0 2.5px #fff, 0 0 0 4px #1db2ff, 0 0 16px rgba(29,178,255,.7); }
+.chat .msg.bolha-bits .nome { background: linear-gradient(90deg, #a98bff, #6ff0ff, #ffd25a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.chat .msg.bolha-bits::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: .7;
+  background: radial-gradient(circle, #6ff0ff 1.2px, transparent 2px) 0 0/30px 22px, radial-gradient(circle, #ff8ad0 1.2px, transparent 2px) 15px 11px/30px 22px; animation: neon-brilho 2.2s ease-in-out infinite; }
+/* borda Bits: mandou 100 bits. Aro de ouro girando com a Moeda Amuleto */
+.msg .av-caixa.borda-bits::before { background: var(--reflexo) 0 0/300% 100%, conic-gradient(from var(--ang, 0deg), #fff3b0, #f5b72e, #b8780e, #ffe27a, #f5b72e, #fff3b0); animation: girar 3.5s linear infinite; padding: 4.5px; }
+.msg .av-caixa.borda-bits::after { box-shadow: 0 0 0 1.5px #8a5a0a, 0 0 16px rgba(255,200,60,.65); }
+.msg .av-caixa.borda-bits .encaixe::after { content: ""; position: absolute; right: -54px; top: -62px; width: 22px; height: 22px; background: url(../assets/rancho/moeda-amuleto.png) center/contain no-repeat; image-rendering: pixelated;
+  filter: drop-shadow(0 0 4px rgba(255,210,90,.9)); animation: borda-estrela 2.2s ease-in-out infinite; }
+.aviso.borda-nova.b-bits { border-color: #f5b72e; box-shadow: 0 0 16px rgba(245,183,46,.5); }
 /* borda Dojo: o Pokémon no treino máximo (510 EVs). Faixa preta com listra vermelha, como a faixa do karatê */
 .msg .av-caixa.borda-dojo::before { background: var(--reflexo) 0 0/300% 100%, conic-gradient(from var(--ang, 0deg), #1b1b1b 0 40%, #e23b3b 40% 50%, #1b1b1b 50% 90%, #e23b3b 90%); animation: girar 5s linear infinite; padding: 4.5px; }
 .msg .av-caixa.borda-dojo::after { box-shadow: 0 0 0 1.5px #e8c27a, 0 0 14px rgba(226,59,59,.5); }
