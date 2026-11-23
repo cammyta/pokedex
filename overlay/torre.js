@@ -1,6 +1,6 @@
 /* Torre dos Líderes: 11 torres (uma por região + a do canal). Cada torre tem 8 líderes, 4 da Elite e o campeão.
    A pessoa digita !torre (ou clica no site): a party dela (parceiro + time salvo, até 6) sobe a torre lutando sozinha,
-   um líder depois do outro, até perder ou vencer o campeão. Pode subir 2 vezes por dia. Vencer dá insígnia e XP
+   um líder depois do outro, até perder ou vencer o campeão. Tem 3 chances por live (mais 3 com 30 bits). Vencer dá insígnia e XP
    para TODOS os Pokémon da party. Vencer a torre inteira dá a bolha e a borda da Torre de Alola.
    Este arquivo é usado pelo overlay (roda a batalha e guarda) e pelo site (mostra a batalha de novo, com as falas).
    Dados guardados no rancho: usum_rancho[login].tw = { d: dia, n: subidas no dia, p: próximo líder, pp: próximo no pesadelo,
@@ -112,7 +112,7 @@
     time: [[352, "Shadow Sneak", "Sucker Punch"]] }];
 
   const LIDERES = { alola: ALOLA, canal: CANAL };
-  const CFG = Object.assign({ bitsAuto: 100, porDia: 2, xpCapitao: 1, xpKahuna: 1.6, xpCampeao: 3, xpPesadelo: 1.5, xpPerdeu: 5 }, (window.USUM_CONFIG || {}).torre || {});
+  const CFG = Object.assign({ bitsAuto: 20, bitsReset: 30, porDia: 3, xpCapitao: 1, xpKahuna: 1.6, xpCampeao: 3, xpPesadelo: 1.5, xpPerdeu: 5 }, (window.USUM_CONFIG || {}).torre || {});
 
   /* ---------- força dos líderes ----------
      capitães: nível 10 a 52 (do 1º ao 8º) com 3 Pokémon · Kahunas 58-67 e Kukui 72 com 6 · pesadelo: +20 níveis e 6 Pokémon para todos */
@@ -261,7 +261,10 @@
     const m1 = SV.golpeDe(ind, num) || "Tackle", m2 = ind.m2 && (window.USUM_GOLPES || {})[ind.m2] ? ind.m2 : "";
     return { num, s: !!ind.s, lv: SV.nivelDe(ind, num), fz: SV.forcaIV(ind.iv), ev: ind.ev || {}, mv: [m1, m2], hi: ind.hi || "", a: ind.a || "" };
   }
-  const xpDaVitoria = (i, pesadelo, lv) => Math.round((S().custoNivel(lv) * (i >= 12 ? CFG.xpCampeao : i >= 8 ? CFG.xpKahuna : CFG.xpCapitao) + 10) * (pesadelo ? CFG.xpPesadelo : 1));
+  // XP da vitória (no nível de cada Pokémon da party)
+  const xpDaVitoria = (i, pesadelo, lv, torre) => {
+    return Math.round((S().custoNivel(lv) * (i >= 12 ? CFG.xpCampeao : i >= 8 ? CFG.xpKahuna : CFG.xpCapitao) + 10) * (pesadelo ? CFG.xpPesadelo : 1));
+  };
 
   /* sobe a torre: luta do próximo líder até perder (ou vencer o campeão) */
   function subir(login, nome, torre, pesadelo, dono) {
@@ -284,7 +287,7 @@
       lutas.push({ i, v: res.venceu ? 1 : 0, s: semente, p: res.a.map((x) => [x.num, x.s ? 1 : 0, x.lv, x.max, x.mv[0] || "", x.mv[1] || "", x.a || ""]), o: res.b.map((x) => [x.num, 0, x.lv, x.max, x.mv[0], x.mv[1]]), e: res.e });
       // XP para TODOS os Pokémon da party (no nível de cada um)
       time.forEach((x) => { const lv = (S().individuos(login, x.num).find((y) => !!y.s === x.s) || {}).lv || x.lv;
-        const ganho = res.venceu ? xpDaVitoria(i, pesadelo, lv) : CFG.xpPerdeu; const k = x.num + (x.s ? "s" : "");
+        const ganho = res.venceu ? xpDaVitoria(i, pesadelo, lv, torre) : CFG.xpPerdeu; const k = x.num + (x.s ? "s" : "");
         const r = S().ganharXP(login, x.num, x.s, ganho); if (r) { xpTot[k] = xpTot[k] || { num: x.num, s: x.s, xp: 0, antes: r.antes, lv: r.lv }; xpTot[k].xp += ganho; xpTot[k].lv = r.lv; } });
       if (!res.venceu) break;
       ganhou.add(i);
@@ -310,11 +313,27 @@
     const url = USUM.pokedexUrl ? ` · veja a batalha em <b>${esc(USUM.pokedexUrl.replace(/^https?:\/\//, "").replace(/\/?$/, "/"))}?p=torre&u=${esc(L)}</b>` : "";
     if (mt[1] === "insignias" || /^(info|status|insignias)$/.test(arg)) {
       const st = estado(L), b = st.b || [], usadas = st.d === hoje() ? st.n || 0 : 0;
-      return feed(`🗼 <b>${esc(N)}</b>: ${b.length}/${ALOLA.length} insígnias da Torre de Alola${st.v ? ` · venceu a torre ${st.v}x` : ""}${(st.bp || []).length ? ` · pesadelo ${(st.bp || []).length}/${ALOLA.length}` : ""} · subidas hoje: ${usadas}/${CFG.porDia}${url}`, L);
+      return feed(`🗼 <b>${esc(N)}</b>: ${b.length}/${ALOLA.length} insígnias da Torre de Alola${st.v ? ` · venceu a torre ${st.v}x` : ""}${(st.bp || []).length ? ` · pesadelo ${(st.bp || []).length}/${ALOLA.length}` : ""} · chances nesta live: ${Math.max(0, CFG.porDia - usadas)}/${CFG.porDia}${url}`, L);
     }
+    // 30 bits com !torre reset (ou !torre com 30 a 99 bits): a pessoa ganha as 3 chances de novo
+    const bits = m.bits || 0;
+    if (!m.dono && bits >= CFG.bitsReset && /^(reset|resetar|zerar|chances?|recarregar)\b/.test(arg)) {
+      mudar(L, N, (tw) => { tw.d = hoje(); tw.n = 0; tw.run = 0; });
+      feed(`💎 <b>${esc(N)}</b> mandou ${bits} bits e ganhou mais <b>${CFG.porDia} chances</b> na Torre de Alola!`, L, "rancho:torre-alola");
+      clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 1500);
+      return;
+    }
+    // o site começou uma subida (gasta 1 chance) ou a pessoa parou
+    if (/^comecar\b/.test(arg)) {
+      const st0 = estado(L), usadas0 = st0.d === hoje() ? st0.n || 0 : 0;
+      if (usadas0 >= CFG.porDia && !m.dono) return feed(`🗼 <b>${esc(N)}</b>, suas ${CFG.porDia} chances desta live acabaram. Mande <b>!torre reset</b> com <b>${CFG.bitsReset} bits</b> para ganhar mais ${CFG.porDia}`, L);
+      mudar(L, N, (tw) => { if (tw.d !== hoje()) { tw.d = hoje(); tw.n = 0; } tw.n = (tw.n || 0) + 1; tw.run = Date.now(); tw.rf = 1; });   // rf: a 1ª luta da subida já está paga
+      return;
+    }
+    if (/^parar\b/.test(arg)) { mudar(L, N, (tw) => { tw.run = 0; }); return; }
     // !torre reset [nome]: só o streamer. Zera insígnias, subidas do dia e a última subida (para testar)
     if (/^(reset|resetar|zerar)\b/.test(arg)) {
-      if (!m.dono) return;
+      if (!m.dono) return feed(`💎 <b>${esc(N)}</b>, para ganhar mais ${CFG.porDia} chances na torre mande <b>!torre reset</b> junto com <b>${CFG.bitsReset} bits</b>`, L);
       const alvo = (arg.split(/\s+/)[1] || L).replace(/^@/, "").toLowerCase();
       const todos = ler("usum_rancho", {}); if (todos[alvo]) { delete todos[alvo].tw; gravar("usum_rancho", todos); }
       const logs = ler("usum_torre_log", {}); delete logs[alvo]; gravar("usum_torre_log", logs);
@@ -327,16 +346,18 @@
     if (mm) return resultadoMao(m, +mm[1], mm[2] === "1", +mm[3], mm[4], mm[5], url);
     if ((mm = arg.match(/^perdi (\d+) ([01])$/))) return perdeuMao(m, +mm[1], mm[2] === "1");
     const pesadelo = /pesadelo|nightmare|dificil|hard/.test(arg);
-    // a subida automática agora é comprada com bits (o streamer pode sem bits)
+    // batalha automática: só com "!torre auto" junto com 20 bits (o streamer pode sem bits). "!torre" sozinho só explica
+    const auto = /^auto(matica|matico)?\b/.test(arg);
+    if (!auto) return feed(`🗼 <b>${esc(N)}</b>, a torre se joga no site, na página 🗼 Torre${url}. Lá tem os botões de <b>batalha automática</b> e de <b>mais chances</b>`, L);
     if (!m.dono && !((m.bits || 0) >= CFG.bitsAuto)) {
-      return feed(`🗼 <b>${esc(N)}</b>, a torre agora é jogada <b>na mão</b>: escolha os golpes no site, na página 🗼 Torre${url}. Quer que a party lute sozinha? Mande <b>!torre</b> junto com <b>${CFG.bitsAuto} bits</b> 💎`, L);
+      return feed(`🗼 <b>${esc(N)}</b>, a torre agora é jogada <b>na mão</b>: escolha os golpes no site, na página 🗼 Torre${url}. A batalha automática custa <b>${CFG.bitsAuto} bits</b>: use o botão 🤖 na página da torre`, L);
     }
     const torre = /canal|camaleao|kami|cammy/.test(arg) ? "canal" : (TORRES.find((x) => arg.includes(x.id)) || { id: "alola" }).id;
     const r = subir(L, N, torre, pesadelo, true);   // automática (paga com bits ou do streamer): não conta no limite do dia
     if (r.erro === "trancada") return feed(`🔒 <b>${esc(N)}</b>, a <b>Torre do Canal</b> ainda está trancada. Dizem que o campeão de lá tem um Kecleon...`, L, "rancho:torre-canal");
     if (r.erro === "fechada") return feed(`🌫️ <b>${esc(N)}</b>, a Torre de ${esc(nomeTorre(torre))} ainda está coberta de névoa. Por enquanto, só a <b>Torre de Alola</b> está aberta (<b>!torre</b>)`, L);
     if (r.erro === "pesadelo") return feed(`😈 <b>${esc(N)}</b>, o <b>modo pesadelo</b> abre depois que você vencer a Torre de Alola inteira (<b>!torre</b>)`, L);
-    if (r.erro === "hoje") return feed(`🗼 <b>${esc(N)}</b>, você já subiu a torre ${CFG.porDia} vezes hoje. Volte amanhã (seu progresso fica salvo)`, L);
+    if (r.erro === "hoje") return feed(`🗼 <b>${esc(N)}</b>, suas ${CFG.porDia} chances desta live acabaram. Mande <b>!torre reset</b> com <b>${CFG.bitsReset} bits</b> para ganhar mais ${CFG.porDia}`, L);
     if (r.erro === "party") return feed(`🗼 <b>${esc(N)}</b>, monte sua party primeiro: <b>!pokemon</b> e <b>!meutime</b> (ou o botão ⭐ Time no chat do site)`, L);
     const lid = ALOLA, nomes = r.log.l.filter((x) => x.v).map((x) => lid[x.i].n), perdeu = r.log.l.find((x) => !x.v);
     const pz = r.log.pz ? " no <b>modo pesadelo</b> 😈" : "";
@@ -356,10 +377,11 @@
   function resultadoMao(m, i, pesadelo, semente, ordem, acoes, url) {
     const L = m.login, N = m.nome || L, Lid = ALOLA[i]; if (!Lid) return;
     const st = estado(L), chave = pesadelo ? "pp" : "p", prox = (st[chave] || 0) >= ALOLA.length ? 0 : st[chave] || 0;
-    const usadas = st.d === hoje() ? st.n || 0 : 0;
-    if (usadas >= CFG.porDia && !m.dono) return feed(`🗼 <b>${esc(N)}</b>, você já usou as ${CFG.porDia} subidas de hoje. A luta contra ${esc(Lid.n)} não valeu insígnia`, L);
+    if (!m.dono && !(st.run && Date.now() - st.run < 4 * 3600e3)) return feed(`🗼 <b>${esc(N)}</b>, não achei uma subida sua aberta na torre (a live estava ligada quando você começou?). A luta contra ${esc(Lid.n)} não valeu`, L);
     if (pesadelo && !(st.v > 0)) return;
-    if (i !== prox) return feed(`🗼 <b>${esc(N)}</b>, seu próximo desafio na torre é <b>${esc(ALOLA[prox].n)}</b>, não ${esc(Lid.n)}`, L);
+    const revanche = i !== prox && (st[pesadelo ? "bp" : "b"] || []).includes(i);   // já venceu: pode lutar de novo (gasta 1 ida)
+    if (revanche && !st.rf && !m.dono && (st.d === hoje() ? st.n || 0 : 0) >= CFG.porDia) return feed(`🗼 <b>${esc(N)}</b>, lutar de novo com ${esc(Lid.n)} gasta 1 chance, e as suas acabaram. <b>!torre reset</b> com <b>${CFG.bitsReset} bits</b> dá mais ${CFG.porDia}`, L);
+    if (i !== prox && !revanche) return feed(`🗼 <b>${esc(N)}</b>, seu próximo desafio na torre é <b>${esc(ALOLA[prox].n)}</b>, não ${esc(Lid.n)}`, L);
     const meus = ordem.split(",").slice(0, 6).map((t) => { const mt = t.match(/^(\d+)(s?)\.(\d+)$/); if (!mt) return null;
       const x = lutadorDe(L, +mt[1], !!mt[2]); if (!x) return null; x.lv = Math.min(x.lv, +mt[3]); return x; }).filter(Boolean);
     const lid = timeDoLider("alola", i, pesadelo);
@@ -367,14 +389,21 @@
     const res = refazer(meus, lid, semente, acoes);
     if (res.fim !== 1) return feed(`🗼 <b>${esc(N)}</b>, não consegui confirmar a vitória contra ${esc(Lid.n)} com os seus Pokémon da live. Atualize o site e tente de novo`, L);
     // XP para toda a party
-    party(L).forEach(([n, sh]) => { const ind = S().individuos(L, n).find((y) => !!y.s === sh); const lv = S().nivelDe(ind, n); S().ganharXP(L, n, sh, xpDaVitoria(i, pesadelo, lv)); });
+    party(L).forEach(([n, sh]) => { const ind = S().individuos(L, n).find((y) => !!y.s === sh); const lv = S().nivelDe(ind, n); S().ganharXP(L, n, sh, xpDaVitoria(i, pesadelo, lv, "alola")); });
+    if (revanche) {
+      gastarRevanche(L, N);
+      feed(`⚔️ <b>${esc(N)}</b> venceu de novo ${FEM.has(Lid.id) ? "a" : "o"} <b>${esc(Lid.tit)} ${esc(Lid.n)}</b> na Torre de Alola (revanche) · a party ganhou XP`, L, "rancho:torre-alola");
+      clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
+      return;
+    }
     const tudo = i >= ALOLA.length - 1, nums = meus.map((x) => x.num);
     let novos = [];
     mudar(L, N, (tw) => {
       if (tw.d !== hoje()) { tw.d = hoje(); tw.n = 0; }
+      tw.rf = 0;
       const k = pesadelo ? "bp" : "b"; tw[k] = [...new Set((tw[k] || []).concat(i))].sort((a, b) => a - b);
       tw[chave] = i + 1;
-      if (tudo) { tw.n = (tw.n || 0) + 1; tw[pesadelo ? "vp" : "v"] = (tw[pesadelo ? "vp" : "v"] || 0) + 1;
+      if (tudo) { tw[pesadelo ? "vp" : "v"] = (tw[pesadelo ? "vp" : "v"] || 0) + 1;
         const antes = new Set(tw.cmp || []); novos = party(L).map(([n]) => n).filter((n) => !antes.has(n)); tw.cmp = [...new Set((tw.cmp || []).concat(party(L).map(([n]) => n)))].slice(-30); }
     });
     const tot = (estado(L)[pesadelo ? "bp" : "b"] || []).length, pz = pesadelo ? " no <b>pesadelo</b> 😈" : "";
@@ -386,9 +415,13 @@
     }
     clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
   }
-  function perdeuMao(m, i, pesadelo) {   // perder encerra a subida (conta no limite do dia); o progresso fica
+  // revanche (líder que já venceu) gasta 1 chance, a não ser que seja a 1ª luta da subida (já paga no começo)
+  function gastarRevanche(L, N) { mudar(L, N, (tw) => { if (tw.d !== hoje()) { tw.d = hoje(); tw.n = 0; } if (tw.rf) tw.rf = 0; else tw.n = (tw.n || 0) + 1; }); }
+  function perdeuMao(m, i, pesadelo) {   // perder encerra a subida; o progresso fica
     const L = m.login, N = m.nome || L, Lid = ALOLA[i]; if (!Lid) return;
-    mudar(L, N, (tw) => { if (tw.d !== hoje()) { tw.d = hoje(); tw.n = 0; } tw.n = (tw.n || 0) + 1; });
+    const st = estado(L), k = pesadelo ? "pp" : "p", prox = (st[k] || 0) >= ALOLA.length ? 0 : st[k] || 0;
+    if (i !== prox && (st[pesadelo ? "bp" : "b"] || []).includes(i)) gastarRevanche(L, N);
+    mudar(L, N, (tw) => { tw.run = 0; tw.rf = 0; });   // perdeu: a subida acaba (a chance já foi gasta quando começou)
     clearTimeout(comando._pub); comando._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
   }
   // roda numa tela só (a líder da torre; se ela estiver com o chat caído, outra assume)
@@ -401,8 +434,12 @@
     if (lider) { if (feitos().includes(k)) return; anotar(); fn(); return; }
     setTimeout(() => { if (feitos().includes(k)) return; anotar(); fn(); }, 1600 + Math.random() * 600);
   }
-  if (!site && USUM.aoMensagem) USUM.aoMensagem((m) => {
-    if (m.tipo || !m.texto || !CMD.test(String(m.texto).trim().toLowerCase())) return;
+  // mensagem com bits: tira os cheermotes ("Cheer20 !torre auto" vira "!torre auto")
+  const semCheer = (m) => (m.bits ? String(m.texto || "").replace(/(^|\s)[a-z]+\d+(?=\s|$)/gi, " ").replace(/\s+/g, " ").trim() : String(m.texto || "").trim());
+  if (!site && USUM.aoMensagem) USUM.aoMensagem((m0) => {
+    if (m0.tipo || !m0.texto) return;
+    const m = Object.assign({}, m0, { texto: semCheer(m0) });
+    if (!CMD.test(m.texto.toLowerCase())) return;
     umaVezT(m, () => { try { comando(m); } catch (e) { console.error("[torre]", e); } });
   });
 
