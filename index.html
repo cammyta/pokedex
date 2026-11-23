@@ -285,6 +285,142 @@
   footer { margin-top: 40px; color: var(--txt2); font-size: 13px; text-align: center; }
   @media (max-width: 640px) { .perfil { grid-template-columns: 1fr; } .perfil .foto { max-width: 220px; margin: 0 auto; } .perfil .nome { justify-content: center; } }
   .ind-cab .apelido { font-weight: 700; font-style: italic; color: #f6c75a; }
+
+
+  .filtros2 label, .filtros label { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--txt2); }
+  .filtros select { font: 14px "Poppins"; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda); border-radius: 999px; padding: 6px 12px; }
+  .filtros select option { color: #000; }
+  .ficha-filtros { margin: 10px 0 0; } .ficha-filtros input { flex: 1; min-width: 120px; font: 14px "Poppins"; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--borda); border-radius: 999px; padding: 6px 12px; }
+  .acoes-ind { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .acoes-ind button { font: 600 13px "Fredoka"; padding: 5px 12px; border-radius: 999px; }
+  .acoes-ind button[data-confirma] { background: rgba(255,90,90,.18); color: #ffb3b3; }
+  .tw-barra { margin-top: 18px; padding: 10px 14px; border-radius: 14px; background: rgba(145,70,255,.14); border: 1px solid rgba(145,70,255,.4); font-size: 14px; }
+  .tw-barra.on { background: rgba(145,70,255,.22); }
+  .tw-barra button { background: #9146ff; color: #fff; font: 600 14px "Fredoka"; padding: 6px 14px; border-radius: 999px; margin-right: 6px; }
+  #tw-aviso { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 140%); z-index: 80; background: #2b1d14; color: #fff3e0; border: 2px solid #8fd36a; border-radius: 16px; padding: 10px 16px; font-size: 14px; max-width: min(92vw, 520px); transition: transform .25s; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  #tw-aviso.on { transform: translate(-50%, 0); } #tw-aviso.erro { border-color: #ff8a8a; }
+  #tw-aviso small { color: #e8cfae; }
+  .r-btn { font: 600 13px "Fredoka", sans-serif; padding: 5px 12px; border-radius: 999px; border: 0; background: #8fd36a; color: #213114; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin: 4px 4px 0 0; }
+  .r-btn img { width: 20px; height: 20px; }
+  .r-btn:disabled { background: rgba(255,255,255,.12); color: rgba(255,243,224,.45); cursor: not-allowed; }
+  .r-btn.rosa { background: #ff7ab8; color: #fff; }
+  .r-form { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .r-form select { font: 13px "Poppins"; border-radius: 10px; padding: 5px 8px; border: 1px solid rgba(255,217,138,.4); background: rgba(0,0,0,.3); color: #fff3e0; max-width: 170px; }
+  .r-form select option { color: #000; }
+  .dc-janela .r-form select { background: #fff; color: #4a2e1a; border-color: #e7a95a; }
+  .dc-acoes { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .r-acoes { margin-top: 8px; }
+  .r-busca { width: 100%; margin-bottom: 6px; font: 13px "Poppins"; border-radius: 999px; padding: 6px 12px; border: 1px solid rgba(255,217,138,.35); background: rgba(0,0,0,.25); color: #fff3e0; }
+  .itens .it .r-btn { margin-top: 4px; padding: 3px 10px; }
+  .fz-mini { font: 600 12px "Fredoka"; color: #b9f09a; font-style: normal; }
+  .amigos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 12px; }
+  .amigo-r { display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,.22); border-radius: 12px; padding: 6px 10px; }
+  .amigo-r img { width: 48px; height: 48px; } .amigo-r > div { flex: 1; } .amigo-r b { font: 600 14px "Fredoka"; }
+  .amigo-r .prog { height: 7px; border-radius: 4px; background: rgba(255,255,255,.12); margin: 3px 0; overflow: hidden; } .amigo-r .cheio { height: 100%; background: linear-gradient(90deg, #8fd36a, #ffd98a); }
+  .amigo-r small { font-size: 11.5px; color: #e8cfae; } .amigo-r.ok { box-shadow: inset 0 0 0 2px #8fd36a; }
+  .tag-r { font: 600 11px "Fredoka"; background: #ff7ab8; color: #fff; border-radius: 999px; padding: 1px 7px; } .tag-r.t { background: #e7a95a; }
+
+  .patch { display: grid; gap: 16px; margin-top: 16px; }
+  .nota { background: var(--card); border: 1px solid var(--borda); border-radius: 20px; padding: 16px 18px; }
+  .nota.nova { border-color: rgba(255,200,92,.5); box-shadow: 0 0 0 1px rgba(255,200,92,.25), 0 10px 30px rgba(255,160,70,.08); }
+  .nota header { display: flex; align-items: center; gap: 12px; }
+  .nota .ver { flex: none; min-width: 64px; text-align: center; font: 700 14px "Fredoka"; padding: 6px 10px; border-radius: 12px; background: linear-gradient(90deg, rgba(255,200,92,.25), rgba(164,147,255,.25)); }
+  .nota h3 { font: 600 19px "Fredoka", sans-serif; } .nota time { font-size: 13px; color: var(--txt2); }
+  .tag-nova { margin-left: auto; font: 700 12px "Fredoka"; background: var(--rosa); color: #fff; padding: 3px 10px; border-radius: 999px; }
+  .nota ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; }
+  .nota li { display: flex; gap: 12px; align-items: flex-start; }
+  .nota li .ic { flex: none; width: 34px; height: 34px; display: grid; place-items: center; font-size: 19px; background: rgba(255,255,255,.06); border-radius: 10px; }
+  .nota li b { font: 600 15px "Fredoka"; } .nota li p { color: var(--txt2); font-size: 14px; margin: 2px 0 0; }
+  .tag.bolha-tag.rancho { background: rgba(143,211,106,.18); border-color: rgba(143,211,106,.5); }
+  .tag.bolha-tag.cinefilo { background: rgba(200,40,70,.2); border-color: rgba(232,200,121,.55); }
+  /* ---- Rancho ---- */
+  .rancho { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; gap: 16px; }
+  .rancho img { image-rendering: pixelated; }
+  .cena { grid-column: 1 / -1; position: relative; aspect-ratio: 1376 / 768; background-size: cover; border-radius: 22px; overflow: hidden;
+    box-shadow: 0 0 0 4px #6b4a2a, 0 0 0 8px #3a2614, 0 18px 40px rgba(0,0,0,.45); image-rendering: pixelated; }
+  .cena .obj { position: absolute; display: block; transition: transform .15s; }
+  .cena .obj img { width: 100%; display: block; }
+  .cena a.obj:hover { transform: translateY(-3px) scale(1.03); }
+  .cena .casa { left: 5%; top: 9%; width: 21%; }
+  .cena .forja { left: 64%; top: 11%; width: 18%; }
+  .cena .forja:not(.on) img { filter: saturate(.7) brightness(.92); }
+  .cena .forja.on::after { content: ""; position: absolute; left: 22%; top: 30%; width: 30%; height: 30%; border-radius: 50%; background: radial-gradient(circle, rgba(255,170,60,.55), transparent 70%); animation: brasa 1.6s ease-in-out infinite; pointer-events: none; }
+  @keyframes brasa { 50% { opacity: .4; transform: scale(1.15); } }
+  .cena .horta { position: absolute; left: 40.5%; top: 41%; width: 19%; height: 22%; display: block; }
+  .cena .horta .planta { position: absolute; bottom: 8%; left: calc(4% + var(--i) * 32%); width: 30%; animation: balanca 3s ease-in-out infinite; transform-origin: bottom center; }
+  @keyframes balanca { 50% { transform: rotate(3deg); } }
+  .cena .regar { position: absolute; left: 18%; top: -22%; width: 34%; opacity: .9; animation: chuva 2.2s ease-in infinite; pointer-events: none; }
+  @keyframes chuva { 0% { opacity: 0; transform: translateY(-8px); } 30% { opacity: .9; } 100% { opacity: 0; transform: translateY(10px); } }
+  .cena .daycare-ic { left: 17%; top: 71%; width: 9%; background: none; border: 0; padding: 0; cursor: pointer; }
+  .cena .daycare-ic:hover { transform: translateY(-3px) scale(1.05); }
+  .cena .daycare-ic b { position: absolute; right: -4%; top: -6%; min-width: 22px; height: 22px; border-radius: 11px; background: #ff7ab8; color: #fff; font: 700 13px/22px "Fredoka"; text-align: center; box-shadow: 0 2px 0 #b84a7d; }
+  .dc-fundo { position: fixed; inset: 0; z-index: 50; background: rgba(10,6,24,.72); display: grid; place-items: center; padding: 16px; }
+  .dc-janela { position: relative; width: min(920px, 100%); max-height: 94vh; overflow: auto; background: #fff6ea; color: #4a2e1a; border-radius: 26px; padding: 18px 20px 16px; box-shadow: 0 0 0 6px #e7a95a, 0 0 0 10px #8a5a2b, 0 30px 60px rgba(0,0,0,.5); }
+  .dc-janela h3 { display: flex; align-items: center; gap: 10px; font: 700 24px "Fredoka", sans-serif; color: #c2557f; }
+  .dc-janela h3 img { width: 44px; image-rendering: pixelated; }
+  .dc-janela p { font-size: 14.5px; margin-top: 8px; }
+  .dc-fechar { position: absolute; right: 14px; top: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #f3d9bd; color: #8a5a2b; font: 700 16px "Fredoka"; cursor: pointer; }
+  .dc-cena { position: relative; margin-top: 6px; }
+  .dc-casa { width: 100%; display: block; image-rendering: pixelated; }
+  .dc-pai { position: absolute; width: 11%; transform: translate(-50%, -85%); image-rendering: pixelated; filter: drop-shadow(0 3px 2px rgba(0,0,0,.3)); }
+  .dc-ovo { position: absolute; width: 5.5%; transform: translate(-50%, -90%); text-align: center; }
+  .dc-ovo img { width: 100%; display: block; image-rendering: pixelated; filter: drop-shadow(0 2px 1px rgba(0,0,0,.3)); }
+  .dc-ovo small { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); white-space: nowrap; font: 600 10.5px "Fredoka"; background: rgba(255,246,234,.9); border-radius: 6px; padding: 0 4px; }
+  .dc-ovo.pronto img { animation: choca 1.2s ease-in-out infinite; transform-origin: bottom center; }
+  .dc-ovo.pronto small { background: #ff7ab8; color: #fff; }
+  @keyframes choca { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-10deg); } 85% { transform: rotate(10deg); } }
+  .cena .ajud { position: absolute; width: 6.5%; filter: drop-shadow(0 3px 2px rgba(0,0,0,.35)); }
+  .cena .ajud.parc { left: 25%; top: 36%; width: 7.5%; }
+  .cena .ajud.aco { left: 60%; top: 30%; } .cena .ajud.fogo { left: 81%; top: 33%; transform: scaleX(-1); }
+  .cena .ajud.agua { left: 33%; top: 52%; } .cena .ajud.grama { left: 60.5%; top: 52%; transform: scaleX(-1); }
+  .cena .placa { left: 33%; top: 34%; width: 6.5%; }
+  .cena .pesca { left: 80%; top: 70%; width: 9%; animation: boia 2.4s ease-in-out infinite; }
+  @keyframes boia { 50% { transform: translateY(4px); } }
+  .painel { position: relative; padding: 22px 22px 18px; border-radius: 20px; background: #2b1d14; color: #fff3e0;
+    border: 10px solid transparent; border-image: url(assets/rancho/quadro-painel.png) 42 fill / 18px round; }
+  .painel.largo { grid-column: 1 / -1; }
+  .painel h3 { display: flex; align-items: center; gap: 10px; font: 600 21px "Fredoka", sans-serif; margin-bottom: 10px; color: #ffd98a; }
+  .painel h3 img { width: 34px; height: 34px; object-fit: contain; }
+  .painel h3 small { font: 400 13px "Poppins"; color: #e8cfae; margin-left: auto; }
+  .painel h4 { font: 600 14px "Fredoka", sans-serif; color: #e8cfae; margin: 12px 0 6px; }
+  .painel .sub { color: #e8cfae; font-size: 13.5px; margin-top: 10px; }
+  .painel .vazio { color: #e8cfae; }
+  .painel .dica { font-size: 13px; color: #e8cfae; margin-top: 12px; }
+  .painel code { font-size: 11.5px; color: #ffd98a; background: rgba(0,0,0,.25); padding: 1px 6px; border-radius: 6px; }
+  .itens { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+  .itens .it { position: relative; text-align: center; background: rgba(255,240,210,.08); border-radius: 12px; padding: 8px 4px 6px; }
+  .itens .it img { width: 40px; height: 40px; }
+  .itens .it b { position: absolute; right: 7px; top: 5px; font: 700 13px "Fredoka"; color: #ffd98a; }
+  .itens .it small { display: block; font-size: 10.5px; line-height: 1.2; color: #f3e2c8; }
+  .dupla { display: flex; gap: 10px; }
+  .vaga { flex: 1; min-width: 0; display: grid; grid-template-columns: 52px 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 8px; background: rgba(0,0,0,.25); border-radius: 14px; padding: 8px 10px; border: 2px dashed rgba(255,217,138,.3); }
+  .vaga.ok { border-style: solid; border-color: rgba(255,217,138,.55); }
+  .vaga img, .vaga > span { grid-row: 1 / 3; width: 52px; height: 52px; object-fit: contain; display: grid; place-items: center; font: 700 22px "Fredoka"; color: rgba(255,217,138,.4); }
+  .vaga small { color: #e8cfae; font-size: 11.5px; } .vaga b { font: 600 15px "Fredoka"; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .receitas, .moveis { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 12px; }
+  .rec { display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,.22); border-radius: 12px; padding: 8px 10px; opacity: .72; }
+  .rec.pode { opacity: 1; box-shadow: inset 0 0 0 2px #8fd36a; }
+  .rec.feito { opacity: 1; box-shadow: inset 0 0 0 2px #ffd98a; }
+  .rec .b { width: 38px; height: 38px; object-fit: contain; flex: none; }
+  .rec b { font: 600 14px "Fredoka"; }
+  .cs { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
+  .cst { display: inline-flex; align-items: center; font-size: 12px; color: #ffb3a1; } .cst.ok { color: #b9f09a; }
+  .cst img { width: 22px; height: 22px; }
+  .canteiros { display: flex; gap: 10px; margin-top: 12px; }
+  .cant { flex: 1; position: relative; text-align: center; }
+  .cant > img:first-child { width: 100%; }
+  .cant .pl { position: absolute; left: 20%; bottom: 34%; width: 60%; }
+  .cant small { display: flex; justify-content: center; align-items: center; gap: 2px; font-size: 12px; color: #f3e2c8; }
+  .cant .mi { width: 20px; height: 20px; } .vazio-c { opacity: .55; }
+  .vara { display: flex; gap: 12px; align-items: center; } .vara > img { width: 90px; flex: none; }
+  .peixes { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 10px; }
+  .peixes img { width: 56px; height: 56px; filter: brightness(0) opacity(.45); } .peixes img.tem { filter: none; }
+  .quarto { position: relative; aspect-ratio: 1040 / 712; background-size: cover; border-radius: 14px; overflow: hidden; max-width: 760px; margin: 0 auto; }
+  .quarto .movel { position: absolute; filter: drop-shadow(0 4px 3px rgba(0,0,0,.25)); }
+  .quarto .ajud.dentro { position: absolute; left: 52%; top: 66%; width: 9%; }
+  .quarto .vazia { position: absolute; left: 50%; top: 62%; transform: translateX(-50%); background: rgba(43,29,20,.85); padding: 8px 14px; border-radius: 12px; font-size: 14px; text-align: center; width: max-content; max-width: 80%; }
+  @media (max-width: 560px) { .painel { padding: 16px 14px; } .dupla { flex-direction: column; } }
+  @media (prefers-reduced-motion: reduce) { .cena *, .cena *::after, .dc-ovo img { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -303,6 +439,7 @@
     <a href="?p=jogar" data-p="jogar">📖 Como jogar</a>
     <a href="?p=bolas" data-p="bolas">⚪ Pokébolas</a>
     <a href="?p=fotos" data-p="fotos">🧢 Fotos de treinador</a>
+    <a href="?p=novidades" data-p="novidades">📰 Patch Notes</a>
     <a href="?p=perfil" data-p="perfil" id="nav-perfil">⭐ Meu perfil</a>
   </nav>
 
@@ -319,6 +456,8 @@
 <script src="pokedex.js"></script>
 <script src="fitas-catalogo.js"></script>
 <script src="perfil-dados.js"></script>
+<script src="overlay/tipos.js"></script>
+<script src="overlay/rancho.js"></script>
 <script>
 (function () {
   const GIST = "6401c2fb4d2043a0cc9e68cbadf2e639";
@@ -330,6 +469,8 @@
     if (h.get("access_token")) {
       try { localStorage.setItem(TW, JSON.stringify({ token: h.get("access_token") })); sessionStorage.setItem("pokedex_abrir_chat", "1"); } catch (e) {}
       history.replaceState(null, "", location.pathname + location.search);
+      try { const v = JSON.parse(localStorage.getItem("pokedex_volta_url") || "null"); localStorage.removeItem("pokedex_volta_url");
+        if (v && Date.now() - v.t < 10 * 60e3) { sessionStorage.removeItem("pokedex_abrir_chat"); location.replace(v.url); return; } } catch (e) {}
       // o login começou no chat desprendido (janela separada): volta para ele
       try { const v = JSON.parse(localStorage.getItem("pokedex_volta_chat") || "null"); localStorage.removeItem("pokedex_volta_chat");
         if (v && Date.now() - v.t < 10 * 60e3) { sessionStorage.removeItem("pokedex_abrir_chat"); location.replace(v.url); } } catch (e) {}
@@ -366,7 +507,7 @@
       return x ? `<div class="slot ${x[1] ? "shiny" : ""}"><img src="${home(x[0], x[1])}" alt="" loading="lazy"><b>${esc(x[2] || nome(x[0]))}</b>${x[2] ? `<small class="sub">${esc(nome(x[0]))}</small>` : ""}</div>`
                : `<div class="slot vago"><span></span></div>`; }).join("")}</div>`;
   }
-  let D = null, aba = "dex", filtro = "cap", busca = "";
+  let D = null, aba = "dex", filtro = "cap", busca = "", ordem = "num", forcaMin = 0, periodo = 0, buscaMochila = "", ordemMochila = "nome";
 
   async function carregar() {
     try {
@@ -498,12 +639,13 @@
     const p = new URLSearchParams(location.search);
     const u = p.get("u") || location.hash.slice(1);
     const pag = p.get("p") || (u ? "perfil" : "inicio");
-    if (["dex", "fitas", "amigos", "mochila"].includes(p.get("aba"))) aba = p.get("aba");
+    if (["dex", "fitas", "amigos", "mochila", "rancho"].includes(p.get("aba"))) aba = p.get("aba");
     const login = achar(u);
     if (u) document.getElementById("q").value = (login && D.t[login].n) || u;
     if (login) lembrar(login);
     if (pag === "fitas" || (!login && p.get("aba") === "fitas")) { marcar("fitas"); return paginaFitas(login); }
     if (pag === "jogar") { marcar("jogar"); return paginaJogar(); }
+    if (pag === "novidades") { marcar("novidades"); return paginaNovidades(); }
     if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
     if (pag === "bolas") { marcar("bolas"); return paginaBolas(); }
     if (login) { marcar("perfil"); return perfil(login); }
@@ -522,6 +664,55 @@
             <div><b>${esc(f.nome)}${u && tem.has(f.id) ? " ✓" : ""}</b><small>${esc(f.como)}</small></div></div>`).join("") + `</div></div>`; }).join("");
   }
 
+
+  /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
+  const PATCH = [
+    { v: "Rancho 2", d: "22/11/2026", t: "Bolhas e fitas novas, Day Care, amizade e botões no site", itens: [
+      ["🫧", "Bolhas de chat conquistadas", "Além de Sol e Lua, agora dá para ganhar a <b>bolha Rancho</b> (amizade perfeita no rancho) e a <b>bolha Cinéfilo</b> (ficar numa live de filme até o fim, conversando). A nova já entra em uso; troque com <code>!bolha</code>."],
+      ["🎀", "Fitas do rancho", "<b>Fita da Horta</b>: colha na horta e forje uma Pokébola. <b>Fita do Day Care</b>: choque um ovo no Day Care."],
+      ["🥚", "Day Care", "Deixe dois Pokémon com <code>!daycare pikachu eevee</code>: eles botam até 6 ovos e deles nasce a forma bebê. Pichu, Togepi, Riolu e os outros bebês <b>só nascem de ovo</b> agora. Clique no ninho no seu rancho para ver a creche."],
+      ["🌱", "Cantinho da Amizade e borda Rancho", "<code>!rancho pikachu</code> deixa um Pokémon morando no rancho. Ele e os ajudantes ganham amizade; com amizade cheia a espécie libera a <b>borda Rancho</b> da fotinha."],
+      ["💪", "Força conta no rancho", "Ajudantes mais fortes trabalham melhor: horta e Day Care até 40% mais rápidos, e a forja pode fazer uma bola a mais."],
+      ["🔑", "Entrar com a Twitch", "No seu perfil, entre com a Twitch e faça tudo clicando: forjar, plantar, colher, pescar, Day Care, móveis, escolher parceiro e soltar Pokémon."],
+      ["🔎", "Filtros", "Na Pokédex: procurar por nome, ordenar por data de captura ou força e filtrar por força mínima e período. Também na mochila e na lista de cada Pokémon."],
+      ["🧺", "Horta nova", "O rancho ganhou um canteiro cercado de verdade, que fica molhado quando os ajudantes estão regando."]
+    ] },
+    { v: "Rancho 1", d: "22/11/2026", t: "Chegou o Rancho Pokéfriends", itens: [
+      ["🎒", "Itens nas capturas", "Cada Pokémon capturado pode deixar cair Apricorns, Minério, pedras de evolução e itens raros. O tipo do Pokémon influencia: os de Fogo deixam mais Pedra do Fogo."],
+      ["💎", "Evolução com pedra", "Vaporeon, Raichu, Gengar e outros pedem pedra ou item. É só resgatar <b>Evoluir meu Pokémon</b>: a pedra sai sozinha da mochila. Se faltar algo, o chat avisa."],
+      ["🔥", "Forja", "Com um Pokémon de Aço e um de Fogo, forje Pokébolas com <code>!forjar great</code>. Toda bola gasta <b>Essência</b>, que vem de capturar e soltar Pokémon."],
+      ["🎣", "Pesca e horta", "<code>!pescar</code> no rio do rancho e <code>!plantar azul</code> na horta (precisa de um Pokémon de Água e um de Grama)."],
+      ["🛋️", "Casinha", "Monte a casinha com 14 móveis feitos na bancada (<code>!fazer sofá</code>). Com 8, ela vira um chalé."],
+      ["✨", "Formas", "<code>!usar néctar rosa</code> no Oricorio, Gracídea no Shaymin, Catálogo no Rotom…"]
+    ] },
+    { v: "1.4", d: "22/11/2026", t: "Evolução, pacotes de bolas e limite", itens: [
+      ["🤝", "Convívio para evoluir", "Converse com o parceiro no chat por 10 minutos para evoluir (15 para a forma final). Veja com <code>!convivio</code>."],
+      ["📦", "Pacotes de 10 bolas", "Resgates de 10 Great, Ultra, Quick, Timer, Repeat, Nest, Net e Dive Balls, com uma Premier Ball de brinde."],
+      ["🔟", "Até 10 de cada", "Agora cabem 10 de cada Pokémon na caixa."],
+      ["⚡", "Release rápido", "<code>!release magikarp já</code> solta o mais fraco na hora."],
+      ["🌸", "Formas certas", "Oricorio, Flabébé, Furfrou, Lycanroc, Rotom e outros aparecem na forma certa."]
+    ] },
+    { v: "1.3", d: "20/11/2026", t: "Selvagens e Pokédex", itens: [
+      ["⏱️", "30 segundos para capturar", "O selvagem fica 30 s na tela, com grito do Pokémon e fila quando aparecem vários."],
+      ["🎮", "Selvagens do jogo", "Todo selvagem que aparece no jogo do Cammy (e do Quarty) aparece para o chat, com o mesmo shiny do jogo. Pokémon de treinador não dá para capturar."],
+      ["🧬", "Evolução de verdade", "O Pokémon da caixa evolui mantendo força, natureza e apelido."],
+      ["📘", "Registrados", "Toda espécie que você já teve fica registrada na Pokédex, mesmo depois de evoluir, trocar ou soltar."],
+      ["🏅", "Bordas exclusivas", "Bronze, Prata, Ouro, Esmeralda, Shiny e Arco-íris contam só capturas na grama e valem para a espécie certa."]
+    ] },
+    { v: "1.0", d: "novembro de 2026", t: "O começo", itens: [
+      ["🥚", "Parceiro e Pokédex", "Escolha um parceiro com <code>!pokemon</code>, capture na grama com <code>!capturar</code> e veja tudo aqui no site."],
+      ["☀️", "Equipe Sol x Equipe Lua", "Escolha seu lado com <code>!sol</code> ou <code>!lua</code>: cada captura vale ponto para a equipe."],
+      ["🎀", "Fitas e amizades", "Fitas por participar das lives e amizades que sobem conversando no chat."],
+      ["🎬", "Cineminha", "Lives de filme com cartaz e balão de ingresso para quem escolheu o filme."],
+      ["💬", "Chat no site", "O chat da live aqui no site, com botão para desprender numa janela separada."]
+    ] }
+  ];
+  function paginaNovidades() {
+    app.innerHTML = `<h2>Patch Notes</h2><p class="sub">Tudo o que mudou na live e no site, do mais novo para o mais antigo.</p>
+      <div class="patch">` + PATCH.map((x, i) => `<article class="nota ${i === 0 ? "nova" : ""}">
+        <header><span class="ver">${esc(x.v)}</span><div><h3>${esc(x.t)}</h3><time>${esc(x.d)}</time></div>${i === 0 ? '<span class="tag-nova">Novo</span>' : ""}</header>
+        <ul>${x.itens.map(([ic, t, d]) => `<li><span class="ic">${ic}</span><div><b>${t}</b><p>${d}</p></div></li>`).join("")}</ul></article>`).join("") + `</div>`;
+  }
   function paginaJogar() {
     const linha = (c, d) => `<tr><td><code>${esc(c)}</code></td><td>${d}</td></tr>`;
     const bola = (id, nome, f) => `<tr><td><img src="assets/bolas/${id}-ball.png" alt="">${nome}</td><td>${f}</td></tr>`;
@@ -536,7 +727,7 @@
       </div>
       <p class="sub secao">Seu perfil nesta página aparece depois que você fala no chat. Os dados sobem sozinhos durante a live, <b>a cada 1 ou 2 minutos</b>, então uma captura nova pode demorar um pouquinho para aparecer aqui.</p>
       <div class="atalhos">
-        <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a><a href="#j-bordas">🖼️ Bordas</a>
+        <a href="#j-selvagens">🌿 Selvagens</a><a href="#j-bolas">⚪ Pokébolas</a><a href="#j-parceiro">🥚 Parceiro</a><a href="#j-rancho">🏡 Rancho</a><a href="#j-bordas">🖼️ Bordas</a>
         <a href="#j-status">💪 Força</a><a href="#j-trocas">🔁 Trocas</a><a href="#j-equipes">☀️ Equipes</a><a href="#j-carinhas">😆 Carinhas</a><a href="#j-perfil">🪪 Perfil</a>
         <a href="#j-reputacao">🏅 Reputação</a><a href="#j-live">📺 Na live</a><a href="#j-site">💬 Chat no site</a><a href="#j-faq">❓ Dúvidas</a>
       </div>
@@ -546,7 +737,7 @@
         <div><b>1</b>Durante a live, uma moita de grama aparece sozinha a cada <b>1, 4, 5, 7 ou 9 minutos</b>.</div>
         <div><b>2</b>O Pokémon sai da grama e começa uma barra de <b>12 segundos</b>. Digite <code>!capturar</code> antes dela acabar.</div>
         <div><b>3</b>Cada pessoa joga a <b>própria</b> Pokébola e tem a própria chance. Várias pessoas podem capturar o mesmo Pokémon!</div>
-        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Quase sempre aparece a forma básica: a forma do meio tem 1% de chance, a última evolução 0,5% e lendários 2%. Shinies: 0,3%. Pokémon de Alola aparecem com mais frequência. Cada pessoa pode ter até 5 de cada Pokémon.</div>
+        <div><b>4</b>Cada pessoa que captura dá <b>+1 ponto</b> para a equipe dela. Quase sempre aparece a forma básica: a forma do meio tem 1% de chance, a última evolução 0,5% e lendários 2%. Shinies: 0,3%. Pokémon de Alola aparecem com mais frequência. Cada pessoa pode ter até 10 de cada Pokémon.</div>
       </div>
       <p class="sub secao"><b>Quanto mais raro, mais difícil.</b> A chance segue a taxa de captura dos jogos: um Magikarp com Poké Ball sai em cerca de 2 a cada 3 tentativas, um Pikachu em mais ou menos metade, um inicial em cerca de 1 a cada 8 e um lendário quase nunca (por isso existe a Master Ball). Bolas melhores ajudam muito (veja abaixo).
       Se o Pokémon escapar, não tem segunda tentativa naquele encontro: espere o próximo.</p>
@@ -572,15 +763,34 @@
         ${linha("!pokemon rowlet", "Troca o Pokémon da <b>fotinha ao lado do seu nome</b> no chat da live. Use o <b>nome em inglês</b> (se errar uma letra, ele tenta adivinhar). Você pode escolher <b>qualquer Pokémon que já capturou</b>, além de Rowlet, Litten, Popplio, Pikachu, Eevee e Clefairy, que todo mundo já tem")}
         ${linha("!pokemon rowlet shiny", "Versão shiny: só se você capturou ele shiny. Também vale <code>!pokemon rowlet*</code>")}
         ${linha("!pokemon vulpix alola", "Forma de Alola, para quem tem")}
-        ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada. Se ele não evolui mais, o aviso aparece no chat e o streamer pode devolver os pontos")}
+        ${linha("Evoluir meu Pokémon", "Recompensa nos pontos do canal: evolui o seu parceiro <b>na hora</b>, e a evolução fica salva na sua Pokédex. Antes, ele precisa confiar em você: <b>converse no chat com ele como parceiro por 10 minutos</b> (15 minutos para evoluir para a forma final, ex: Charmeleon → Charizard ou Pikachu → Raichu). Veja quanto já tem com <code>!convivio</code>. Se ele tem mais de uma evolução, escreva qual quer no texto do resgate (ex: com um Eevee, escreva <i>vaporeon</i>); se não escrever, é sorteada entre as que você pode. <b>Algumas evoluções pedem pedra ou item</b> (veja o Rancho abaixo). Se ele não evolui mais, o aviso aparece no chat e o streamer pode devolver os pontos")}
         ${linha("!caixa", "Resumo no chat de quantos Pokémon você já capturou")}
-        ${linha("!release magikarp", "Solta o seu Magikarp <b>mais fraco</b>. <code>!release magikarp 2</code> solta o #2 da lista (veja os números clicando nele na sua Pokédex) e <code>!release magikarp todos</code> solta todos. Se não sobrar nenhum e ele era o seu parceiro, você <b>perde a fotinha</b> e volta a ser um ovo. O chat pede confirmação: <code>!release sim</code> em até 1 minuto. Não tem volta")}
+        ${linha("!release magikarp", "Solta o seu Magikarp <b>mais fraco</b>. <code>!release magikarp 2</code> solta o #2 da lista (veja os números clicando nele na sua Pokédex) e <code>!release magikarp todos</code> solta todos. Se não sobrar nenhum e ele era o seu parceiro, você <b>perde a fotinha</b> e volta a ser um ovo. O chat pede confirmação: <code>!release sim</code> em até 1 minuto. <b>Rápido:</b> <code>!release magikarp já</code> solta o mais fraco na hora, sem confirmar (shiny, todos ou o último ainda pedem confirmação). Não tem volta")}
         ${linha("!pokedex", "Link desta página já aberta no seu perfil")}
         ${linha("!apelido pikachu Faísca", "Dá um nome (até 12 letras) ao seu Pikachu nº 1. <code>!apelido pikachu 2 Faísca</code> para o nº 2, <code>!apelido pikachu shiny Brilho</code> para o shiny e <code>!apelido pikachu limpar</code> para tirar. Nomes ofensivos são bloqueados")}
         ${linha("!showname / !hidename", "Mostra (ou esconde) o apelido do seu parceiro embaixo da sua fotinha no chat. Por padrão fica escondido")}
       </table>
       <p class="sub secao"><b>Iniciais:</b> quem ainda não capturou nada pode escolher Rowlet, Litten, Popplio, Pikachu, Eevee ou Clefairy. O inicial escolhido
       <b>entra na sua Pokédex</b> (com força e natureza) e tem <b>10% de chance de vir shiny</b>, um sorteio só seu e fixo: repetir o comando não muda.</p>
+
+      <h2 id="j-rancho">Rancho Pokéfriends</h2>
+      <p class="sub">Cada treinador tem um rancho, que aparece na aba <b>🏡 Rancho</b> do seu perfil. Os itens vêm das capturas: cada Pokémon que você captura com <code>!capturar</code> tem chance de deixar cair alguma coisa (shiny e lendário sempre deixam). Pokémon de Fogo deixam mais Pedra do Fogo, os de Água mais Pedra da Água, e assim por diante.</p>
+      <table class="tabela">
+        ${linha("!itens", "Mostra no chat o que tem na mochila do rancho")}
+        ${linha("Evoluir com pedra", "Algumas evoluções pedem pedra ou item (tabela abaixo). Não precisa digitar nada: resgate <b>Evoluir meu Pokémon</b> e escreva qual evolução quer (ex: <i>vaporeon</i> com um Eevee). Se você já conversou o tempo necessário com ele e tem a pedra na mochila, ele evolui e a pedra é gasta. Se faltar algo, o chat avisa: tempo, pedra, ou os dois")}
+        ${linha("!usar néctar rosa", "Itens de forma mudam a forma do parceiro: <code>!usar néctar rosa</code> no Oricorio, <code>!usar gracídea</code> no Shaymin, <code>!usar catálogo rotom calor</code> no Rotom (calor, lavar, gelo, ventilador, cortador ou normal)")}
+        ${linha("Essência ✨", "Toda Pokébola forjada gasta <b>Essência</b>. Você ganha essência <b>capturando</b> Pokémon (1 por captura, 3 se shiny, 5 se lendário) e <b>soltando</b> com <code>!release</code> (2 por Pokémon, 5 se shiny)")}
+        ${linha("!forjar great", "A forja faz Pokébolas com Essência, Apricorn e Minério. Precisa ter na caixa um Pokémon de <b>Aço</b> e um de <b>Fogo</b> (os mais fortes trabalham sozinhos; para escolher: <code>!forja magnemite litten</code>). <code>!forjar great 5</code> faz 5 vezes. Também forja as bolas de Johto e as varas de pesca (<code>!forjar vara boa</code>)")}
+        ${linha("!plantar azul", "Planta um Apricorn na horta (3 canteiros). Precisa de um Pokémon de <b>Água</b> para regar e um de <b>Grama</b> para adubar (<code>!horta squirtle bulbasaur</code> para escolher). Em 45 minutos dá 2 ou 3 Apricorns: <code>!colher</code>")}
+        ${linha("!pescar", "Joga a linha no rio do rancho (1 vez a cada 3 min). Vem Magikarp, outros peixes que entram na sua caixa, ou itens. Com Vara Boa e Super Vara aparecem peixes mais raros (Feebas, Dratini, Gyarados…)")}
+        ${linha("!daycare pikachu eevee", "Deixa dois Pokémon da sua caixa no <b>Day Care</b> (clique no ninho de ovos no seu rancho para ver). A cada 20 min aparece um ovo, até 6. 30 min depois ele pode ser chocado com <code>!chocar</code>, e nasce a forma mais básica (Pichu, Togepi, Riolu…), com força herdada dos pais. É o <b>único jeito</b> de conseguir Pokémon bebê. <code>!daycare</code> mostra como está, <code>!daycare tirar</code> busca os pais")}
+        ${linha("!rancho pikachu", "Deixa um Pokémon morando no <b>Cantinho da Amizade</b> do rancho: ele ganha 2 de amizade por minuto de live (quem trabalha na forja, na horta ou no Day Care ganha 1). Com 60 de amizade, a espécie libera a <b>borda Rancho 🌱</b> da fotinha (escolha com <code>!borda</code>). <code>!rancho tirar</code> tira")}
+        ${linha("!bolha", "Bolhas de chat conquistadas, além da sua equipe: <b>Rancho</b> 🌱 (faça uma amizade perfeita no rancho) e <b>Cinéfilo</b> 🎬 (fique numa live de filme até o fim, conversando no começo e nos últimos 20 minutos). A nova já entra em uso. <code>!bolha cinefilo</code>, <code>!bolha rancho</code> ou <code>!bolha equipe</code> para trocar")}
+        ${linha("Força dos ajudantes", "Quanto mais forte o Pokémon (a % de força), melhor ele trabalha: a horta cresce até 40% mais rápido, o Day Care bota ovo até 40% mais rápido e a forja tem chance de fazer uma bola a mais")}
+        ${linha("Entrar com a Twitch", "No seu perfil, clique em <b>Entrar com a Twitch</b> para fazer tudo isso clicando (forjar, plantar, colher, pescar, Day Care, móveis, escolher parceiro, soltar). Os botões mandam o comando no chat da live por você, então só funcionam com a live ligada")}
+        ${linha("!fazer sofá", "A bancada faz móveis para a casinha (cama, sofá, TV, pelúcias…). Com 8 móveis a casinha vira um chalé")}
+      </table>
+      ${tabelaItens()}
 
       <h2 id="j-bordas">Bordas da fotinha</h2>
       <p class="sub">Capturando na grama a mesma espécie várias vezes, você libera bordas para a sua fotinha. Elas aparecem quando esse Pokémon é o seu parceiro.</p>
@@ -695,20 +905,22 @@
         ${linha("!info 1", "Abre na tela da live a ficha completa do Pokémon do quadrado 1 da party do Cammy (de 1 a 6): nível, natureza, habilidade, item, IVs, EVs, golpes e mais. Uma ficha por vez, no máximo a cada 20 s")}
         ${linha("!gostei / !naogostei", "No cineminha (watch party): vota se gostou do filme")}
       </table>
-      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 1, 4, 5, 7 ou 9 minutos e fica 12 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando o Cammy joga no emulador, às vezes aparece o mesmo Pokémon que apareceu para ele no jogo.</p>
+      <p class="sub secao"><b>Grama:</b> o Pokémon aparece sozinho a cada 1, 4, 5, 7 ou 9 minutos e fica 30 segundos esperando o <code>!capturar</code>. Quase sempre sai a forma básica; formas do meio, últimas evoluções, lendários e shinies são raros. Pokémon de Alola aparecem mais, e quando o Cammy joga no emulador, todo Pokémon selvagem que aparece no jogo dele (ou do Quarty) também aparece para o chat.</p>
 
       <h2 id="j-site">Chat aqui no site</h2>
       <p class="sub">O botão <b>💬 Chat da live</b> (canto de baixo) abre o chat da live com as fotinhas, equipes e fitas, igual aparece na stream. Embaixo fica a barra da Twitch para você escrever direto daqui; o <b>▲</b> abre mais espaço para escolher emotes. Para escrever, você precisa estar logado na Twitch neste navegador. A aba <b>Twitch</b> mostra o chat comum. Use <b>⧉ Desprender</b> para abrir o chat numa janela separada (no computador) ou em tela cheia (no celular), e deixar a live em outra tela.</p>
 
       <h2 id="j-faq">Dúvidas comuns</h2>
       ${pergunta("Digitei !pokemon e a fotinha não mudou", "Confira três coisas: o nome está <b>em inglês</b> (ex: <i>popplio</i>, não <i>pinguim</i>); você <b>já capturou</b> esse Pokémon (ou é um inicial, Pikachu ou Eevee); e, se pediu shiny, você capturou ele <b>shiny</b>. Quando dá certo, aparece um aviso no chat dizendo quem você escolheu.")}
+      ${pergunta("Tenho a pedra e não evoluiu", "Confira se o seu <b>parceiro</b> (a fotinha) é o Pokémon certo, se você escreveu a evolução no resgate (ex: <i>vaporeon</i>), se já conversou com ele os 10 minutos (15 para a forma final) e se não tem 10 daquela evolução na caixa. O chat avisa o que faltou, e a pedra só é gasta quando dá certo.")}
+      ${pergunta("Minha forja não acende", "Ela precisa de um Pokémon do tipo <b>Aço</b> e um do tipo <b>Fogo</b> na sua caixa (capturados ou pescados). Formas de Alola contam com o tipo de Alola: Sandshrew de Alola é Gelo/Aço, Marowak de Alola é Fogo/Fantasma.")}
       ${pergunta("Por que meu Pokémon é um ovo?", "Você ainda não escolheu parceiro. Use <code>!pokemon</code> com Rowlet, Litten, Popplio, Pikachu, Eevee, Clefairy ou um Pokémon que você capturou.")}
       ${pergunta("Não acho meu perfil aqui", "Procure pelo seu <b>nome de usuário da Twitch</b>. O perfil só existe depois que você fala no chat durante uma live, e os dados sobem a cada minuto. Se acabou de falar, espere um pouco e recarregue a página.")}
       ${pergunta("Capturei e não apareceu na minha Pokédex", "Os dados sobem a cada minuto. Espere e recarregue a página. Seus Pokémon não somem: tudo fica salvo com backup.")}
       ${pergunta("Digitei !capturar e não aconteceu nada", "Só vale enquanto a barra de 12 segundos está correndo, e uma vez por encontro. Fora disso, o comando é ignorado.")}
       ${pergunta("Comprei uma bola e ela não aparece", "Ela vai para a mochila, mas não é equipada sozinha. Veja com <code>!mochila</code> e equipe com <code>!ball</code> e o nome dela (ex: <code>!ball ultra</code>).")}
-      ${pergunta("Por que não consigo capturar mais um Pikachu?", "Cada pessoa pode ter no máximo <b>" + ((D && D.lim) || 5) + " de cada Pokémon</b>, para ninguém monopolizar. Com " + ((D && D.lim) || 5) + ", o <code>!capturar</code> daquele Pokémon não funciona: solte o mais fraco com <code>!release pikachu</code> e capture outro (quem sabe um mais forte!).")}
-      ${pergunta("Capturei um Pokémon que não queria. Dá para tirar?", "Dá: <code>!release nome</code> solta o mais fraco daquela espécie (ou <code>!release nome 2</code> para escolher pelo número que aparece ao clicar nele na sua Pokédex) e depois <code>!release sim</code> para confirmar.")}
+      ${pergunta("Por que não consigo capturar mais um Pikachu?", "Cada pessoa pode ter no máximo <b>" + ((D && D.lim) || 10) + " de cada Pokémon</b>, para ninguém monopolizar. Com " + ((D && D.lim) || 10) + ", o <code>!capturar</code> daquele Pokémon não funciona: solte o mais fraco com <code>!release pikachu</code> e capture outro (quem sabe um mais forte!).")}
+      ${pergunta("Capturei um Pokémon que não queria. Dá para tirar?", "Dá: <code>!release nome</code> solta o mais fraco daquela espécie (ou <code>!release nome 2</code> para escolher pelo número que aparece ao clicar nele na sua Pokédex) e depois <code>!release sim</code> para confirmar. Com pressa? <code>!release nome já</code> solta o mais fraco na hora.")}
       ${pergunta("Mandei !trade e a pessoa não conseguiu aceitar", "A proposta dura 2 minutos e cada pessoa só pode ter uma esperando resposta. Confira se os dois ainda têm os Pokémon e se o nome está em inglês. Quem recebe responde só <code>!trade aceitar</code>.")}
       ${pergunta("Posso trocar de equipe?", "Pode, quando quiser, com <code>!sol</code> ou <code>!lua</code>. Os pontos que você já deu ficam com a equipe antiga.")}
       ${pergunta("Quanto falta para o próximo coração de amizade?", "Abra o seu perfil aqui no site, na aba <b>Amigos</b>: cada amizade mostra uma barrinha e quantas interações faltam. Cada resposta ou @ vale 1 ponto, até 1 a cada 45 segundos por dupla.")}
@@ -791,6 +1003,7 @@
   }
 
   function perfil(login) {
+    if (!perfil._tw) { perfil._tw = 1; TWX.quem().then(() => { if (TWX.eu && D.t[login]) perfil(login); }); }
     const u = D.t[login], s = stats(u), parc = u.p ? { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] === "k" ? "" : u.p[2] } : null;
     history.replaceState(null, "", "?u=" + encodeURIComponent(login) + (aba !== "dex" ? "&aba=" + aba : ""));
     lembrar(login);
@@ -806,6 +1019,7 @@
             ${u.jf && JOGO(u.jf) ? `<span class="tag">${capa(JOGO(u.jf), "mini-capa")} Jogo favorito: <b>${esc(JOGO(u.jf).nome)}</b></span>` : ""}
             ${u.g && GEN[u.g] ? `<span class="tag">${u.g === "nb" ? "" : GEN[u.g][0] + " "}${GEN[u.g][1]}</span>` : ""}
             ${u.fc ? `<span class="tag fc" id="fc" title="Clique para copiar">🎮 Friend code: <b>${esc(u.fc)}</b></span>` : ""}
+            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${id === "rancho" ? "🌱 Bolha Rancho" : "🎬 Bolha Cinéfilo"}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
           </div>
           <div class="acoes"><button id="compartilhar">Compartilhar perfil</button></div>
           <div class="nums">
@@ -820,8 +1034,9 @@
       </section>
       ${repHtml(u)}
       ${timeHtml(u)}
+      ${barraLogin(login)}
       <nav class="abas">
-        <button data-a="dex">Pokédex</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button>
+        <button data-a="dex">Pokédex</button><button data-a="fitas">Fitas</button><button data-a="amigos">Amigos</button><button data-a="mochila">Mochila</button><button data-a="rancho">🏡 Rancho</button>
       </nav>
       <div id="conteudo"></div>`;
     app.querySelectorAll(".abas button").forEach((b) => b.onclick = () => { aba = b.dataset.a; desenhar(login); });
@@ -855,6 +1070,213 @@
     return h;
   }
 
+
+
+  // quem evolui com cada pedra/item (página Como jogar)
+  function tabelaItens() {
+    const R = USUM.rancho; if (!R) return "";
+    const por = {};
+    for (let n = 1; n <= 809; n++) { if (n === 38) continue; const id = R.itemParaEvoluir(n); if (id) (por[id] = por[id] || []).push(n); }
+    por["ice-stone"] = (por["ice-stone"] || []).concat([28, 38]);
+    const FORMAS = { "red-nectar": "Oricorio Baile", "yellow-nectar": "Oricorio Pom-Pom", "pink-nectar": "Oricorio Pa'u", "purple-nectar": "Oricorio Sensu",
+      gracidea: "Shaymin Céu", "rotom-catalog": "formas do Rotom", "griseous-orb": "Giratina Origem", "reveal-glass": "Tornadus, Thundurus e Landorus Therian", "prison-bottle": "Hoopa Unbound" };
+    const lin = (id, txt) => `<tr><td style="white-space:nowrap"><img src="${R.urlItem(id)}" alt="" style="width:28px;height:28px;vertical-align:middle;image-rendering:pixelated"> <b>${esc(R.ITENS[id].n)}</b></td><td>${txt}</td></tr>`;
+    return `<h3 style="margin:18px 0 6px;font:600 17px Fredoka,sans-serif">Quem evolui com cada item</h3><table class="tabela">` +
+      Object.keys(por).map((id) => lin(id, [...new Set(por[id])].map((n) => esc(nome(n)) + ([28, 38].includes(n) && id === "ice-stone" ? " de Alola" : "")).join(", "))).join("") +
+      Object.keys(FORMAS).map((id) => lin(id, "muda para " + esc(FORMAS[id]))).join("") + `</table>
+      <p class="sub" style="margin-top:6px">Espeon, Umbreon e Sylveon evoluem só com convívio (sem item). Pokémon que no jogo evoluem por troca (Alakazam, Gengar, Machamp…) usam o <b>Cordão de Troca</b>.</p>`;
+  }
+
+  /* ---------- Entrar com a Twitch para mexer clicando: os botões mandam o comando no chat da live, como você ---------- */
+  const TWX = (() => {
+    let eu = null, validou = false, ws = null, fila = [], pronto = false;
+    const tok = () => { try { return (JSON.parse(localStorage.getItem(TW)) || {}).token || ""; } catch (e) { return ""; } };
+    async function quem() {
+      if (validou) return eu; const t = tok(); validou = true;
+      if (!t) return null;
+      try { const r = await fetch("https://id.twitch.tv/oauth2/validate", { headers: { Authorization: "OAuth " + t } }); if (r.ok) eu = (await r.json()).login; else localStorage.removeItem(TW); } catch (e) {}
+      return eu;
+    }
+    function entrar() {
+      try { localStorage.setItem("pokedex_volta_url", JSON.stringify({ url: location.href, t: Date.now() })); } catch (e) {}
+      const u = new URL("https://id.twitch.tv/oauth2/authorize");
+      u.search = new URLSearchParams({ response_type: "token", client_id: TWITCH_CLIENT_ID, redirect_uri: location.origin + location.pathname, scope: "chat:read chat:edit", state: Math.random().toString(36).slice(2) }).toString();
+      location.href = u.toString();
+    }
+    function sair() { try { localStorage.removeItem(TW); } catch (e) {} eu = null; if (ws) ws.close(); ws = null; location.reload(); }
+    function conectar() {
+      if (ws || !eu) return; const canal = (D && D.canal) || "";
+      ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443"); pronto = false;
+      ws.onopen = () => { ws.send("PASS oauth:" + tok()); ws.send("NICK " + eu); ws.send("JOIN #" + canal); };
+      ws.onmessage = (ev) => ev.data.split("\r\n").forEach((l) => {
+        if (l.startsWith("PING")) ws.send("PONG :tmi.twitch.tv");
+        else if (/ 001 /.test(l)) { pronto = true; fila.forEach((t) => ws.send(`PRIVMSG #${canal} :${t}`)); fila = []; }
+        else if (/ NOTICE /.test(l) && /authentication failed|improperly formatted/i.test(l)) { aviso("Sua entrada com a Twitch expirou. Entre de novo.", true); try { localStorage.removeItem(TW); } catch (e) {} }
+      });
+      ws.onclose = () => { ws = null; pronto = false; };
+    }
+    function enviar(t) { if (!eu) return; const canal = (D && D.canal) || ""; if (ws && pronto) ws.send(`PRIVMSG #${canal} :${t}`); else { fila.push(t); conectar(); } }
+    function aviso(txt, erro) {
+      let a = document.getElementById("tw-aviso"); if (!a) { a = document.createElement("div"); a.id = "tw-aviso"; a.setAttribute("role", "status"); document.body.appendChild(a); }
+      a.className = erro ? "erro" : ""; a.innerHTML = txt; a.classList.add("on"); clearTimeout(a._t); a._t = setTimeout(() => a.classList.remove("on"), 5200);
+    }
+    return { quem, entrar, sair, enviar, aviso, get eu() { return eu; } };
+  })();
+  const souEu = (login) => !!TWX.eu && TWX.eu === login;
+  // qualquer botão com data-cmd manda o comando (com confirmação se tiver data-confirma)
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".tw-entrar")) { e.preventDefault(); TWX.entrar(); return; }
+    if (e.target.closest(".tw-sair")) { e.preventDefault(); TWX.sair(); return; }
+    const b = e.target.closest("[data-cmd]"); if (!b || b.disabled) return;
+    e.preventDefault();
+    let cmd = b.dataset.cmd;
+    const form = b.closest("[data-form]");
+    if (form) { const vals = [...form.querySelectorAll("select")].map((x) => x.value); if (vals.some((v) => !v)) { TWX.aviso("Escolha nas listas primeiro 🙂", true); return; } cmd = cmd.replace(/\{(\d)\}/g, (_, i) => vals[+i]); }
+    if (b.dataset.confirma && !confirm(b.dataset.confirma)) return;
+    TWX.enviar(cmd);
+    if (b.dataset.depois) setTimeout(() => TWX.enviar(b.dataset.depois), 2500);   // ex: !release sim
+    TWX.aviso(`✓ Enviado no chat da live: <b>${esc(cmd)}</b><br><small>O overlay responde no chat e aqui atualiza em 1 ou 2 minutos (só funciona com a live ligada).</small>`);
+  });
+  function barraLogin(login) {
+    if (souEu(login)) return `<div class="tw-barra on">🟣 Conectado como <b>${esc(TWX.eu)}</b>: use os botões para mexer no seu rancho e nos seus Pokémon. <a href="#" class="tw-sair">sair</a></div>`;
+    if (TWX.eu) return `<div class="tw-barra">Você entrou como <b>${esc(TWX.eu)}</b>. Os botões só aparecem no <a href="?u=${encodeURIComponent(TWX.eu)}&aba=rancho">seu próprio perfil</a>.</div>`;
+    return `<div class="tw-barra"><button type="button" class="tw-entrar">🔑 Entrar com a Twitch</button> para mexer no rancho e nos seus Pokémon clicando, sem digitar comandos.</div>`;
+  }
+  /* ---------------- Rancho Pokéfriends ---------------- */
+  const RA = "assets/rancho/";
+  const ani = (n, s) => n <= 649 ? SPR + "versions/generation-v/black-white/animated/" + (s ? "shiny/" : "") + n + ".gif" : SPR + (s ? "shiny/" : "") + n + ".png";
+  // ajudantes publicados pelo overlay; se a pessoa nunca usou o rancho, calcula pela caixa
+  function ajudantesSite(u, qual) {
+    const rn = u.rn || {}, pub = qual === "forja" ? rn.fj : rn.hf;
+    if (pub) return pub;
+    const R = USUM.rancho, par = qual === "forja" ? ["steel", "fire"] : ["water", "grass"], tem = Object.keys(u.c || {}).map(Number);
+    if (!R) return [0, 0];
+    const a = tem.find((n) => R.tiposDe(n).includes(par[0])) || 0, b = tem.find((n) => R.tiposDe(n).includes(par[1]) && n !== a) || 0;
+    return [a, b];
+  }
+  const POS_MOVEL = { geladeira: [8, 18, 10], quadro: [30, 15, 10], fogao: [17, 30, 11], computador: [44, 36, 15], tv: [61, 34, 11], "tv-pikachu": [27, 36, 10],
+    cama: [3, 48, 27], tapete: [33, 62, 32], mesa: [41, 52, 16], poltrona: [66, 56, 14], sofa: [36, 74, 26],
+    "pikachu-plush": [5, 78, 11], "kecleon-plush": [20, 79, 10], "snorlax-plush": [68, 77, 15] };
+  function ranchoHtml(u, login) {
+    const R = USUM.rancho;
+    if (!R) return `<p class="vazio">O rancho está carregando…</p>`;
+    const rn = u.rn || {}, it = rn.it || {}, mv = rn.mv || [], vr = rn.vr || 0, hz = (rn.hz || []).concat([0, 0, 0]).slice(0, R.CFG.canteiros);
+    const [aco, fogo] = ajudantesSite(u, "forja"), [agua, grama] = ajudantesSite(u, "horta");
+    const forjaOn = aco && fogo, hortaOn = agua && grama, parc = u.p ? u.p : null;
+    const tem = (id) => it[id] || 0, pode = (c) => Object.entries(c).every(([id, n]) => tem(id) >= n);
+    const custo = (c) => Object.entries(c).map(([id, n]) => `<span class="cst ${tem(id) >= n ? "ok" : ""}" title="${esc(R.ITENS[id].n)}"><img src="${R.urlItem(id)}" alt="">${n}</span>`).join("");
+    const agora = Date.now(), est = (c) => c ? Math.min(3, Math.floor((agora - c.t) / ((c.d || R.CFG.minutosEstagio) * 60e3))) : -1;
+    const eu = souEu(login), cx = Object.keys(u.c || {}).map(Number).sort((a, b) => nome(a).localeCompare(nome(b)));
+    const fz = rn.fz || {}, am = rn.am || {}, br = new Set(rn.br || []), LIM = R.CFG.amizadeBorda;
+    const doTipo = (t) => cx.filter((n) => R.tiposDe(n).includes(t));
+    const opts = (lista, sel) => `<option value="">escolher…</option>` + lista.map((n) => `<option value="${n}" ${n === sel ? "selected" : ""}>${esc(nome(n))}</option>`).join("");
+    const btn = (cmd, txt, ok = true, conf) => eu ? `<button type="button" class="r-btn" data-cmd="${esc(cmd)}" ${ok ? "" : "disabled"} ${conf ? `data-confirma="${esc(conf)}"` : ""}>${txt}</button>` : "";
+    const trocaDupla = (cmd, t1, t2, a, b) => eu ? `<div class="r-form" data-form><select aria-label="${t1}">${opts(doTipo(t1), a)}</select><select aria-label="${t2}">${opts(doTipo(t2), b)}</select><button type="button" class="r-btn" data-cmd="${cmd} {0} {1}">Trocar</button></div>` : "";
+    const fzTxt = (n) => n && fz[n] != null ? ` <em class="fz-mini">${fz[n]}%</em>` : "";
+    const pok = (n, cls, tit) => n ? `<img class="ajud ${cls}" src="${ani(n)}" alt="" title="${esc(tit + ": " + nome(n))}" loading="lazy">` : "";
+    const casaImg = mv.length >= 8 ? "casa-2" : "casa";
+    const dc = rn.dc || {}, dcOv = (dc.ov || []).map(([n, s2, t]) => ({ n, s: s2, pronto: agora - t >= R.CFG.chocarMinutos * 60e3, min: Math.max(0, Math.ceil((t + R.CFG.chocarMinutos * 60e3 - agora) / 60e3)) }));
+    ranchoDC = { dc, dcOv, nome: u.n || login, eu, cx, dp: rn.dp, fz };
+    // ---- cena ----
+    let h = `<div class="rancho">
+      <div class="cena" style="background-image:url(${RA}terreno-horta-${hortaOn && hz.some(Boolean) ? "molhada" : "seca"}.jpg)">
+        <a class="obj casa" href="#r-casa" title="Casinha"><img src="${RA}${casaImg}.png" alt="Casinha"></a>
+        ${parc ? `<img class="ajud parc" src="${ani(parc[0], parc[1])}" alt="" title="Parceiro: ${esc(nome(parc[0]))}">` : ""}
+        <a class="obj forja ${forjaOn ? "on" : ""}" href="#r-forja" title="Forja"><img src="${RA}forja-${forjaOn ? "acesa" : "apagada"}.png" alt="Forja"></a>
+        ${pok(aco, "aco", "Aço")}${pok(fogo, "fogo", "Fogo")}
+        <a class="horta" href="#r-horta" title="Horta">${hz.map((c, i) => c ? `<img class="planta" style="--i:${i}" src="${RA}${R.ESTAGIOS[est(c)]}.png" alt="">` : "").join("")}
+          ${hortaOn && hz.some(Boolean) ? `<img class="regar" src="${RA}regar.png" alt="">` : ""}</a>
+        <img class="obj placa" src="${RA}placa.png" alt="Horta" title="Horta">
+        ${pok(agua, "agua", "Rega a horta")}${pok(grama, "grama", "Aduba a horta")}
+        <button class="obj daycare-ic" type="button" title="Day Care"><img src="${RA}ic-daycare.png" alt="Day Care">${dcOv.length ? `<b>${dcOv.length}</b>` : ""}</button>
+        <a class="obj pesca" href="#r-pesca" title="Pescar"><img src="${RA}boia.png" alt="Pesca"></a>
+      </div>`;
+    // ---- mochila ----
+    const ord = ["pedra", "troca", "forma", "mat"], NOMEC = { pedra: "Pedras de evolução", troca: "Itens de evolução", forma: "Itens de forma", mat: "Materiais" };
+    const qr = (ranchoBusca || "").trim().toLowerCase();
+    const ks = Object.keys(it).filter((k) => R.ITENS[k] && it[k] > 0 && (!qr || R.ITENS[k].n.toLowerCase().includes(qr)));
+    h += `<section class="painel" id="r-mochila"><h3><img src="${RA}ic-mochila.png" alt="">Mochila do rancho</h3><input type="search" class="r-busca" placeholder="Procurar item" value="${esc(ranchoBusca)}">` + (ks.length
+      ? ord.filter((c) => ks.some((k) => R.ITENS[k].c === c)).map((c) => `<h4>${NOMEC[c]}</h4><div class="itens">` + ks.filter((k) => R.ITENS[k].c === c).map((k) =>
+          `<div class="it" title="${esc(R.ITENS[k].n)}"><img src="${R.urlItem(k)}" alt=""><b>${it[k]}</b><small>${esc(R.ITENS[k].n)}</small>${R.ITENS[k].c === "forma" ? btn("!usar " + R.ITENS[k].n.toLowerCase(), "Usar") : ""}</div>`).join("") + `</div>`).join("")
+      : `<p class="vazio">Vazia por enquanto. Cada Pokémon que você captura na live tem chance de deixar cair um item: Apricorns, minério, pedras de evolução e até itens raros que mudam a forma do Pokémon.</p>`) +
+      `<p class="dica">Pedras e itens de evolução saem sozinhos da mochila quando você resgata <b>Evoluir meu Pokémon</b>. Itens de forma: <b>!usar néctar rosa</b>. Veja no chat com <b>!itens</b>.</p></section>`;
+    // ---- horta ----
+    h += `<section class="painel" id="r-horta"><h3><img src="${RA}ic-horta.png" alt="">Horta</h3>
+      <div class="dupla">${[["Água (rega)", agua], ["Grama (aduba)", grama]].map(([t, n]) => `<div class="vaga ${n ? "ok" : ""}">${n ? `<img src="${ani(n)}" alt="">` : `<span>?</span>`}<small>${t}</small><b>${n ? esc(nome(n)) : "falta"}${fzTxt(n)}</b></div>`).join("")}</div>
+      ${trocaDupla("!horta", "water", "grass", agua, grama)}
+      <div class="canteiros">` + hz.map((c) => { if (!c) return `<div class="cant vazio-c"><img src="${RA}terra-seca.png" alt=""><small>livre</small></div>`;
+        const e = est(c), fim = c.t + 3 * (c.d || R.CFG.minutosEstagio) * 60e3, min = Math.max(0, Math.ceil((fim - agora) / 60e3));
+        return `<div class="cant"><img src="${RA}terra-molhada.png" alt=""><img class="pl" src="${RA}${R.ESTAGIOS[e]}.png" alt=""><small><img class="mi" src="${R.urlItem(c.s + "-apricorn")}" alt="">${e >= 3 ? "<b>pronto! !colher</b>" : "fruto em ~" + min + " min"}</small></div>`; }).join("") +
+      `</div>` + (eu ? `<div class="r-acoes">${hz.some((c) => c && est(c) >= 3) ? btn("!colher", "🍎 Colher") : ""}${hz.some((c) => !c) ? ["red", "blue", "yellow", "green", "pink", "white", "black"].filter((c) => tem(c + "-apricorn")).map((c) => btn("!plantar " + { red: "vermelho", blue: "azul", yellow: "amarelo", green: "verde", pink: "rosa", white: "branco", black: "preto" }[c], `<img src="${R.urlItem(c + "-apricorn")}" alt="">Plantar`)).join("") : ""}</div>` : "") +
+      `<p class="sub">💪 Ajudantes fortes fazem crescer mais rápido (até 40% com força 100%).</p><p class="sub">Plante um Apricorn com <b>!plantar azul</b> (vermelho, amarelo, verde, rosa, branco, preto). O Pokémon de Água rega, o de Grama aduba e em ${R.CFG.minutosEstagio * 3} minutos dá 2 ou 3 Apricorns daquela cor (às vezes Pó Estelar). Colha com <b>!colher</b>.</p></section>`;
+    // ---- pesca ----
+    const VN = ["Vara Velha", "Vara Boa", "Super Vara"], VK = ["vara-velha", "vara-boa", "vara-super"];
+    h += `<section class="painel" id="r-pesca"><h3><img src="${RA}ic-pesca.png" alt="">Pesca</h3>
+      <div class="vara"><img src="${RA}${VK[vr]}.png" alt=""><div><b>${VN[vr]}</b><p class="sub">${eu ? btn("!pescar", "🎣 Pescar") + "<br>" : ""}Digite <b>!pescar</b> no chat (1 vez a cada ${R.CFG.pescaMinutos} min). ${vr < 2 ? "Forje uma vara melhor para peixes mais raros." : "Sua vara é a melhor!"}</p></div></div>
+      <div class="peixes">${R.PEIXES[vr].map(([n]) => `<img src="${mini(n)}" alt="" title="${esc(nome(n))}" class="${(u.c || {})[n] ? "tem" : ""}">`).join("")}</div></section>`;
+    // ---- forja ----
+    const bolas = Object.keys(R.RECEITAS).filter((k) => !/^vara/.test(k));
+    h += `<section class="painel largo" id="r-forja"><h3><img src="${RA}ic-forja.png" alt="">Forja</h3>
+      <div class="dupla">${[["Aço", aco], ["Fogo", fogo]].map(([t, n]) => `<div class="vaga ${n ? "ok" : ""}">${n ? `<img src="${ani(n)}" alt="">` : `<span>?</span>`}<small>${t}</small><b>${n ? esc(nome(n)) : "falta"}${fzTxt(n)}</b></div>`).join("")}</div>
+      ${trocaDupla("!forja", "steel", "fire", aco, fogo)}
+      <p class="sub">💪 Quanto mais forte a dupla, maior a chance de sair <b>uma bola a mais</b> em cada fornada.</p>
+      <p class="sub">✨ Toda Pokébola gasta <b>Essência</b> (você tem <b>${tem("essencia")}</b>): ganhe capturando Pokémon e soltando com <b>!release</b>.</p><p class="sub">${forjaOn ? "A forja está acesa! Forje com <b>!forjar great</b> (ou <b>!forjar great 5</b> para fazer várias)." : "Para acender, você precisa ter na caixa um Pokémon de <b>Aço</b> e um de <b>Fogo</b>. Escolha quem trabalha com <b>!forja magnemite litten</b>."}</p>
+      <div class="receitas">` + bolas.map((k) => { const r = R.RECEITAS[k];
+        return `<div class="rec ${pode(r.custo) ? "pode" : ""}"><img class="b" src="assets/bolas/${k}-ball.png" alt=""><div><b>${r.sai}× ${esc(BOLAS[k] || k.charAt(0).toUpperCase() + k.slice(1) + " Ball")}</b><div class="cs">${custo(r.custo)}</div>${eu ? btn("!forjar " + k, "Forjar", pode(r.custo)) : `<code>!forjar ${k}</code>`}</div></div>`; }).join("") +
+      [["vara-boa", "Vara Boa", 1], ["vara-super", "Super Vara", 2]].map(([k, n, v]) => `<div class="rec ${vr >= v ? "feito" : pode(R.RECEITAS[k].custo) ? "pode" : ""}"><img class="b" src="${RA}${k}.png" alt=""><div><b>${n}${vr >= v ? " ✓" : ""}</b><div class="cs">${custo(R.RECEITAS[k].custo)}</div>${eu ? (vr >= v ? "" : btn("!forjar " + k.replace("-", " "), "Forjar", pode(R.RECEITAS[k].custo))) : `<code>!forjar ${k.replace("-", " ")}</code>`}</div></div>`).join("") +
+      `</div></section>`;
+    // ---- cantinho da amizade ----
+    const trab = [...new Set([aco && fogo ? [aco, fogo] : [], agua && grama && hz.some(Boolean) ? [agua, grama] : [], dc.a && dc.b ? [dc.a[0], dc.b[0]] : []].flat())];
+    const amigos = [...new Set([rn.ami, ...trab, ...Object.keys(am).map(Number)].filter(Boolean))].slice(0, 12);
+    h += `<section class="painel largo" id="r-amizade"><h3><img src="${RA}ic-casa.png" alt="">Cantinho da Amizade</h3>
+      <p class="sub">Deixe um Pokémon morando no rancho com <b>!rancho pikachu</b>: ele ganha 2 de amizade por minuto de live. Quem trabalha na forja, na horta ou no Day Care ganha 1. Com <b>${LIM}</b> de amizade a espécie libera a <b>borda Rancho</b> 🌱 da fotinha.</p>
+      ${eu ? `<div class="r-form" data-form><select aria-label="Pokémon">${opts(cx, rn.ami)}</select><button type="button" class="r-btn" data-cmd="!rancho {0}">Deixar no rancho</button>${rn.ami ? btn("!rancho tirar", "Tirar") : ""}</div>` : ""}
+      <div class="amigos">` + (amigos.length ? amigos.map((n) => { const p = Math.min(am[n] || 0, LIM), ok = br.has(n);
+        return `<div class="amigo-r ${ok ? "ok" : ""}"><img src="${mini(n)}" alt=""><div><b>${esc(nome(n))}</b> ${n === rn.ami ? '<span class="tag-r">mora aqui</span>' : trab.includes(n) ? '<span class="tag-r t">trabalhando</span>' : ""}
+          <div class="prog"><div class="cheio" style="width:${(p / LIM) * 100}%"></div></div><small>${ok ? "🌱 borda Rancho liberada!" : p + "/" + LIM + " de amizade"}</small></div></div>`; }).join("") : `<p class="vazio">Ninguém no rancho ainda.</p>`) + `</div></section>`;
+    // ---- casinha ----
+    const MK = Object.keys(R.MOVEIS);
+    h += `<section class="painel largo" id="r-casa"><h3><img src="${RA}ic-casa.png" alt="">Casinha <small>${mv.length}/${MK.length} móveis</small></h3>
+      <div class="quarto" style="background-image:url(${RA}casa-dentro.jpg)">` +
+      mv.filter((k) => POS_MOVEL[k]).sort((a, b) => (a === "tapete" ? -1 : b === "tapete" ? 1 : POS_MOVEL[a][1] - POS_MOVEL[b][1])).map((k) => { const [x, y, w] = POS_MOVEL[k];
+        return `<img class="movel" src="${RA}movel-${k}.png" alt="${esc(R.MOVEIS[k].n)}" title="${esc(R.MOVEIS[k].n)}" style="left:${x}%;top:${y}%;width:${w}%">`; }).join("") +
+      (parc ? `<img class="ajud dentro" src="${ani(parc[0], parc[1])}" alt="">` : "") +
+      (mv.length ? "" : `<p class="vazia">Casinha vazia! Faça móveis na bancada com <b>!fazer cama</b></p>`) +
+      `</div><div class="moveis">` + MK.map((k) => { const M = R.MOVEIS[k], ja = mv.includes(k);
+        return `<div class="rec ${ja ? "feito" : pode(M.custo) ? "pode" : ""}"><img class="b" src="${RA}movel-${k}.png" alt=""><div><b>${esc(M.n)}${ja ? " ✓" : ""}</b>${ja ? "" : `<div class="cs">${custo(M.custo)}</div>${eu ? btn("!fazer " + k, "Fazer", pode(M.custo)) : `<code>!fazer ${esc(M.n.toLowerCase().replace(/^pelúcia de /, "pelúcia "))}</code>`}`}</div></div>`; }).join("") +
+      `</div><p class="sub">Com 8 móveis a casinha vira um chalé de madeira.</p></section></div>`;
+    return h;
+  }
+  let ranchoDC = null, ranchoBusca = "";
+  // tela do Day Care: os pais nos cercadinhos e os ovos (até 6) espalhados
+  const DC_PAIS = [[72, 47], [88, 61]], DC_OVOS = [[68, 70], [74, 73], [79, 68], [53, 83], [59, 86], [63, 81]];
+  const dcOpts = (lista, sel) => `<option value="">escolher…</option>` + (lista || []).map((n) => `<option value="${n}" ${n === sel ? "selected" : ""}>${esc(nome(n))}</option>`).join("");
+  function abrirDaycare() {
+    const R = USUM.rancho, x = ranchoDC || { dc: {}, dcOv: [] }, dc = x.dc, f = document.createElement("div");
+    const pais = [dc.a, dc.b].map((p, i) => p ? `<img class="dc-pai" src="${ani(p[0], p[1])}" alt="" title="${esc(nome(p[0]))}" style="left:${DC_PAIS[i][0]}%;top:${DC_PAIS[i][1]}%">` : "").join("");
+    const ovos = x.dcOv.slice(0, 6).map((o, i) => `<div class="dc-ovo ${o.pronto ? "pronto" : ""}" style="left:${DC_OVOS[i][0]}%;top:${DC_OVOS[i][1]}%" title="${o.pronto ? "Pronto! !chocar" : "choca em " + o.min + " min"}"><img src="assets/ovo.png" alt=""><small>${o.pronto ? "!chocar" : o.min + " min"}</small></div>`).join("");
+    const bebe = dc.bb ? nome(dc.bb) : "";
+    f.className = "dc-fundo";
+    f.innerHTML = `<div class="dc-janela" role="dialog" aria-label="Day Care"><button class="dc-fechar" aria-label="Fechar">✕</button>
+      <h3><img src="${RA}ic-daycare.png" alt="">Day Care de ${esc(x.nome)}</h3>
+      <div class="dc-cena"><img class="dc-casa" src="${RA}daycare.png" alt="">${pais}${ovos}</div>
+      <p>${dc.a && dc.b ? `<b>${esc(nome(dc.a[0]))}</b> e <b>${esc(nome(dc.b[0]))}</b> estão no Day Care. A cada ${R.CFG.ovoMinutos} min aparece um ovo (até ${R.CFG.maxOvos}); ${R.CFG.chocarMinutos} min depois ele pode ser chocado com <b>!chocar</b>. Dos ovos nasce a forma mais básica${bebe ? `, como <b>${esc(bebe)}</b>` : ""}.`
+        : `Deixe dois Pokémon da sua caixa aqui com <b>!daycare pikachu eevee</b>. Eles botam até ${R.CFG.maxOvos} ovos, e é o <b>único jeito</b> de conseguir Pokémon bebê (Pichu, Togepi, Riolu, Munchlax…).`}
+      ${x.dcOv.length ? ` Você tem <b>${x.dcOv.length}</b> ovo(s), ${x.dcOv.filter((o) => o.pronto).length} pronto(s).` : ""} Para buscar os pais: <b>!daycare tirar</b>. 💪 Pais fortes botam ovo mais rápido${x.dp ? ` (agora: a cada <b>${x.dp} min</b>)` : ""}.</p>
+      ${x.eu ? `<div class="dc-acoes"><div class="r-form" data-form><select aria-label="Pokémon 1">${dcOpts(x.cx, dc.a && dc.a[0])}</select><select aria-label="Pokémon 2">${dcOpts(x.cx, dc.b && dc.b[0])}</select><button type="button" class="r-btn" data-cmd="!daycare {0} {1}">Deixar no Day Care</button></div>
+        ${x.dcOv.some((o) => o.pronto) ? `<button type="button" class="r-btn rosa" data-cmd="!chocar">🐣 Chocar ovos</button>` : ""}${dc.a ? `<button type="button" class="r-btn" data-cmd="!daycare tirar">Buscar os pais</button>` : ""}</div>` : ""}</div>`;
+    const fechar = () => { f.remove(); document.removeEventListener("keydown", tecla); };
+    const tecla = (e) => { if (e.key === "Escape") fechar(); };
+    f.onclick = (e) => { if (e.target === f || e.target.closest(".dc-fechar")) fechar(); };
+    document.addEventListener("keydown", tecla);
+    document.body.appendChild(f); f.querySelector(".dc-fechar").focus();
+  }
+  function ranchoLigar(el) {
+    const b = el.querySelector(".daycare-ic"); if (b) b.onclick = abrirDaycare;
+    const rb = el.querySelector(".r-busca"); if (rb) rb.oninput = (e) => { ranchoBusca = e.target.value; const login = new URLSearchParams(location.search).get("u"); desenhar(Object.keys(D.t).find((k) => k === login) || login); const n = document.querySelector(".r-busca"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } };
+    el.querySelectorAll('.rancho a[href^="#r-"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); const t = el.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); });
+  }
+
   function desenhar(login) {
     const u = D.t[login], el = document.getElementById("conteudo");
     app.querySelectorAll(".abas button").forEach((b) => b.classList.toggle("on", b.dataset.a === aba));
@@ -863,10 +1285,18 @@
           <label><input type="radio" name="f" value="cap" ${filtro === "cap" ? "checked" : ""}> Capturados</label>
           <label><input type="radio" name="f" value="todos" ${filtro === "todos" ? "checked" : ""}> Pokédex completa</label>
           <label><input type="radio" name="f" value="shiny" ${filtro === "shiny" ? "checked" : ""}> Só shiny</label>
-          <input type="search" id="fb" placeholder="Procurar Pokémon" value="${esc(busca)}">
+          <input type="search" id="fb" placeholder="Procurar por nome ou número" value="${esc(busca)}">
+        </div>
+        <div class="filtros filtros2">
+          <label>Ordem <select id="fo">${[["num", "Número"], ["nome", "Nome (A-Z)"], ["recente", "Captura mais recente"], ["antiga", "Captura mais antiga"], ["forca", "Mais forte"]].map(([v, t]) => `<option value="${v}" ${ordem === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+          <label>Força <select id="ff">${[[0, "qualquer"], [50, "50% ou mais"], [70, "70% ou mais"], [90, "90% ou mais"], [100, "só 100%"]].map(([v, t]) => `<option value="${v}" ${forcaMin === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+          <label>Capturado <select id="fp">${[[0, "em qualquer data"], [1, "hoje"], [7, "nos últimos 7 dias"], [30, "nos últimos 30 dias"]].map(([v, t]) => `<option value="${v}" ${periodo === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
         </div><div class="grade" id="grade"></div>`;
       el.querySelectorAll("input[name=f]").forEach((r) => r.onchange = () => { filtro = r.value; grade(u); });
       el.querySelector("#fb").oninput = (e) => { busca = e.target.value; grade(u); };
+      el.querySelector("#fo").onchange = (e) => { ordem = e.target.value; grade(u); };
+      el.querySelector("#ff").onchange = (e) => { forcaMin = +e.target.value; grade(u); };
+      el.querySelector("#fp").onchange = (e) => { periodo = +e.target.value; grade(u); };
       grade(u);
     } else if (aba === "fitas") {
       const tem = new Set(u.f || []);
@@ -890,13 +1320,22 @@
         }
         return `<div class="item amigo">${img}<div class="info-amigo"><div><a href="?u=${encodeURIComponent(l)}">${esc(o.n || l)}</a> <span class="cor">${nivel(n)}</span></div>${barra}</div></div>`;
       }).join("") + `</div>` : `<p class="vazio">Você ainda não tem amizades. Responda alguém no chat da live ou marque com @nome para começar!</p>`);
+    } else if (aba === "rancho") {
+      el.innerHTML = ranchoHtml(u, login);
+      ranchoLigar(el);
     } else {
-      const b = u.b || {}, it = Object.keys(BOLAS).filter((k) => b[k] > 0);
+      const b = u.b || {}, qm = buscaMochila.trim().toLowerCase();
+      let it = Object.keys(BOLAS).filter((k) => b[k] > 0 && (!qm || BOLAS[k].toLowerCase().includes(qm)));
+      it.sort(ordemMochila === "qtd" ? (x, y) => b[y] - b[x] : (x, y) => BOLAS[x].localeCompare(BOLAS[y]));
       const ef = (id) => ((window.USUM_BOLAS_LOJA || []).find((x) => x.id === id) || {}).efeito || "";
-      el.innerHTML = `<div class="lista" style="margin-top:14px">
+      el.innerHTML = `<div class="filtros"><input type="search" id="fm" placeholder="Procurar bola" value="${esc(buscaMochila)}">
+        <label>Ordem <select id="fmo"><option value="nome" ${ordemMochila === "nome" ? "selected" : ""}>Nome</option><option value="qtd" ${ordemMochila === "qtd" ? "selected" : ""}>Quantidade</option></select></label></div>
+        <div class="lista" style="margin-top:14px">
         <div class="item"><img src="assets/bolas/poke-ball.png" alt=""><span><b>Poké Ball</b> · infinitas (padrão)</span></div>` +
         it.map((k) => `<div class="item"><img src="assets/bolas/${k}-ball.png" alt=""><span><b>${BOLAS[k]}</b> · ${b[k]}×${u.eq === k ? " · <b>equipada</b>" : ""}<br><small class="sub">${esc(ef(k))}</small></span></div>`).join("") +
         `</div><p class="sub" style="margin-top:12px">Compre bolas com pontos do canal e equipe no chat com <b>!ball nome</b>. Veja todas e como conseguir em <a href="?p=bolas">Pokébolas</a>.</p>`;
+      const fm = el.querySelector("#fm"); fm.oninput = (e) => { buscaMochila = e.target.value; desenhar(login); const n = document.getElementById("fm"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); };
+      el.querySelector("#fmo").onchange = (e) => { ordemMochila = e.target.value; desenhar(login); };
     }
   }
 
@@ -906,6 +1345,14 @@
     let nums = filtro === "todos" ? Array.from({ length: TOTAL }, (_, i) => i + 1) : [...new Set([...Object.keys(c).map(Number), ...reg])].sort((a, b) => a - b);
     if (filtro === "shiny") nums = nums.filter((n) => c[n] && c[n][1]);
     if (q) nums = nums.filter((n) => nome(n).toLowerCase().includes(q) || String(n) === q);
+    // força e data de captura (do melhor / do mais recente de cada espécie)
+    const info = {}; nums.forEach((n) => { const l = c[n] ? individuos(c[n]) : []; info[n] = { f: l.length ? Math.max(...l.map((x) => x.f)) : -1, t: l.length ? Math.max(...l.map((x) => x.t || 0)) : 0, t0: l.length ? Math.min(...l.map((x) => x.t || Infinity)) : 0 }; });
+    if (forcaMin) nums = nums.filter((n) => info[n].f >= forcaMin);
+    if (periodo) { const desde = periodo === 1 ? new Date().setHours(0, 0, 0, 0) : Date.now() - periodo * 864e5; nums = nums.filter((n) => c[n] && individuos(c[n]).some((x) => x.t >= desde)); }
+    if (ordem === "nome") nums.sort((a, b) => nome(a).localeCompare(nome(b)));
+    else if (ordem === "recente") nums.sort((a, b) => info[b].t - info[a].t || a - b);
+    else if (ordem === "antiga") nums.sort((a, b) => (info[a].t0 || Infinity) - (info[b].t0 || Infinity) || a - b);
+    else if (ordem === "forca") nums.sort((a, b) => info[b].f - info[a].f || a - b);
     const g = document.getElementById("grade");
     if (!nums.length) { g.innerHTML = `<p class="vazio">${filtro === "cap" && !q ? "Nenhum Pokémon capturado ainda. Fique de olho na grama durante a live e digite !capturar!" : "Nada por aqui."}</p>`; return; }
     g.innerHTML = nums.map((n) => {
@@ -941,16 +1388,26 @@
       <button class="fechar-ficha" title="Fechar">✕</button>
       <div class="ficha-topo"><img src="${home(n, e[1] > 0)}" alt=""><div><small>#${String(n).padStart(3, "0")}</small><h3>${esc(nome(n))}</h3>
         <span>${e[0]} ${e[0] === 1 ? "capturado" : "capturados"}${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
-      ${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}">
+      ${lista.length > 1 ? `<div class="filtros ficha-filtros"><input type="search" class="fi-b" placeholder="Procurar apelido"><select class="fi-o"><option value="forca">Mais forte</option><option value="recente">Mais recente</option><option value="antiga">Mais antigo</option></select>
+        <select class="fi-f"><option value="0">qualquer força</option><option value="50">50%+</option><option value="70">70%+</option><option value="90">90%+</option></select></div>` : ""}
+      <div class="fi-lista">${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}" data-i="${i}" data-f="${x.f}" data-t="${x.t || 0}" data-a="${esc((x.a || "").toLowerCase())}">
         <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${x.n || notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
-      </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}
+        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button><button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
+      </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}</div>
       <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code> Para dar um nome: <code>!apelido ${esc(nome(n).toLowerCase())} 1 Nome</code> (até 12 letras).</p>
     </div>`;
     const fechar = () => fundo.remove();
     fundo.onclick = (ev) => { if (ev.target === fundo) fechar(); };
     fundo.querySelector(".fechar-ficha").onclick = fechar;
+    // filtros da lista (o número # continua o mesmo do chat, para !release e !apelido)
+    const fl = fundo.querySelector(".ficha-filtros");
+    if (fl) { const aplicar = () => { const q = fl.querySelector(".fi-b").value.trim().toLowerCase(), o = fl.querySelector(".fi-o").value, fm = +fl.querySelector(".fi-f").value;
+        const box = fundo.querySelector(".fi-lista"), els = [...box.querySelectorAll(".ind")];
+        els.forEach((d) => { d.hidden = (q && !d.dataset.a.includes(q)) || +d.dataset.f < fm; });
+        els.sort((a, b) => o === "recente" ? b.dataset.t - a.dataset.t : o === "antiga" ? a.dataset.t - b.dataset.t : a.dataset.i - b.dataset.i).forEach((d) => box.appendChild(d)); };
+      fl.oninput = aplicar; fl.onchange = aplicar; }
     document.addEventListener("keydown", function esc1(ev) { if (ev.key === "Escape") { fechar(); document.removeEventListener("keydown", esc1); } });
     document.body.appendChild(fundo);
   }
