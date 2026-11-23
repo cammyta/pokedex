@@ -27,6 +27,25 @@
     // TM Aleatória: troca um golpe do Pokémon por outro aleatório que ele aprende. Slot de Golpe: dá um 2º golpe (aleatório). Os dois saem da forja
     "tm": { n: "TM Aleatória", c: "tm", p: 0, t: [] },
     "slot-golpe": { n: "Slot de Golpe", c: "tm", p: 0, t: [] },
+    // itens de segurar: o Pokémon que segura dá +20% de dano na Raid com golpes do tipo do item (forja, receita cara)
+    "charcoal": { n: "Carvão", c: "held", p: 0, t: [], tp: "fire" },
+    "mystic-water": { n: "Água Mística", c: "held", p: 0, t: [], tp: "water" },
+    "miracle-seed": { n: "Semente Milagrosa", c: "held", p: 0, t: [], tp: "grass" },
+    "magnet": { n: "Ímã", c: "held", p: 0, t: [], tp: "electric" },
+    "never-melt-ice": { n: "Gelo Eterno", c: "held", p: 0, t: [], tp: "ice" },
+    "black-belt": { n: "Faixa Preta", c: "held", p: 0, t: [], tp: "fighting" },
+    "poison-barb": { n: "Ferrão Venenoso", c: "held", p: 0, t: [], tp: "poison" },
+    "soft-sand": { n: "Areia Macia", c: "held", p: 0, t: [], tp: "ground" },
+    "sharp-beak": { n: "Bico Afiado", c: "held", p: 0, t: [], tp: "flying" },
+    "twisted-spoon": { n: "Colher Torta", c: "held", p: 0, t: [], tp: "psychic" },
+    "silver-powder": { n: "Pó Prateado", c: "held", p: 0, t: [], tp: "bug" },
+    "rock-incense": { n: "Incenso de Pedra", c: "held", p: 0, t: [], tp: "rock" },
+    "spell-tag": { n: "Selo Maldito", c: "held", p: 0, t: [], tp: "ghost" },
+    "dragon-fang": { n: "Presa de Dragão", c: "held", p: 0, t: [], tp: "dragon" },
+    "black-glasses": { n: "Óculos Escuros", c: "held", p: 0, t: [], tp: "dark" },
+    "iron-plate": { n: "Placa de Ferro", c: "held", p: 0, t: [], tp: "steel" },
+    "pixie-plate": { n: "Placa Fada", c: "held", p: 0, t: [], tp: "fairy" },
+    "silk-scarf": { n: "Lenço de Seda", c: "held", p: 0, t: [], tp: "normal" },
     "red-apricorn": { n: "Apricorn Vermelho", c: "mat", p: 10, t: ["fire", "fighting"] },
     "blue-apricorn": { n: "Apricorn Azul", c: "mat", p: 10, t: ["water", "ice"] },
     "yellow-apricorn": { n: "Apricorn Amarelo", c: "mat", p: 10, t: ["electric", "ground"] },
@@ -285,6 +304,24 @@
 
   /* ---------- forja: Pokébolas e varas ---------- */
   const RECEITAS = {
+    "charcoal": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "fire-stone": 1, "red-apricorn": 3 }, item: "charcoal", sai: 1 },
+    "mystic-water": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "water-stone": 1, "blue-apricorn": 3 }, item: "mystic-water", sai: 1 },
+    "miracle-seed": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "leaf-stone": 1, "green-apricorn": 3 }, item: "miracle-seed", sai: 1 },
+    "magnet": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "thunder-stone": 1, "yellow-apricorn": 3 }, item: "magnet", sai: 1 },
+    "never-melt-ice": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "ice-stone": 1, "white-apricorn": 3 }, item: "never-melt-ice", sai: 1 },
+    "black-belt": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "hard-stone": 6, "black-apricorn": 3 }, item: "black-belt", sai: 1 },
+    "poison-barb": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "pink-apricorn": 3, "black-apricorn": 2, "mel": 2 }, item: "poison-barb", sai: 1 },
+    "soft-sand": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "hard-stone": 8, "yellow-apricorn": 2 }, item: "soft-sand", sai: 1 },
+    "sharp-beak": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "white-apricorn": 3, "mel": 2, "hard-stone": 3 }, item: "sharp-beak", sai: 1 },
+    "twisted-spoon": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "moon-stone": 1, "pink-apricorn": 3 }, item: "twisted-spoon", sai: 1 },
+    "silver-powder": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "mel": 3, "green-apricorn": 3 }, item: "silver-powder", sai: 1 },
+    "rock-incense": { custo: { "essencia": 80, "star-piece": 3, "stardust": 3, "hard-stone": 10 }, item: "rock-incense", sai: 1 },
+    "spell-tag": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "dusk-stone": 1, "black-apricorn": 3 }, item: "spell-tag", sai: 1 },
+    "dragon-fang": { custo: { "essencia": 80, "star-piece": 3, "stardust": 3, "dragon-scale": 1 }, item: "dragon-fang", sai: 1 },
+    "black-glasses": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "razor-fang": 1, "black-apricorn": 3 }, item: "black-glasses", sai: 1 },
+    "iron-plate": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "metal-coat": 1, "hard-stone": 6 }, item: "iron-plate", sai: 1 },
+    "pixie-plate": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "shiny-stone": 1, "pink-apricorn": 3 }, item: "pixie-plate", sai: 1 },
+    "silk-scarf": { custo: { "essencia": 80, "star-piece": 2, "stardust": 3, "white-apricorn": 4, "mel": 2 }, item: "silk-scarf", sai: 1 },
     great: { custo: { "essencia": 5, "blue-apricorn": 1, "hard-stone": 1 }, sai: 3 },
     ultra: { custo: { "essencia": 20, "yellow-apricorn": 1, "black-apricorn": 1, "hard-stone": 2 }, sai: 3 },
     quick: { custo: { "essencia": 20, "white-apricorn": 1, "yellow-apricorn": 1, "hard-stone": 1 }, sai: 2 },
@@ -560,6 +597,12 @@
     });
     avisos.forEach((a, i) => setTimeout(() => publicar("hiper-mel", `🍯 ${nomeP(a.n)} fez um <b>Hiper Mel</b> no apiário de <b>${esc(a.nome)}</b>! Use com <b>!hipermel</b>`, a.l), i * 700));
   }
+  // acha o item de segurar pelo nome (português ou inglês): "carvao", "agua mistica", "charcoal", "mystic water"...
+  function itemSegurar(txt) {
+    const q = limpa(txt || ""); if (!q) return null;
+    return Object.keys(ITENS).find((k) => ITENS[k].c === "held" && (limpa(ITENS[k].n) === q || k.replace(/-/g, " ") === q))
+      || Object.keys(ITENS).find((k) => ITENS[k].c === "held" && (limpa(ITENS[k].n).startsWith(q) || q.startsWith(limpa(ITENS[k].n)) || k.replace(/-/g, " ").startsWith(q))) || null;
+  }
   /* ---------- Dojo: até 2 Pokémon treinam no saco de pancadas. A cada hora de live (com a pessoa no chat)
      ganham XP (sobem mais rápido) e EVs no atributo escolhido (!dojo ev ataque). EV ajuda na Raid. ---------- */
   const EV_ALIAS = { hp: "hp", vida: "hp", ataque: "at", atk: "at", at: "at", forca: "at", defesa: "df", def: "df", df: "df",
@@ -571,25 +614,39 @@
     const ev = dj.ev || "at";
     return { a, b: b !== a ? b : 0, ev, ea: dj.ea || ev, eb: dj.eb || ev, ult: dj.ult || 0 };   // ea/eb: o EV que cada um treina
   }
+  // Dojo treina sempre, até com a live desligada: cada pessoa junta "minutos de treino" (dj.cr).
+  // Com a live no ar conta 1 minuto por minuto; com a live desligada (ou o OBS fechado) conta meio (50% mais lento).
+  // A cada CFG.dojoMinutos juntados, um treino (XP + EV). Ao abrir a live depois de um tempo, faz os treinos atrasados.
   function rodadaDojo() {
-    const avisos = [];
-    treinadores().forEach((l) => {
+    const agora = Date.now(), passo = CFG.dojoMinutos * 60e3;
+    const ultTick = ler("usum_dojo_tick", 0); gravar("usum_dojo_tick", agora);
+    const gap = ultTick ? Math.min(agora - ultTick, 14 * 24 * 3600e3) : 60e3;
+    const aoVivo = !(USUM.offline && USUM.offline());
+    const credito = gap > 5 * 60e3 ? gap * 0.5 : gap * (aoVivo ? 1 : 0.5);   // buraco grande = overlay fechado = live desligada
+    const ativos = new Set(treinadores()), avisos = [];
+    Object.keys(ler("usum_rancho", {})).forEach((l) => {
       const d = dojoDe(l); if (!d.a && !d.b) return;
-      const agora = Date.now(), passo = CFG.dojoMinutos * 60e3, dj = rancho(l).dj || {};
-      if (!dj.ult) { mudarR(l, (r) => { r.dj = Object.assign(r.dj || {}, { ult: agora }); }); return; }
-      if (agora - dj.ult < passo) return;
-      mudarR(l, (r) => { r.dj.ult = agora; if (d.a !== dj.a) r.dj.a = d.a; if (d.b !== dj.b) r.dj.b = d.b; r.dt = (r.dt || 0) + 1; });   // r.dt = treinos feitos (bolha Dojo)
+      const dj = rancho(l).dj || {};
+      let cr = (dj.cr || 0) + credito, vezes = 0;
+      while (cr >= passo && vezes < 48) { cr -= passo; vezes++; }
+      mudarR(l, (r) => { r.dj = Object.assign(r.dj || {}, { cr: Math.round(cr) }); if (vezes) { r.dj.ult = agora; r.dt = (r.dt || 0) + vezes; } if (d.a !== dj.a) r.dj.a = d.a; if (d.b !== dj.b) r.dj.b = d.b; });   // r.dt = treinos feitos (bolha Dojo)
+      if (!vezes) return;
       const res = [];
       [[d.a, d.ea], [d.b, d.eb]].filter(([n]) => n).forEach(([n, evN]) => {
-        const ind = melhorInd(l, n) || {}, lv = S().nivelDe(ind, n);
         const custo = (L) => (S().custoNivel ? S().custoNivel(L) : L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);
-        const x = S().ganharXP(l, n, !!ind.s, 2 * custo(lv) + 10), e = S().treinarEV(l, n, !!ind.s, evN, CFG.dojoEV);
-        if (e && e.add && S().evTotal(e.ev) >= 510) publicarEv({ tipo: "borda", login: l, nome: nomeTreinador(l), num: n, pnome: USUM.nomeDe(n), borda: "dojo", bordaNome: "Dojo" });   // treino máximo (510 EVs)
-        res.push(`${nomeP(n)}${x ? ` nv ${x.lv}${x.lv > x.antes ? " ⬆️" : ""}` : ""}${e && e.add ? ` +${e.add} ${S().EV_NOMES[evN]}` : e && e.cheio ? " (EV no máximo)" : ""}`);
+        let x = null, e = null, antes = 0, add = 0;
+        for (let k = 0; k < vezes; k++) {
+          const ind = melhorInd(l, n) || {}, lv = S().nivelDe(ind, n);
+          if (!k) antes = lv;
+          x = S().ganharXP(l, n, !!ind.s, 2 * custo(lv) + 10) || x;
+          const e2 = S().treinarEV(l, n, !!ind.s, evN, CFG.dojoEV); if (e2) { e = e2; add += e2.add || 0; }
+        }
+        if (add && e && S().evTotal(e.ev) >= 510) publicarEv({ tipo: "borda", login: l, nome: nomeTreinador(l), num: n, pnome: USUM.nomeDe(n), borda: "dojo", bordaNome: "Dojo" });   // treino máximo (510 EVs)
+        res.push(`${nomeP(n)}${x ? ` nv ${x.lv}${x.lv > antes ? " ⬆️" : ""}` : ""}${add ? ` +${add} ${S().EV_NOMES[evN]}` : e && e.cheio ? " (EV no máximo)" : ""}`);
       });
-      if (res.length) avisos.push({ l, n: d.a || d.b, txt: res.join(" · ") });
+      try { checarBolhas(l); } catch (er) {}
+      if (res.length && ativos.has(l)) avisos.push({ l, n: d.a || d.b, txt: (vezes > 1 ? `${vezes} treinos (com a live desligada também) · ` : "") + res.join(" · ") });
     });
-    treinadores().forEach((l) => { try { checarBolhas(l); } catch (e) {} });
     avisos.forEach((a, i) => setTimeout(() => publicar("num:" + a.n, `🥋 Treino no dojo de <b>${esc(nomeTreinador(a.l))}</b>: ${a.txt}`, a.l), i * 700));
   }
   // pede ao encontro.html (a tela do selvagem) para chamar um Pokémon
@@ -665,7 +722,10 @@
     neon: { n: "Neon", ic: "✨", como: "capture 50 Pokémon shiny", ganhou: "capturou 50 shiny" },
     raid: { n: "Raid", ic: "⚔️", como: "participe de 10 Raids", ganhou: "lutou em 10 Raids" },
     dojo: { n: "Dojo", ic: "🥋", como: "complete 10 treinos no dojo do rancho", ganhou: "completou 10 treinos no dojo" },
-    sub: { n: "Sub", ic: "💜", como: "seja sub do canal", ganhou: "é sub do canal" } };
+    sub: { n: "Sub", ic: "💜", como: "seja sub do canal", ganhou: "é sub do canal" },
+    bits: { n: "Bits", ic: "💎", como: "mande 200 bits no canal (somando tudo)", ganhou: "mandou 200 bits" } };
+  // total de bits que a pessoa já mandou (as fitas guardam em pk_treinadores)
+  const bitsDe = (login) => { try { return ((JSON.parse(localStorage.getItem("pk_treinadores") || "{}")[login]) || {}).bits || 0; } catch (e) { return 0; } };
   // contadores das bolhas novas: r.sh (shiny capturados) e r.rd (Raids que lutou)
   function shinyTotal(login) {
     const cx = (S().caixa ? S().caixa(login) : {}) || {}, naCaixa = Object.values(cx.p || {}).reduce((a, e) => a + (e.s || 0), 0);
@@ -675,6 +735,13 @@
     if (shinyTotal(login) >= 50) darBolha(login, nome || nomeTreinador(login), "neon");
     if ((rancho(login).rd || 0) >= 10) darBolha(login, nome || nomeTreinador(login), "raid");
     if ((rancho(login).dt || 0) >= 10) darBolha(login, nome || nomeTreinador(login), "dojo");
+    const bt = bitsDe(login);
+    if (bt >= 200) darBolha(login, nome || nomeTreinador(login), "bits");
+    if (bt >= 100 && !rancho(login).bb) {   // borda Bits (vale para qualquer Pokémon parceiro): avisa uma vez
+      mudarR(login, (r) => { r.bb = 1; });
+      const pc = ler("usum_parceiros", {})[login];
+      publicarEv({ tipo: "borda", login, nome: nome || nomeTreinador(login), num: pc ? pc.num : 25, pnome: pc ? USUM.nomeDe(pc.num) : "qualquer parceiro", borda: "bits", bordaNome: "Bits" });
+    }
     // a fita é dada pela tela do chat (que tem as fitas); a tela da Raid só conta as vitórias
     if ((rancho(login).rv || 0) >= 50 && USUM.darFita) USUM.darFita(login, nome || nomeTreinador(login), "raid");
   }
@@ -779,7 +846,7 @@
   const listaCusto = (c) => Object.entries(c).map(([id, n]) => `${n} ${esc(ITENS[id].n)}`).join(" + ");
 
   /* ---------- comandos ---------- */
-  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário|tm|slot|dojo|treinar)\b/;
+  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário|tm|slot|dojo|treinar|segurar|equipar)\b/;
   let lider = false;
   const site = /github\.io$/.test(location.hostname);
   if (USUM.aoMensagem && !site && navigator.locks && navigator.locks.request) navigator.locks.request("usum_rancho", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
@@ -841,14 +908,14 @@
       if (!arg) return publicar("rancho:forja-acesa", `🔨 <b>${esc(N)}</b>, para forjar: <b>!forjar great</b> (ou ultra, quick, timer, repeat, nest, net, dive, dusk, dream, heal, luxury, as bolas de Johto e <b>vara boa</b>/<b>vara super</b>). Receitas no site` + url, L);
       const partes = limpa(arg).split(" "), vezes = Math.max(1, Math.min(10, parseInt(partes.find((x) => /^\d+$/.test(x)) || "1", 10)));
       const nome = partes.filter((x) => !/^\d+$/.test(x)).join(" ");
-      const k = /vara/.test(nome) ? (/super/.test(nome) ? "vara-super" : "vara-boa") : /slot|golpe extra|segundo golpe/.test(nome) ? "slot-golpe" : /^(tm|disco|cd)\b/.test(nome) ? "tm" : USUM.lerBola ? USUM.lerBola(nome) : null;
+      const k = /vara/.test(nome) ? (/super/.test(nome) ? "vara-super" : "vara-boa") : /slot|golpe extra|segundo golpe/.test(nome) ? "slot-golpe" : /^(tm|disco|cd)\b/.test(nome) ? "tm" : itemSegurar(nome) || (USUM.lerBola ? USUM.lerBola(nome) : null);
       if (!k || !RECEITAS[k]) return publicar("rancho:forja-apagada", `<b>${esc(N)}</b>, a forja não faz isso 🤔 Tente <b>!forjar great</b>`, L);
       const r = forjar(L, N, k, vezes);
       if (r.erro === "ajudantes") return publicar("rancho:forja-apagada", `🔨 <b>${esc(N)}</b>, a forja precisa de um Pokémon de <b>Aço, Terra ou Pedra</b>${r.aco ? " ✓" : ""} e um de <b>Fogo</b>${r.fogo ? " ✓" : ""} na sua caixa`, L);
       if (r.erro === "falta") return publicar("rancho:forja-apagada", `🔨 <b>${esc(N)}</b>, falta: ${r.falta.map(esc).join(", ")} (receita: ${listaCusto(RECEITAS[k].custo)})` + (qtd(L, "essencia") < (RECEITAS[k].custo.essencia || 0) ? ` <small>✨ essência vem de capturar e de soltar Pokémon (!release)</small>` : ""), L);
       if (r.erro === "jatem") return publicar("rancho:forja-acesa", `<b>${esc(N)}</b>, você já tem essa vara (ou uma melhor)`, L);
       if (r.erro === "precisaboa") return publicar("rancho:forja-acesa", `<b>${esc(N)}</b>, forje a <b>vara boa</b> primeiro`, L);
-      if (r.item) return publicar(r.item, `💿 ${nomeP(r.aco)} e ${nomeP(r.fogo)} forjaram <b>${r.n > 1 ? r.n + "× " : ""}${esc(ITENS[r.item].n)}</b> para <b>${esc(N)}</b>! ${r.item === "tm" ? "Use com <b>!tm pikachu</b>: troca o golpe por um aleatório" : "Use com <b>!slot pikachu</b>: ganha um 2º golpe aleatório"} (ou pelo botão na ficha do Pokémon no site)`, L);
+      if (r.item) return publicar(r.item, `💿 ${nomeP(r.aco)} e ${nomeP(r.fogo)} forjaram <b>${r.n > 1 ? r.n + "× " : ""}${esc(ITENS[r.item].n)}</b> para <b>${esc(N)}</b>! ${r.item === "tm" ? "Use com <b>!tm pikachu</b>: troca o golpe por um aleatório" : r.item === "slot-golpe" ? "Use com <b>!slot pikachu</b>: ganha um 2º golpe aleatório" : `Equipe com <b>!segurar pikachu ${esc(limpa(ITENS[r.item].n))}</b>: +20% de dano na Raid com golpes do tipo`} (ou pelo botão na ficha do Pokémon no site)`, L);
       if (r.vara) return publicar("rancho:" + (r.vara === 2 ? "vara-super" : "vara-boa"), `🎣 ${nomeP(r.aco)} e ${nomeP(r.fogo)} forjaram uma <b>${r.vara === 2 ? "Super Vara" : "Vara Boa"}</b> para <b>${esc(N)}</b>! Peixes mais raros no <b>!pescar</b>`, L);
       marcarFita(L, N, "forjou");
       return publicar("bola:" + r.bola, `🔥 ${nomeP(r.aco)} e ${nomeP(r.fogo)} forjaram <b>${r.n} ${esc(USUM.BOLAS[r.bola])}s</b> para <b>${esc(N)}</b>!${r.bonus ? ` <small>(+${r.bonus} de bônus pela força deles 💪)</small>` : ""} Para usar: <b>!ball ${esc(r.bola)}</b>`, L);
@@ -915,6 +982,31 @@
       if (r.erro) return publicar(r.id, `🍯 <b>${esc(N)}</b>, você não tem ${hiper ? "Hiper Mel" : "Mel"}. Ele vem do apiário do rancho (precisa de Cutiefly, Ribombee, Combee ou Vespiquen)`, L);
       return publicar(r.id, `🍯 <b>${esc(N)}</b> passou ${hiper ? "<b>Hiper Mel</b>" : "Mel"} numa árvore… um Pokémon selvagem vem chegando!${hiper ? " <small>(10% de chance de última forma, 0,1% de lendário)</small>" : ""}`, L);
     }
+    // !segurar pikachu ima [2] · !segurar pikachu nada (tira e devolve para a mochila)
+    if (cmd === "segurar" || cmd === "equipar") {
+      const TPT = { normal: "Normal", fire: "Fogo", water: "Água", grass: "Grama", electric: "Elétrico", ice: "Gelo", fighting: "Lutador", poison: "Veneno", ground: "Terra", flying: "Voador", psychic: "Psíquico", bug: "Inseto", rock: "Pedra", ghost: "Fantasma", dragon: "Dragão", dark: "Sombrio", steel: "Aço", fairy: "Fada" };
+      const ajuda = () => publicar("charcoal", `🎒 <b>${esc(N)}</b>, para equipar: <b>!segurar pikachu ímã</b> (ou <b>!segurar pikachu 2 ímã</b> para o 2º da lista; <b>!segurar pikachu nada</b> tira). O item dá +20% de dano na Raid com golpes do tipo dele. Os itens saem da forja`, L);
+      if (!arg) return ajuda();
+      const tk = limpa(arg).split(" "); let pos = 0, pk = null, resto = [];
+      for (let i = tk.length; i >= 1 && !pk; i--) { const p = USUM.lerPokemon(tk.slice(0, i).join(" ")); if (p) { pk = p; resto = tk.slice(i); } }
+      if (!pk) return ajuda();
+      if (/^\d{1,2}$/.test(resto[0] || "")) pos = +resto.shift();
+      const num = (USUM.formaPadraoAlola ? USUM.formaPadraoAlola(pk) : pk).num, lista = S().individuos(L, num);
+      if (!lista.length) return publicar("charcoal", `🎒 <b>${esc(N)}</b>, você não tem ${nomeP(num)} na caixa`, L);
+      const parc = ler("usum_parceiros", {})[L], ind = pos ? lista[pos - 1] : (parc && parc.num === num ? lista.find((x) => !!x.s === !!parc.shiny) : null) || lista[0];
+      if (!ind) return publicar("charcoal", `🎒 <b>${esc(N)}</b>, ${nomeP(num)} #${pos} não existe`, L);
+      const txtItem = resto.join(" ");
+      if (/^(nada|nenhum|tirar|remover|sem)$/.test(txtItem)) {
+        const r = S().segurarItem(L, num, ind, ""); if (r && r.antes) dar(L, r.antes, 1);
+        return publicar("num:" + num, `🎒 ${nomeP(num)} de <b>${esc(N)}</b> ${r && r.antes ? `guardou ${esc(ITENS[r.antes] ? ITENS[r.antes].n : r.antes)} na mochila` : "não segurava nada"}`, L);
+      }
+      const it = itemSegurar(txtItem);
+      if (!it) return publicar("charcoal", `🎒 <b>${esc(N)}</b>, não conheço esse item. Ex: <b>!segurar pikachu ímã</b>, carvão, água mística, semente milagrosa, lenço de seda…`, L);
+      if (qtd(L, it) < 1) return publicar(it, `🎒 <b>${esc(N)}</b>, você não tem <b>${esc(ITENS[it].n)}</b>. Forje com <b>!forjar ${esc(limpa(ITENS[it].n))}</b> (${listaCusto(RECEITAS[it].custo)})`, L);
+      dar(L, it, -1);
+      const r = S().segurarItem(L, num, ind, it); if (r && r.antes) dar(L, r.antes, 1);
+      return publicar(it, `🎒 ${nomeP(num)} de <b>${esc(N)}</b> agora segura <b>${esc(ITENS[it].n)}</b> (+20% de dano com golpes de ${TPT[ITENS[it].tp] || ITENS[it].tp} na Raid)${r && r.antes ? ` · ${esc(ITENS[r.antes] ? ITENS[r.antes].n : r.antes)} voltou para a mochila` : ""}`, L);
+    }
     if (cmd === "dojo" || cmd === "treinar") {
       mudarR(L, (r) => { r.nm = N; });
       const a0 = limpa(arg || "");
@@ -933,12 +1025,12 @@
         const tem = new Set(donos(L)), nums = [];
         palavrasPoke(arg).forEach((w) => { const p = USUM.lerPokemon(w), n = p && (USUM.formaPadraoAlola ? USUM.formaPadraoAlola(p) : p).num; if (n && tem.has(n) && !nums.includes(n) && nums.length < 2) nums.push(n); });
         if (!nums.length) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, coloque até 2 Pokémon da sua caixa: <b>!dojo pikachu eevee</b>`, L);
-        mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: nums[0], b: nums[1] || 0, ult: Date.now() }); });
+        mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: nums[0], b: nums[1] || 0 }); });
       }
       const d = dojoDe(L);
       if (!d.a && !d.b) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, o dojo está vazio. Coloque até 2 Pokémon: <b>!dojo pikachu eevee</b>. A cada hora de live eles ganham XP e EVs (escolha com <b>!dojo ev ataque</b>)`, L);
       const ev = (n) => { const i = melhorInd(L, n) || {}, e = i.ev || {}; return Object.keys(S().EV_NOMES).filter((k) => e[k]).map((k) => `${S().EV_NOMES[k]} ${e[k]}`).join(", ") || "sem EV"; };
-      return publicar("num:" + (d.a || d.b), `🥋 Dojo de <b>${esc(N)}</b>: ${[[d.a, d.ea], [d.b, d.eb]].filter(([n]) => n).map(([n, e]) => `${nomeP(n)} treinando <b>${S().EV_NOMES[e]}</b> (${ev(n)})`).join(" e ")} · próximo treino em ${Math.max(1, Math.ceil(((d.ult || Date.now()) + CFG.dojoMinutos * 60e3 - Date.now()) / 60e3))} min de live`, L);
+      return publicar("num:" + (d.a || d.b), `🥋 Dojo de <b>${esc(N)}</b>: ${[[d.a, d.ea], [d.b, d.eb]].filter(([n]) => n).map(([n, e]) => `${nomeP(n)} treinando <b>${S().EV_NOMES[e]}</b> (${ev(n)})`).join(" e ")} · próximo treino em ${Math.max(1, Math.ceil((CFG.dojoMinutos * 60e3 - ((rancho(L).dj || {}).cr || 0)) / 60e3))} min de live (o dobro com a live desligada; o dojo treina mesmo offline)`, L);
     }
     if (cmd === "apiario" || cmd === "apiário") {
       if (arg && NINGUEM.test(limpa(arg))) { mudarR(L, (r) => { r.nm = N; r.ap = Object.assign(r.ap || {}, { n: -1 }); }); return publicar("mel", `🐝 <b>${esc(N)}</b> deixou o apiário vazio (ninguém fazendo mel)`, L); }
@@ -1025,6 +1117,8 @@
   });
   function trata(m) {
     if (m.login) vistosR.set(m.login, Date.now());
+    // bits: confere a bolha e a borda logo depois (as fitas somam os bits nessa mesma mensagem)
+    if (m.bits && m.login && lider) setTimeout(() => { try { checarBolhas(m.login, m.nome); } catch (e) {} }, 1500);
     // bolha Sub: quem fala com o selo de sub ganha (uma vez só; quem grava é a tela líder do rancho)
     if (m.sub && m.login && lider && !((ler("usum_bolhas", {})[m.login] || {}).tem || []).includes("sub")) { try { darBolha(m.login, m.nome || m.login, "sub"); } catch (e) {} }
     try {
@@ -1048,6 +1142,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { bitsDe, itemSegurar, rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
