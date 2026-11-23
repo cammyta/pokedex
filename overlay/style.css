@@ -778,13 +778,43 @@ img.ovo { image-rendering: pixelated; object-fit: contain; transform-origin: 50%
 .chat .msg.bolha-rancho, .chat.cinema .msg.bolha-rancho {
   background: linear-gradient(110deg, rgba(143,211,106,.46), rgba(255,217,138,.16) 45%, rgba(38,30,18,.86) 75%);
   border-color: rgba(170,225,120,.72); box-shadow: 0 0 22px rgba(143,211,106,.22); }
-.chat .msg.bolha-rancho .marca { background: url(../assets/rancho/planta-frutos.png) center/contain no-repeat; -webkit-mask: none; box-shadow: none;
-  border-radius: 0; transform: none; opacity: .3; image-rendering: pixelated; animation: balanco-marca 6s ease-in-out infinite; }
+.chat .msg.bolha-rancho .marca { background: url(../assets/rancho/apricorn-hd.png) center/contain no-repeat; -webkit-mask: none; mask: none; box-shadow: none;
+  border-radius: 0; transform: none; opacity: .5; right: 4px; width: 112px; height: 112px; margin-top: -56px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.35)); animation: balanco-marca 6s ease-in-out infinite; }
 .chat .msg.bolha-rancho .marca::after { display: none; }
 .chat .msg.bolha-rancho .av { box-shadow: inset 0 0 0 2.5px #8fd36a, 0 0 16px rgba(143,211,106,.5); }
 .chat .msg.bolha-rancho .nome { color: #dcf8b8; }
 .chat .msg.bolha-rancho::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px; pointer-events: none; opacity: .55;
   background: radial-gradient(circle at 6px 9px, #8fd36a 5px, transparent 5.5px) 0 0/12px 9px repeat-x; }
+/* Dojo: completou 10 treinos. Tatame de madeira com o saco de pancadas do rancho atrás do cartão */
+.chat .msg.bolha-dojo, .chat.cinema .msg.bolha-dojo {
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 38px, rgba(0,0,0,.08) 38px 40px), linear-gradient(110deg, rgba(196,140,72,.6), rgba(120,74,36,.75) 50%, rgba(40,22,12,.92));
+  border-color: #e8c27a; box-shadow: 0 0 0 1px rgba(30,16,6,.6) inset, 0 0 18px rgba(232,194,122,.25); }
+.chat .msg.bolha-dojo .marca { right: 8px; width: 118px; height: 116px; margin-top: -58px; border-radius: 16px; transform: none; box-shadow: none; opacity: .55; animation: dojo-bate 3.2s ease-in-out infinite;
+  background: url(../assets/rancho/dojo-saco.jpg) center/cover no-repeat; image-rendering: pixelated;
+  -webkit-mask: radial-gradient(ellipse at center, #000 45%, transparent 72%); mask: radial-gradient(ellipse at center, #000 45%, transparent 72%); }
+.chat .msg.bolha-dojo .marca::after { display: none; }
+@keyframes dojo-bate { 0%, 70%, 100% { transform: none; } 78% { transform: translateX(-3px) rotate(-1.5deg); } 86% { transform: translateX(2px) rotate(1deg); } }
+.chat .msg.bolha-dojo .av { box-shadow: inset 0 0 0 2.5px #1b1b1b, 0 0 0 4px #e23b3b, 0 0 14px rgba(226,59,59,.45); }
+.chat .msg.bolha-dojo .nome { color: #ffe6b5; text-shadow: 0 1px 0 #3a1e0c; }
+.chat .msg.bolha-dojo::before { content: ""; position: absolute; left: 14px; right: 14px; top: 0; height: 5px; border-radius: 0 0 4px 4px; pointer-events: none;
+  background: linear-gradient(90deg, #1b1b1b 0 46%, #e23b3b 46% 54%, #1b1b1b 54%); opacity: .9; }
+/* Sub: é sub do canal. Roxo da Twitch com brilhos e a Fita Real Deslumbrante atrás */
+.chat .msg.bolha-sub, .chat.cinema .msg.bolha-sub {
+  background: radial-gradient(circle at 85% 50%, rgba(191,148,255,.35), transparent 45%), linear-gradient(110deg, rgba(145,70,255,.7), rgba(90,40,170,.75) 50%, rgba(26,10,52,.94));
+  border-color: #c9a8ff; box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 0 22px rgba(145,70,255,.45); animation: sub-brilha 3s ease-in-out infinite; }
+@keyframes sub-brilha { 50% { box-shadow: 0 0 0 1px rgba(255,255,255,.28) inset, 0 0 30px rgba(191,148,255,.65); } }
+.chat .msg.bolha-sub .marca { right: 6px; width: 110px; height: 110px; margin-top: -55px; border-radius: 0; transform: none; box-shadow: none; -webkit-mask: none; mask: none; opacity: .55;
+  background: url(../assets/fitas/gorgeous-royal.png) center/contain no-repeat; filter: drop-shadow(0 0 10px rgba(255,220,140,.6)); animation: balanco-marca 5s ease-in-out infinite; }
+.chat .msg.bolha-sub .marca::after { display: none; }
+.chat .msg.bolha-sub .av { box-shadow: inset 0 0 0 2.5px #fff, 0 0 0 4px #9146ff, 0 0 18px rgba(191,148,255,.8); }
+.chat .msg.bolha-sub .nome { color: #f1e6ff; text-shadow: 0 0 8px rgba(191,148,255,.9); }
+.chat .msg.bolha-sub::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: .6;
+  background: radial-gradient(circle, #fff 1px, transparent 1.7px) 0 0/26px 20px, radial-gradient(circle, #ffe08a 1px, transparent 1.7px) 13px 10px/26px 20px; animation: neon-brilho 2.6s ease-in-out infinite; }
+/* borda Dojo: o Pokémon no treino máximo (510 EVs). Faixa preta com listra vermelha, como a faixa do karatê */
+.msg .av-caixa.borda-dojo::before { background: var(--reflexo) 0 0/300% 100%, conic-gradient(from var(--ang, 0deg), #1b1b1b 0 40%, #e23b3b 40% 50%, #1b1b1b 50% 90%, #e23b3b 90%); animation: girar 5s linear infinite; padding: 4.5px; }
+.msg .av-caixa.borda-dojo::after { box-shadow: 0 0 0 1.5px #e8c27a, 0 0 14px rgba(226,59,59,.5); }
+.msg .av-caixa.borda-dojo .encaixe::after { content: "🥋"; position: absolute; right: -50px; top: -58px; font-size: 14px; animation: borda-estrela 2.6s ease-in-out infinite; }
+.aviso.borda-nova.b-dojo { border-color: #e23b3b; box-shadow: 0 0 16px rgba(226,59,59,.45); }
 /* Cinéfilo: ficou no filme até o fim. Um cineminha (tela, cortina vermelha e poltronas) atrás do cartão */
 .chat .msg.bolha-cinefilo, .chat.cinema .msg.bolha-cinefilo {
   background: linear-gradient(110deg, rgba(150,20,44,.55), rgba(232,200,121,.12) 45%, rgba(24,10,18,.9) 75%);
