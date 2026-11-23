@@ -349,11 +349,16 @@
     // batalha automática: só com "!torre auto" junto com 20 bits (o streamer pode sem bits). "!torre" sozinho só explica
     const auto = /^auto(matica|matico)?\b/.test(arg);
     if (!auto) return feed(`🗼 <b>${esc(N)}</b>, a torre se joga no site, na página 🗼 Torre${url}. Lá tem os botões de <b>batalha automática</b> e de <b>mais chances</b>`, L);
-    if (!m.dono && !((m.bits || 0) >= CFG.bitsAuto)) {
+    // se a batalha paga não puder rodar (sem party, pesadelo fechado...), os bits viram um crédito para a próxima "!torre auto"
+    const pagou = (m.bits || 0) >= CFG.bitsAuto, credito = estado(L).ac || 0;
+    if (!m.dono && !pagou && !credito) {
       return feed(`🗼 <b>${esc(N)}</b>, a torre agora é jogada <b>na mão</b>: escolha os golpes no site, na página 🗼 Torre${url}. A batalha automática custa <b>${CFG.bitsAuto} bits</b>: use o botão 🤖 na página da torre`, L);
     }
     const torre = /canal|camaleao|kami|cammy/.test(arg) ? "canal" : (TORRES.find((x) => arg.includes(x.id)) || { id: "alola" }).id;
     const r = subir(L, N, torre, pesadelo, true);   // automática (paga com bits ou do streamer): não conta no limite do dia
+    if (r.erro && pagou && !m.dono) { mudar(L, N, (tw) => { tw.ac = (tw.ac || 0) + 1; });
+      feed(`💎 <b>${esc(N)}</b>, seus ${m.bits} bits ficaram guardados: a próxima <b>!torre auto</b> (sem bits) usa esse crédito`, L); }
+    else if (!r.erro && !pagou && !m.dono && credito) mudar(L, N, (tw) => { tw.ac = Math.max(0, (tw.ac || 0) - 1); });
     if (r.erro === "trancada") return feed(`🔒 <b>${esc(N)}</b>, a <b>Torre do Canal</b> ainda está trancada. Dizem que o campeão de lá tem um Kecleon...`, L, "rancho:torre-canal");
     if (r.erro === "fechada") return feed(`🌫️ <b>${esc(N)}</b>, a Torre de ${esc(nomeTorre(torre))} ainda está coberta de névoa. Por enquanto, só a <b>Torre de Alola</b> está aberta (<b>!torre</b>)`, L);
     if (r.erro === "pesadelo") return feed(`😈 <b>${esc(N)}</b>, o <b>modo pesadelo</b> abre depois que você vencer a Torre de Alola inteira (<b>!torre</b>)`, L);
