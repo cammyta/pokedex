@@ -323,6 +323,30 @@
     return { ok: 1, ganhos, prontos };
   }
 
+
+  /* ---------- o Pokémon de Grama planta sozinho nos canteiros vazios (de graça), a cor depende dele:
+     o outro tipo dele decide (Grama/Fogo = vermelho, Grama/Fada = rosa, Grama/Veneno = preto…); só Grama = verde. Às vezes vem uma cor surpresa ---------- */
+  const COR_TIPO = { fire: "red", fighting: "red", water: "blue", ice: "blue", electric: "yellow", ground: "yellow", rock: "yellow", steel: "white",
+    bug: "green", grass: "green", fairy: "pink", psychic: "pink", normal: "white", flying: "white", dark: "black", ghost: "black", poison: "black", dragon: "blue" };
+  function corDoPlantador(n) {
+    const outros = tiposDe(n).filter((t) => t !== "grass");
+    if (Math.random() < 0.3) return ["red", "blue", "yellow", "green", "pink", "white", "black"][Math.floor(Math.random() * 7)];
+    return COR_TIPO[outros[0]] || "green";
+  }
+  function rodadaHorta() {
+    const todos = ler("usum_rancho", {}), avisos = [];
+    Object.keys(todos).forEach((l) => {
+      const [agua, grama] = ajudantes(l, "horta"); if (!agua || !grama) return;
+      const hz = (todos[l].hz || []).slice(0, CFG.canteiros); while (hz.length < CFG.canteiros) hz.push(0);
+      const livres = hz.map((c, i) => (c ? -1 : i)).filter((i) => i >= 0); if (!livres.length) return;
+      const d = Math.round(CFG.minutosEstagio * fatorTempo((forcaDe(l, agua) + forcaDe(l, grama)) / 2) * 10) / 10;
+      const cores = [];
+      mudarR(l, (r) => { r.hz = hz; livres.forEach((i) => { const cor = corDoPlantador(grama); r.hz[i] = { s: cor, t: Date.now(), d, a: 1 }; cores.push(cor); }); });
+      avisos.push({ l, nome: todos[l].nm || l, grama, cores });
+    });
+    // aviso curto (só de quem tem nome conhecido), juntando todo mundo
+    if (avisos.length) publicar("rancho:planta-broto", "🌱 " + avisos.slice(0, 3).map((a) => `${nomeP(a.grama)} plantou ${a.cores.length > 1 ? a.cores.length + " Apricorns" : "um Apricorn " + ({ red: "Vermelho", blue: "Azul", yellow: "Amarelo", green: "Verde", pink: "Rosa", white: "Branco", black: "Preto" }[a.cores[0]])} na horta de <b>${esc(a.nome)}</b>`).join(" · ") + (avisos.length > 3 ? ` e mais ${avisos.length - 3}` : "") + ` · colha com <b>!colher</b> quando der fruto`);
+  }
   /* ---------- pesca ---------- */
   const PEIXES = [
     [[129, 70], [72, 10], [118, 10], [456, 10]],                                                                   // vara velha
@@ -625,7 +649,7 @@
       if (arg) escolherAjudantes(L, "horta", arg);
       const [ag, gr] = ajudantes(L, "horta"), hz = rancho(L).hz || [];
       const est = hz.slice(0, CFG.canteiros).map((c) => (c ? ["🌱", "🌿", "🌸", "🍎"][estagioDe(c)] : "▫️")).join(" ");
-      return publicar("ic:horta", `🌱 Horta de <b>${esc(N)}</b>: ${ag ? "💧 " + nomeP(ag) : "<i>sem Água</i>"} + ${gr ? "🍃 " + nomeP(gr) : "<i>sem Grama</i>"} · ${est || "▫️ ▫️ ▫️"} · plante com <b>!plantar azul</b> (um Apricorn de qualquer cor)`, L);
+      return publicar("ic:horta", `🌱 Horta de <b>${esc(N)}</b>: ${ag ? "💧 " + nomeP(ag) : "<i>sem Água</i>"} + ${gr ? "🍃 " + nomeP(gr) : "<i>sem Grama</i>"} · ${est || "▫️ ▫️ ▫️"} · ${gr ? nomeP(gr) + " planta sozinho nos canteiros vazios" : "com um Pokémon de Grama ele planta sozinho"} (ou plante o seu com <b>!plantar azul</b>)`, L);
     }
     if (cmd === "plantar") {
       const cor = CORES[limpa(arg).replace(/apricorn|semente/g, "").trim().split(" ")[0]];
@@ -708,7 +732,7 @@
       return publicar("rancho:movel-" + k, `🛠️ <b>${esc(N)}</b> fez <b>${esc(MOVEIS[k].n)}</b> na bancada e colocou na casinha! (${r.total}/${Object.keys(MOVEIS).length} móveis)`, L);
     }
   }
-  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); } catch (e) { console.error("[rancho]", e); } }, 60e3);
   if (USUM.aoMensagem && !site) USUM.aoMensagem((m) => {
     if (m.tipo || !lider) return;
     try {
@@ -724,6 +748,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
