@@ -904,6 +904,11 @@
           : "só Poké Balls. Compre Great, Ultra, Quick ou Master Ball com pontos do canal") + `</span>`;
         adicionar(d); return;
       }
+      // o streamer evolui o parceiro sem gastar pontos do canal: !evoluir (ou !evoluir raichu). Nível e item continuam valendo.
+      // (!evoluir 3 lycanroc, com número, é o do time do jogo: fica com o party.js)
+      if (cmd === "!evoluir" && m.dono && !/^!evoluir2?\s+[1-6]\b/.test(low)) {
+        umaVez(m, () => { if (USUM.rancho) USUM.rancho.evoluir({ login: m.login, nome: m.nome, texto: txt.slice(cmd.length).trim() }); }); return;
+      }
       if (cmd === "!evoluir" && !(m.dono || (USUM.podeParty && (USUM.podeParty(m) || USUM.podeParty(m, "2"))))) {
         aviso(times()[m.login], `<b>${esc(m.nome)}</b>, para evoluir seu parceiro use a recompensa <b>Evoluir meu Pokémon</b> nos pontos do canal`); return;
       }
