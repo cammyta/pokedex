@@ -303,6 +303,20 @@
     if (n) gravar("usum_caixa", todos);
     return n;
   }
+  // TM: troca um golpe por outro aleatório que ele aprende. qual: 1 ou 2. Slot: dá um 2º golpe aleatório
+  function sortearOutro(num, fora) { let g = ""; for (let i = 0; i < 12; i++) { g = sortearGolpe(num); if (!fora.includes(g)) return g; } return g; }
+  function mexerGolpe(login, num, ind, acao, qual) {
+    const todos = ler("usum_caixa", {}), e = todos[login] && todos[login].p[num]; if (!e) return { erro: "naotem" };
+    const alvo = (e.l || []).find((i) => i.t === ind.t && String(i.iv) === String(ind.iv)); if (!alvo) return { erro: "naotem" };
+    if (!alvo.m) alvo.m = sortearGolpe(num);
+    if (acao === "slot") {
+      if (alvo.m2) return { erro: "jatem2", m: alvo.m, m2: alvo.m2 };
+      alvo.m2 = sortearOutro(num, [alvo.m]); gravar("usum_caixa", todos); return { ok: 1, novo: alvo.m2, m: alvo.m, m2: alvo.m2 };
+    }
+    const k = qual === 2 && alvo.m2 ? "m2" : "m", antes = alvo[k];
+    alvo[k] = sortearOutro(num, [alvo.m, alvo.m2 || ""]); gravar("usum_caixa", todos);
+    return { ok: 1, antes, novo: alvo[k], m: alvo.m, m2: alvo.m2 || "" };
+  }
   function golpeDe(ind, num) { return (ind && ind.m && (window.USUM_GOLPES || {})[ind.m]) ? ind.m : null; }
   function individuos(login, num) { const e = caixa(login).p[num]; return e ? ordenar(completar(e).l) : []; }
   // escolhe qual: número (1 = mais forte), "todos", ou o mais fraco (padrão)
@@ -401,6 +415,7 @@
     const e = (ler("usum_capturas", {})[login] || {})[num] || {}, n = e.n || 0;
     const l = BORDAS.slice().reverse().filter(([min]) => n >= min).map(([, id, nome]) => ({ id, nome }));
     if (USUM.rancho && USUM.rancho.temBordaRancho(login, num)) l.push({ id: "rancho", nome: "Rancho" });   // amizade cheia no rancho
+    if (USUM.rancho && USUM.rancho.bordaRaid && USUM.rancho.bordaRaid(login) === +num) l.push({ id: "raid", nome: "Raid" });   // o Pokémon que ela mais usou em Raids
     const confere = shiny === undefined || shiny === null;
     if (e.sh && (confere || shiny)) l.push({ id: "shiny", nome: "Shiny" });
     if (e.p) {
@@ -505,7 +520,7 @@
   }
 
   USUM.selvagens = { C, registrar, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
-    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
+    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
       const id = USUM.homeId && USUM.formaRegional ? USUM.homeId(num, USUM.formaRegional(num)) : num;
