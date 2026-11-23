@@ -430,6 +430,7 @@
     const l = BORDAS.slice().reverse().filter(([min]) => n >= min).map(([, id, nome]) => ({ id, nome }));
     if (USUM.rancho && USUM.rancho.temBordaRancho(login, num)) l.push({ id: "rancho", nome: "Rancho" });   // amizade cheia no rancho
     if (USUM.rancho && USUM.rancho.bordaRaid && USUM.rancho.bordaRaid(login) === +num) l.push({ id: "raid", nome: "Raid" });   // o Pokémon que ela mais usou em Raids
+    if (individuos(login, num).some((x) => evTotal(x.ev) >= 510 && (shiny == null || !!x.s === !!shiny))) l.push({ id: "dojo", nome: "Dojo" });   // treino máximo no dojo (510 EVs)
     const confere = shiny === undefined || shiny === null;
     if (e.sh && (confere || shiny)) l.push({ id: "shiny", nome: "Shiny" });
     if (e.p) {
