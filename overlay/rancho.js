@@ -8,7 +8,7 @@
   window.USUM = window.USUM || {};
   const S = () => USUM.selvagens;
   const CFG = Object.assign({ chanceDrop: 0.45, minutosEstagio: 15, pescaMinutos: 3, canteiros: 3, ovoMinutos: 20, chocarMinutos: 30, maxOvos: 6,
-    bonusForca: 0.4, amizadeBorda: 60, pedreiraMinutos: 8, apiarioMinutos: 12, chanceHiperMel: 0.1 }, (window.USUM_CONFIG || {}).rancho);
+    bonusForca: 0.4, amizadeBorda: 60, pedreiraMinutos: 8, apiarioMinutos: 30, chanceHiperMel: 0.04, chanceMelFalha: 0.35 }, (window.USUM_CONFIG || {}).rancho);
   const ler = (k, p) => { try { return JSON.parse(localStorage.getItem(k) || "null") || p; } catch (e) { return p; } };
   const gravar = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/";
@@ -231,13 +231,36 @@
     return l.sort((a, b) => rk(b) - rk(a) || a - b)[0] || 0;
   }
   // ajudantes que valem agora: os escolhidos (se ainda estão na caixa) ou os melhores que a pessoa tem
+  // o Pokémon escolhido continua no lugar; se ele evoluiu, vai a evolução dele (que a pessoa tem na caixa)
+  function cadeia(n) { const l = [n]; let x = n, i = 0; while (S().pai && S().pai(x) && i++ < 5) { x = S().pai(x); l.push(x); } return l; }
+  function seguir(login, n, tipo, tem) {
+    if (!n || n < 1) return 0;
+    tem = tem || new Set(donos(login));
+    if (tem.has(n) && (!tipo || temTipo(n, tipo))) return n;
+    return [...tem].find((d) => d !== n && cadeia(d).includes(n) && (!tipo || temTipo(d, tipo))) || 0;
+  }
   function ajudantes(login, qual) {
     const r = rancho(login), par = PARES[qual], esc_ = (qual === "forja" ? r.fj : r.hf) || [];
     if (esc_ === "off") return [0, 0];   // a pessoa escolheu não deixar ninguém
     const tem = new Set(donos(login));
-    const a = esc_[0] && tem.has(esc_[0]) && temTipo(esc_[0], par[0]) ? esc_[0] : melhorDoTipo(login, par[0]);
-    const b = esc_[1] && tem.has(esc_[1]) && temTipo(esc_[1], par[1]) && esc_[1] !== a ? esc_[1] : melhorDoTipo(login, par[1], a);
+    const a = seguir(login, esc_[0], par[0], tem) || melhorDoTipo(login, par[0], esc_[1]);
+    const b0 = seguir(login, esc_[1], par[1], tem);
+    const b = b0 && b0 !== a ? b0 : melhorDoTipo(login, par[1], a);
     return [a, b];
+  }
+  // quem foi escolhido sozinho (ou seguiu uma evolução) fica gravado: não muda mais sem a pessoa trocar
+  function fixarTrabalhadores(login) {
+    const r = rancho(login) || {};
+    const muda = {};
+    ["forja", "horta"].forEach((q) => { const k = q === "forja" ? "fj" : "hf"; if (r[k] === "off") return; const v = ajudantes(login, q); if (v[0] && v[1] && JSON.stringify(v) !== JSON.stringify(r[k])) muda[k] = v; });
+    const mn = mineiro(login); if (mn && (r.pd || {}).n !== -1 && (r.pd || {}).n !== mn) muda.pd = mn;
+    const ab = abelha(login); if (ab && (r.ap || {}).n !== -1 && (r.ap || {}).n !== ab) muda.ap = ab;
+    if (!Object.keys(muda).length) return;
+    mudarR(login, (x) => {
+      if (muda.fj) x.fj = muda.fj; if (muda.hf) x.hf = muda.hf;
+      if (muda.pd) x.pd = Object.assign(x.pd || {}, { n: muda.pd });
+      if (muda.ap) x.ap = Object.assign(x.ap || {}, { n: muda.ap });
+    });
   }
   // "magnemite litten", "81 725" ou "magnemite e litten" -> palavras que podem ser Pokémon
   const palavrasPoke = (t) => limpa(t).split(" ").filter((w) => /^\d{1,4}$/.test(w) || (w.length > 2 && !/^(shiny|com|para|pro)$/.test(w)));
@@ -283,7 +306,7 @@
     if (R.vara != null) {
       const vr = rancho(login).vr || 0;
       if (vr >= R.vara) return { erro: "jatem" };
-      if (R.vara === 2 && vr < 1) return { erro: "precisaboa" };
+      // a Super Vara pode ser forjada direto (não precisa passar pela Vara Boa)
       vezes = 1;
     }
     let feitas = 0;
@@ -386,6 +409,30 @@
   // r.dc = { a: {n, s, iv}, b: {n, s, iv}, ult: último ovo (ms), ov: [ {n, t, s} ] }
   function raiz(n) { if (!S() || !S().pai) return n; let x = n, i = 0; while (S().pai(x) && i++ < 5) x = S().pai(x); return x; }
   function melhorInd(login, num, shiny) { const l = S().individuos(login, num); return l.find((x) => !!x.s === !!shiny) || l[0]; }
+  // o ovo é da espécie da mãe (♀); com Ditto, da espécie do outro
+  function maeDe(a, b) { if (a.n === 132) return b.n; if (b.n === 132) return a.n; if (a.sx === "♀") return a.n; if (b.sx === "♀") return b.n; return a.n; }
+  // casais antigos (de antes das regras do jogo): confere uma vez; se não vale, devolve os Pokémon
+  function conferirCasal(login) {
+    const dc = rancho(login).dc; if (!dc || !dc.a || !dc.b || dc.v === 2 || !S().temDex || !S().temDex()) return;
+    const c = S().casalDaycare(login, dc.a.n, dc.b.n);
+    mudarR(login, (r) => {
+      if (!r.dc) return;
+      if (c.erro) { r.dc.a = 0; r.dc.b = 0; r.dc.inv = c.erro; }
+      else { r.dc.v = 2; r.dc.a.sx = S().sexoDe(c.a, r.dc.a.n); r.dc.b.sx = S().sexoDe(c.b, r.dc.b.n); r.dc.a.iv = c.a.iv; r.dc.b.iv = c.b.iv; }
+    });
+    if (c.erro) publicar("ic:daycare", `🥚 <b>${esc(nomeTreinador(login))}</b>, o Day Care devolveu ${nomeP(dc.a.n)} e ${nomeP(dc.b.n)}: ${motivoDaycare(c)}. Escolha outro casal com <b>!daycare</b>`, login);
+  }
+  const GRUPO_PT = { Monster: "Monstro", "Water 1": "Água 1", "Water 2": "Água 2", "Water 3": "Água 3", Bug: "Inseto", Flying: "Voador", Field: "Campo", Fairy: "Fada", Grass: "Planta", "Human-Like": "Humanoide", Mineral: "Mineral", Amorphous: "Amorfo", Ditto: "Ditto", Dragon: "Dragão", Undiscovered: "Desconhecido" };
+  const gpt = (l) => (l || []).map((g) => GRUPO_PT[g] || g).join("/");
+  function motivoDaycare(r) {
+    return r.erro === "sozinho" ? `você só tem 1 ${nomeP(r.a)}, precisa de dois diferentes`
+      : r.erro === "dittos" ? "dois Ditto não botam ovo"
+      : r.erro === "naobota" ? `${nomeP(r.n)} não bota ovo (grupo Desconhecido, como lendários e bebês)`
+      : r.erro === "grupo" ? `eles não são do mesmo grupo de ovo (${gpt(r.ga)} × ${gpt(r.gb)}). Um Ditto cruza com quase todos`
+      : r.erro === "semsexo" ? "Pokémon sem sexo só bota ovo com um Ditto"
+      : r.erro === "mesmosexo" ? `os dois são ${r.sx === "♀" ? "fêmeas ♀" : "machos ♂"}: precisa de um macho e uma fêmea (ou um Ditto)`
+      : "não deu";
+  }
   function porOvos(login, agora) {   // põe os ovos que já deviam ter aparecido; devolve quantos novos
     agora = agora || Date.now();
     let novos = 0;
@@ -396,7 +443,7 @@
       while (dc.ov.length < CFG.maxOvos && agora - dc.ult >= passo) {
         dc.ult += passo;
         const pai = Math.random() < 0.5 ? dc.a : dc.b, outro = pai === dc.a ? dc.b : dc.a;
-        const n = raiz(pai.n === 132 ? outro.n : pai.n);   // com Ditto, nasce a espécie do outro
+        const n = raiz(dc.v === 2 ? maeDe(dc.a, dc.b) : pai.n === 132 ? outro.n : pai.n);   // nasce a espécie da mãe (com Ditto, a do outro)
         dc.ov.push({ n, t: dc.ult, s: Math.random() < (S().C.chanceShiny || 0.003) * 2 ? 1 : 0, iv: (pai.iv || []).map((v, i) => Math.random() < 0.5 ? v : Math.random() < 0.5 ? (outro.iv || [])[i] ?? v : Math.floor(Math.random() * 32)) });
         novos++;
       }
@@ -408,14 +455,17 @@
     const tem = new Set(donos(login)), ws = palavrasPoke(texto);
     const nums = [];
     ws.forEach((w) => { const p = USUM.lerPokemon(w); if (p && tem.has(p.num) && (nums.length < 2)) nums.push(p.num); });
+    if (nums.length === 1 && S().individuos(login, nums[0]).length >= 2) nums.push(nums[0]);   // "!daycare kecleon" com dois Kecleon
     if (nums.length < 2) return { erro: "dois", achou: nums };
     if (nums.some((n) => S().ehLendario(n))) return { erro: "lendario" };
-    if (nums[0] === 132 && nums[1] === 132) return { erro: "dittos" };
-    const ind = nums.map((n) => melhorInd(login, n, false));
-    const p = Math.round(CFG.ovoMinutos * fatorTempo((forcaDe(login, nums[0]) + forcaDe(login, nums[1])) / 2));
+    // como no jogo: dois Pokémon diferentes, mesmo grupo de ovo e sexos opostos (ou um Ditto com qualquer um)
+    const c = S().casalDaycare ? S().casalDaycare(login, nums[0], nums[1]) : { a: melhorInd(login, nums[0]), b: melhorInd(login, nums[1]) };
+    if (c.erro) return Object.assign({ a: nums[0], b: nums[1] }, c);
+    const ind = [c.a, c.b], sx = [S().sexoDe ? S().sexoDe(c.a, nums[0]) : "", S().sexoDe ? S().sexoDe(c.b, nums[1]) : ""];
+    const p = Math.round(CFG.ovoMinutos * fatorTempo((S().forcaIV(c.a.iv) + S().forcaIV(c.b.iv)) / 2));
     mudarR(login, (r) => { r.nm = nome; const ov = (r.dc && r.dc.ov) || [];
-      r.dc = { a: { n: nums[0], s: ind[0] && ind[0].s ? 1 : 0, iv: ind[0] && ind[0].iv }, b: { n: nums[1], s: ind[1] && ind[1].s ? 1 : 0, iv: ind[1] && ind[1].iv }, ult: Date.now(), ov, p }; });
-    return { ok: 1, a: nums[0], b: nums[1], p, bebe: raiz(nums[0] === 132 ? nums[1] : nums[0]) };
+      r.dc = { a: { n: nums[0], s: ind[0].s ? 1 : 0, iv: ind[0].iv, sx: sx[0] }, b: { n: nums[1], s: ind[1].s ? 1 : 0, iv: ind[1].iv, sx: sx[1] }, ult: Date.now(), ov, p, v: 2 }; });
+    return { ok: 1, a: nums[0], b: nums[1], sa: sx[0], sb: sx[1], p, bebe: raiz(maeDe({ n: nums[0], sx: sx[0] }, { n: nums[1], sx: sx[1] })) };
   }
   function chocar(login, nome) {
     porOvos(login);
@@ -440,7 +490,7 @@
   function mineiro(login) {
     const r = rancho(login), tem = new Set(donos(login)), esc_ = r.pd && r.pd.n;
     if (esc_ === -1) return 0;   // ninguém na pedreira
-    if (esc_ && tem.has(esc_) && temTipo(esc_, TIPOS_PEDREIRA)) return esc_;
+    const seg = seguir(login, esc_, TIPOS_PEDREIRA, tem); if (seg) return seg;
     const fj = ajudantes(login, "forja")[0];
     return melhorDoTipo(login, TIPOS_PEDREIRA, fj) || melhorDoTipo(login, TIPOS_PEDREIRA);
   }
@@ -473,7 +523,7 @@
   function abelha(login) {
     const r = rancho(login), tem = new Set(donos(login)), e = r.ap && r.ap.n;
     if (e === -1) return 0;   // ninguém no apiário
-    if (e && tem.has(e) && ABELHAS.includes(e)) return e;
+    const seg = seguir(login, e, null, tem); if (seg && ABELHAS.includes(seg)) return seg;
     const l = ABELHAS.filter((n) => tem.has(n)); return l.sort((a, b) => forcaDe(login, b) - forcaDe(login, a))[0] || 0;
   }
   // todo mundo que tem Pokémon na caixa (mesmo quem nunca mexeu no rancho)
@@ -492,6 +542,7 @@
         let k = 0;
         while (agora - r.ap.ult >= passo && k < 3) {
           r.ap.ult += passo; k++;
+          if (Math.random() < (CFG.chanceMelFalha || 0)) continue;   // às vezes a abelha volta sem néctar
           const id = Math.random() < chHiper ? "hiper-mel" : "mel"; r.it[id] = (r.it[id] || 0) + 1;
           r.ap.ac = [[id, agora]].concat(r.ap.ac || []).slice(0, 8);
           if (id === "hiper-mel") avisos.push({ l, nome: r.nm || nomeTreinador(l), n });
@@ -554,7 +605,8 @@
   const temBordaRancho = (login, num) => (rancho(login).br || []).includes(+num);
   function rodadaOvos() {
     const todos = ler("usum_rancho", {}), quem = [];
-    Object.keys(todos).forEach((l) => { const dc = todos[l].dc; if (dc && dc.a && dc.b && porOvos(l)) quem.push(todos[l].nm || l); });
+    Object.keys(todos).forEach((l) => { const dc = todos[l].dc; if (dc && dc.a && dc.b && dc.v !== 2) conferirCasal(l); });
+    Object.keys(todos).forEach((l) => { const dc = rancho(l).dc; if (dc && dc.a && dc.b && porOvos(l)) quem.push(todos[l].nm || l); });
     if (quem.length) publicar("ic:daycare", `🥚 Apareceu ovo no Day Care de <b>${quem.slice(0, 4).map(esc).join(", ")}</b>${quem.length > 4 ? " e +" + (quem.length - 4) : ""}! Choca em ${CFG.chocarMinutos} min com <b>!chocar</b>`);
   }
   // ovos como estão agora (para o site, que não grava nada)
@@ -806,8 +858,8 @@
         const r = deixarNoDaycare(L, N, arg);
         if (r.erro === "dois") return publicar("ic:daycare", `🥚 <b>${esc(N)}</b>, diga <b>dois</b> Pokémon que você tem na caixa: <b>!daycare pikachu eevee</b>` + (r.achou.length ? ` (achei só ${nomeP(r.achou[0])})` : ""), L);
         if (r.erro === "lendario") return publicar("ic:daycare", `<b>${esc(N)}</b>, lendários não botam ovo no Day Care`, L);
-        if (r.erro === "dittos") return publicar("ic:daycare", `<b>${esc(N)}</b>, dois Ditto não botam ovo 😅`, L);
-        return publicar("ic:daycare", `🥚 <b>${esc(N)}</b> deixou ${nomeP(r.a)} e ${nomeP(r.b)} no Day Care! A cada ${r.p} min aparece um ovo (até ${CFG.maxOvos}, mais rápido com pais fortes) e dele nasce <b>${nomeP(r.bebe)}</b> (ou a forma bebê do outro)`, L);
+        if (r.erro) return publicar("ic:daycare", `🥚 <b>${esc(N)}</b>, não deu: ${motivoDaycare(r)}`, L);
+        return publicar("ic:daycare", `🥚 <b>${esc(N)}</b> deixou ${nomeP(r.a)}${r.sa ? " " + r.sa : ""} e ${nomeP(r.b)}${r.sb ? " " + r.sb : ""} no Day Care! A cada ${r.p} min aparece um ovo (até ${CFG.maxOvos}, mais rápido com pais fortes) e dele nasce <b>${nomeP(r.bebe)}</b> (a espécie da mãe)`, L);
       }
       porOvos(L);
       const dc = rancho(L).dc, ov = ovosVer(dc);
@@ -833,7 +885,7 @@
     }
   }
   if (USUM.aoMensagem && !site && S() && S().carregarGolpes) S().carregarGolpes();   // lista de golpes que cada Pokémon aprende
-  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); if (S().garantirGolpes) treinadores().forEach((l) => S().garantirGolpes(l)); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { treinadores().forEach((l) => fixarTrabalhadores(l)); rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); if (S().garantirGolpes) treinadores().forEach((l) => S().garantirGolpes(l)); } catch (e) { console.error("[rancho]", e); } }, 60e3);
   // roda numa tela só: a líder na hora; se a líder estiver com o chat caído, outra tela assume depois de ~1,5 s
   function umaVezR(m, fn) {
     const k = (m.id || m.login + ":" + m.texto) + "", ler_ = () => ler("usum_rancho_feitos", []);
@@ -843,7 +895,7 @@
   }
   if (USUM.aoMensagem && !site) USUM.aoMensagem((m) => {
     if (m.tipo) return;
-    if (!lider) { const lw = String(m.texto || "").trim().toLowerCase(); if (CMD.test(lw) || /^!evento\s/.test(lw)) umaVezR(m, () => trata(m)); return; }
+    if (!lider) { const lw = String(m.texto || "").trim().toLowerCase(); if (CMD.test(lw) || /^!(evento|hiper|hyper|honey)/.test(lw)) umaVezR(m, () => trata(m)); return; }
     umaVezR(m, () => trata(m));
   });
   function trata(m) {
@@ -855,7 +907,12 @@
       else anotarCinema(m);
       checkin(m);
     } catch (e) { console.error("[rancho]", e); }
-    if (!m.texto || !CMD.test(String(m.texto).trim().toLowerCase())) return;
+    if (!m.texto) return;
+    // jeitos diferentes de pedir o mel: "!hiper mel", "!hiper", "!usar hiper mel", "!usar mel", "!mel hiper"
+    const lw2 = String(m.texto).trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    if (/^!(hiper\s*mel|hiper|hypermel|hyper\s*mel|usar\s+(o\s+)?(hiper\s*mel|hipermel)|mel\s+hiper)\b/.test(lw2)) m = Object.assign({}, m, { texto: "!hipermel" });
+    else if (/^!(usar\s+(o\s+)?mel|honey)\b/.test(lw2)) m = Object.assign({}, m, { texto: "!mel" });
+    if (!CMD.test(String(m.texto).trim().toLowerCase())) return;
     try { comando(m); } catch (e) { console.error("[rancho]", e); }
     // manda para o site logo (em vez de esperar o minuto)
     clearTimeout(trata._pub); trata._pub = setTimeout(() => { try { USUM.backup && USUM.backup.enviarPublico && USUM.backup.enviarPublico(); } catch (e) {} }, 2500);
@@ -864,6 +921,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
