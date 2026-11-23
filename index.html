@@ -238,8 +238,8 @@
   .tw-pk.bate { animation: tw-pisca .5s steps(2) 2; } .tw-pk.ataca.op { animation: tw-avanca-op .35s; } .tw-pk.ataca.eu { animation: tw-avanca-eu .35s; }
   @keyframes tw-pisca { 50% { opacity: .2; } }
   @keyframes tw-avanca-op { 50% { transform: translate(-62%, -92%); } } @keyframes tw-avanca-eu { 50% { transform: translate(-38%, -108%); } }
-  .tw-lider-spr { position: absolute; left: 84%; top: 12%; height: 34%; image-rendering: pixelated; transition: opacity .4s, transform .4s; filter: drop-shadow(0 6px 4px rgba(0,0,0,.4)); }
-  .tw-lider-spr.fora { opacity: 0; transform: translateX(30px); }
+  .tw-lider-spr { position: absolute; left: 85.5%; top: 50%; height: 27%; transform: translate(-50%, -100%); image-rendering: pixelated; transition: opacity .4s, transform .4s; filter: drop-shadow(0 5px 2px rgba(0,0,0,.45)); }
+  .tw-lider-spr.fora { opacity: 0; transform: translate(-20%, -100%); }
   .tw-caixa { position: absolute; min-width: 34%; background: rgba(250,250,240,.95); color: #20232a; border: 3px solid #2b2b2b; border-radius: 12px; padding: 6px 10px; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
   .tw-caixa.op { left: 3%; top: 5%; } .tw-caixa.eu { right: 3%; bottom: 5%; }
   .tw-caixa b { font: 600 clamp(13px, 2vw, 17px) "Fredoka", sans-serif; } .tw-caixa small { float: right; font-weight: 600; }
@@ -266,7 +266,18 @@
   .tw-ordem li span { flex: 1; } .tw-ordem button { padding: 4px 10px; }
   .tw-modo { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
   .tw-modo label { background: rgba(0,0,0,.25); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
-  @media (max-width: 640px) { .tw-acoes { grid-template-columns: 1fr 1fr; } .tw-trocar { grid-column: 1 / -1; } .tw-caixa { min-width: 44%; padding: 4px 7px; } .tw-lider-spr { left: 80%; } }
+  @media (max-width: 640px) { .tw-acoes { grid-template-columns: 1fr 1fr; } .tw-trocar { grid-column: 1 / -1; } .tw-caixa { min-width: 44%; padding: 4px 7px; } }
+  .tw-bits { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .tw-bit { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left; padding: 12px 16px; border-radius: 16px; color: #fff; border: 1px solid rgba(255,255,255,.18); }
+  .tw-bit.auto { background: linear-gradient(120deg, #3a2a8a, #6a3fd0); } .tw-bit.reset { background: linear-gradient(120deg, #0f6f68, #1aa38f); }
+  .tw-bit:hover, .tw-bit:focus-visible { filter: brightness(1.12); outline: none; box-shadow: 0 0 0 2px #ffe7a8; }
+  .tw-bit span { grid-row: 1 / 3; font-size: 30px; } .tw-bit b { font: 600 17px "Fredoka", sans-serif; } .tw-bit small { grid-column: 2; font-size: 12.5px; opacity: .9; }
+  .tw-bit i { grid-row: 1 / 3; grid-column: 3; font-style: normal; font: 600 14px "Fredoka", sans-serif; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.3); white-space: nowrap; }
+  .tw-pagar h3 { margin: 0 0 6px; font: 600 22px "Fredoka", sans-serif; }
+  .tw-msg { display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,.3); border-radius: 12px; padding: 10px 12px; } .tw-msg code { flex: 1; font-size: 16px; color: #ffe7a8; }
+  @media (max-width: 640px) { .tw-bits { grid-template-columns: 1fr; } }
+  .tw-escolha { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tw-escolha button { padding: 6px 12px; font-size: 13.5px; border-radius: 999px; }
 
   .tw-fala p { margin: 2px 0 0; font-size: 15.5px; line-height: 1.4; }
   .tw-ctrl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
@@ -951,14 +962,18 @@
 
   /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
   const PATCH = [
+    { v: "Torre 3", d: "23/11/2026", t: "Chances na torre", itens: [
+      ["🎟️", "3 chances por live", "Cada subida na torre gasta 1 chance. Ganhando, você escolhe: seguir para o próximo líder ou lutar de novo com um que já venceu."],
+      ["💎", "Mais chances", "Acabaram? Na página da torre, o botão <b>🔄 Mais 3 chances</b> (30 bits) recarrega."],
+      ["🔁", "Revanche gasta chance", "Lutar de novo com um líder que você já venceu gasta 1 chance. Seguir para o próximo líder não gasta."]] },
     { v: "Torre 2", d: "23/11/2026", t: "Batalhe na Torre de Alola", itens: [
       ["⚔️", "Batalha na mão", "Na página 🗼 Torre, clique em <b>Batalhar na torre</b>: escolha a ordem da party e, a cada turno, o golpe ou a troca. Os botões já mostram se o golpe é super efetivo."],
       ["🏟️", "Arena da torre", "A luta acontece na arena de Alola, com o seu Pokémon de costas e o do líder de frente, cada um no seu círculo."],
       ["🏅", "Vale na live", "Ganhou? O site avisa a live, que confere a luta e entrega a insígnia e o XP da party. O chat vê quando você derrota um líder e quando vence a torre."],
-      ["💎", "Automática com bits", "Mandar <code>!torre</code> com 100 bits faz a party lutar sozinha, sem gastar suas subidas do dia."]] },
+      ["💎", "Automática com bits", "O botão <b>🤖 Batalha automática</b> (20 bits) faz a party lutar sozinha, sem gastar chances."]] },
     { v: "Torre", d: "23/11/2026", t: "Torre dos Líderes", itens: [
       ["🗼", "Torre de Alola aberta", "Suba com <code>!torre</code> (ou pelo botão na página 🗼 Torre): 8 capitães, os 4 Kahunas e o Kukui de campeão. Sua party luta sozinha, líder por líder, até perder."],
-      ["🏅", "Insígnias e XP", "Cada líder vencido dá uma insígnia e XP para todos os Pokémon da party. Dá para subir 2 vezes por dia, e o progresso fica salvo."],
+      ["🏅", "Insígnias e XP", "Cada líder vencido dá uma insígnia e XP para todos os Pokémon da party. Dá para subir 3 vezes por dia, e o progresso fica salvo."],
       ["🎬", "Assista à batalha", "A última subida aparece na página da torre, com as falas dos líderes e as reações dos Pokémon."],
       ["🌺", "Bolha e borda da torre", "Vencer o Kukui dá a bolha Torre de Alola e a borda Torre de Alola nos Pokémon da party. Depois disso abre o <b>modo pesadelo</b> 😈."],
       ["🔒", "Outras torres", "A Torre do Canal está trancada por enquanto... e as das outras regiões ainda estão na névoa."]] },
@@ -1158,7 +1173,7 @@
         ${linha("!forjar great", "A forja faz Pokébolas com Essência, Apricorn e Minério. Precisa ter na caixa um Pokémon de <b>Aço, Terra ou Pedra</b> e um de <b>Fogo</b> (os mais fortes trabalham sozinhos; para escolher: <code>!forja geodude litten</code>). <code>!forjar great 5</code> faz 5 vezes. Também forja as bolas de Johto e as varas de pesca (<code>!forjar vara boa</code>)")}
         ${linha("!mel / !hipermel", "Uma abelha da sua caixa (<b>Cutiefly, Ribombee, Combee ou Vespiquen</b>) faz Mel no apiário do rancho durante a live, devagar: mais ou menos 1 a cada 30 minutos, e às vezes a abelha volta sem nada (<code>!apiario cutiefly</code> escolhe qual). <code>!mel</code> chama um Pokémon selvagem na live. <code>!hipermel</code> tem 10% de chance de vir um Pokémon na última forma e 0,1% de um lendário")}
         ${linha("Check-in", "Na sua primeira mensagem de cada live você faz check-in e ganha 2 Great Balls, 1 Mel, 3 Essências e 1 Apricorn. A cada 5 dias seguidos ganha também 1 Ultra Ball e 1 Hiper Mel")}
-        ${linha("!torre", "A <b>Torre dos Líderes de Alola</b> se joga no site, na página 🗼 Torre: você batalha com a sua party (parceiro + time salvo) escolhendo os golpes. Capitães usam 3 Pokémon, os 4 Kahunas e o Kukui usam 6. Mandar <code>!torre</code> com 100 bits faz a party lutar sozinha. Cada vitória dá insígnia e XP para todos da party. <b>2 subidas por dia</b>; o progresso fica salvo. <code>!torre pesadelo</code> abre depois de vencer tudo, e <code>!insignias</code> mostra seu estojo. Veja a batalha na página <a href='?p=torre'>🗼 Torre</a>")}
+        ${linha("!torre", "A <b>Torre dos Líderes de Alola</b> se joga no site, na página 🗼 Torre: você batalha com a sua party (parceiro + time salvo) escolhendo os golpes. Capitães usam 3 Pokémon, os 4 Kahunas e o Kukui usam 6. A batalha automática (20 bits) e as chances extras (30 bits) ficam em botões na página da torre. Cada vitória dá insígnia e XP para todos da party. <b>2 subidas por dia</b>; o progresso fica salvo. <code>!torre pesadelo</code> abre depois de vencer tudo, e <code>!insignias</code> mostra seu estojo. Veja a batalha na página <a href='?p=torre'>🗼 Torre</a>")}
         ${linha("!atacar (Raid)", "Quando o streamer abre uma <b>Raid</b>, aparece um Pokémon chefe 80% mais forte, com HP enorme, por 3 minutos. Digite <code>!atacar</code> (ou use o botão ⚔️ no chat do site) para atacar com o seu parceiro: a força dele, o estágio e o tipo contam. O chefe revida e deixa alguns parceiros fora de combate por um tempinho. Se ele cair, todo mundo que lutou ganha Essência e só quem lutou pode tentar capturar")}
         ${linha("!pedreira geodude", "Um Pokémon de <b>Pedra</b> ou <b>Terra</b> da sua caixa quebra pedra na pedreira do rancho durante a live (se você não escolher, o mais forte vai sozinho). A cada 8 minutos mais ou menos ele acha algo: quase sempre <b>Minério</b> para a forja, às vezes Pó Estelar e, com sorte, <b>pedras de evolução</b> e <b>Revestimento Metálico</b> (só vem daqui; Magneton precisa dele e do nível 30 para virar Magnezone). Mais forte, mais rápido. Vai direto para a mochila")}
         ${linha("!colher", "A horta tem 3 canteiros. Com um Pokémon de <b>Água</b> (rega) e um de <b>Grama</b> na caixa, o de Grama <b>planta sozinho</b> nos canteiros vazios durante a live, de graça. A cor do Apricorn depende do tipo dele: Grama/Fogo planta vermelho, Grama/Fada rosa, Grama/Veneno preto, só Grama verde (e às vezes vem uma surpresa). Em até 45 minutos dá 2 ou 3 Apricorns: <code>!colher</code>. Quer uma cor certa? Plante o seu com <code>!plantar azul</code>. <code>!horta squirtle bulbasaur</code> escolhe os ajudantes")}
@@ -1370,8 +1385,9 @@
         <ul class="tw-regras">
           <li><b>Capitães</b> usam 3 Pokémon: lutam os <b>3 primeiros</b> da sua party.</li>
           <li><b>Kahunas e Kukui</b> usam 6: entra a party inteira.</li>
-          <li><b>2 subidas por dia.</b> Ganhou, segue para o próximo líder. Perdeu, a subida acaba, mas o progresso fica salvo.</li>
-          <li><b>Batalha automática</b>: mande <code>!torre</code> com 100 bits no chat da live e a party luta sozinha.</li>
+          <li><b>3 chances por live.</b> Começar uma subida gasta 1; ganhando, você segue para o próximo líder sem gastar mais. Lutar de novo com um líder que já venceu também gasta 1. Perdeu, a subida acaba, mas as insígnias ficam.</li>
+          <li><b>Acabaram as chances?</b> Use o botão <b>🔄 Mais 3 chances</b> (30 bits).</li>
+          <li><b>Batalha automática</b>: botão <b>🤖</b> (20 bits). A party luta sozinha e não gasta chances.</li>
           <li>Cada vitória dá uma <b>insígnia</b> e <b>XP para todos</b> os Pokémon da party.</li>
           <li>Vencer o Kukui dá a <b>bolha Torre de Alola</b> 🗼 e a <b>borda Torre de Alola</b> 🌺 nos Pokémon da party.</li>
           <li><b>Modo pesadelo</b> 😈: abre depois de vencer a torre. Todos usam 6 Pokémon, 20 níveis acima.</li>
@@ -1383,8 +1399,12 @@
         <div class="tw-eu" id="tw-eu">${u ? `
           <h3 style="margin:0">${esc(u.n)} na Torre de Alola</h3>
           <div class="tw-estojo" title="Estojo de insígnias">${L.map((x, i) => `<i style="--tc:${TW_COR[x.tipo]}" class="${ganhou.has(i) ? "" : "falta"} ${ganhouP.has(i) ? "pz" : ""}" title="${esc(x.n)}${ganhou.has(i) ? "" : " (falta)"}${ganhouP.has(i) ? " · pesadelo" : ""}">${icInsignia(x)}</i>`).join("")}</div>
-          <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · subidas hoje: <b>${usadas}/${T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
-          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia && login !== D.canal ? "disabled" : ""}>${usadas >= T.CFG.porDia && login !== D.canal ? "Volte amanhã" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes. Quer que a party lute sozinha? Mande <code>!torre</code> com <b>${T.CFG.bitsAuto} bits</b> no chat da live.</small></div>`
+          <p class="sub">${ganhou.size}/${L.length} insígnias${tw.v ? ` · venceu a torre ${tw.v}x` : ""}${tw.vp ? ` · venceu o pesadelo ${tw.vp}x` : ""} · chances nesta live: <b>${login === D.canal ? "∞" : Math.max(0, T.CFG.porDia - usadas) + "/" + T.CFG.porDia}</b>${prox >= 0 ? ` · próximo: <b>${esc(L[prox].tit)} ${esc(L[prox].n)}</b>` : ""}</p>
+          ${meu ? `<div class="tw-botoes"><button type="button" class="r-btn" data-batalhar ${usadas >= T.CFG.porDia && login !== D.canal ? "disabled" : ""}>${usadas >= T.CFG.porDia && login !== D.canal ? "Sem chances: use 🔄 Mais 3 chances" : "🔀 Ordem da party e modo"}</button><small class="sub">Clique no líder marcado com ⚔️ para batalhar na hora. Você escolhe os golpes.</small></div>
+            <div class="tw-bits">
+              <button type="button" class="tw-bit auto" data-bits="auto"><span>🤖</span><b>Batalha automática</b><small>Sua party sobe a torre sozinha · não gasta chances</small><i>💎 ${T.CFG.bitsAuto} bits</i></button>
+              <button type="button" class="tw-bit reset" data-bits="reset"><span>🔄</span><b>Mais ${T.CFG.porDia} chances</b><small>Recarrega suas chances desta live</small><i>💎 ${T.CFG.bitsReset} bits</i></button>
+            </div>`
             : barraLogin(login)}
           <div id="tw-replay"></div>` : `${barraLogin("")}<p class="sub">Entre com a Twitch para ver suas insígnias e batalhar clicando nos líderes.</p>`}</div>
       </section>`;
@@ -1393,9 +1413,11 @@
     app.querySelector("[data-tranca]").onclick = () => TWX.aviso("🔒 A Torre do Canal ainda está trancada. Dizem que o campeão de lá anda com um Kecleon…");
     app.querySelectorAll("[data-nevoa]").forEach((b) => (b.onclick = () => TWX.aviso(`🌫️ A Torre de ${esc(T.TORRES.find((t) => t.id === b.dataset.nevoa).n)} ainda está coberta de névoa.`)));
     app.querySelectorAll(".tw-lid").forEach((c) => { const i = +c.dataset.i;
-      const abrir = () => (meu && i === alvo && (usadas < T.CFG.porDia || login === D.canal) ? batalharTorre(u, login, true) : fichaLider(i));
+      const temIdas = usadas < T.CFG.porDia || login === D.canal;
+      const abrir = () => (meu && i === alvo && temIdas ? batalharTorre(u, login, true) : fichaLider(i, meu && temIdas && ganhou.has(i) && i !== alvo ? { u, login } : null));
       if (meu && i === alvo && (usadas < T.CFG.porDia || login === D.canal)) c.title = `Clique para batalhar com ${L[i].n}`; c.onclick = abrir; c.onkeydown = (e) => { if (e.key === "Enter") abrir(); }; });
     const btB = app.querySelector("[data-batalhar]"); if (btB) btB.onclick = () => batalharTorre(u, login);
+    app.querySelectorAll("[data-bits]").forEach((b) => (b.onclick = () => pagarBits(b.dataset.bits)));
     if (u && u.tl && u.tl.l && u.tl.l.length) assistirTorre(document.getElementById("tw-replay"), u, u.tl);
   }
   /* ---------- ⚔️ batalha na mão (a luta roda aqui; o overlay confere e dá a insígnia) ---------- */
@@ -1425,16 +1447,18 @@
     const G = window.USUM_GOLPES || {}, ev = x.ev ? { hp: x.ev[0] || 0, at: x.ev[1] || 0, df: x.ev[2] || 0, sa: x.ev[3] || 0, sd: x.ev[4] || 0, ve: x.ev[5] || 0 } : {};
     return { num: +num, s: x.s, lv: x.lv || 5, fz: x.f, ev, mv: [G[x.m] ? x.m : "Tackle", G[x.m2] ? x.m2 : ""], hi: x.hi || "", a: x.a || "" };
   }
-  function batalharTorre(u, login, direto) {
+  function batalharTorre(u, login, direto, alvoI) {
     const T = USUM.torre, L = T.ALOLA, tw = (u.rn && u.rn.tw) || {}, loc = twLocal(login);
     const usadas = Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, loc.n || 0);
-    if (usadas >= T.CFG.porDia && login !== D.canal) { TWX.aviso(`Você já usou as ${T.CFG.porDia} subidas de hoje. Volte amanhã!`, true); return; }
+    if (usadas >= T.CFG.porDia && login !== D.canal) { TWX.aviso(`Suas ${T.CFG.porDia} chances desta live acabaram. Mande !torre reset com ${T.CFG.bitsReset} bits no chat para ganhar mais ${T.CFG.porDia}!`, true); return; }
+    let emSubida = false;   // a 1ª luta abre a subida (gasta 1 chance); as próximas, ganhando, seguem nela
+    const vencidos = new Set([...(tw.b || [])]);
     let pesadelo = false, ordem = partyDoSite(u);
     if (!ordem.length) { TWX.aviso("Monte sua party primeiro: escolha um parceiro e salve um time (botão ⭐ Time no chat do site)", true); return; }
-    const proxDe = (pz) => { const k = pz ? "pp" : "p"; let i = Math.max(tw[k] || 0, loc[k] || 0); return i >= L.length ? 0 : i; };
+    const proxDe = (pz) => { const k = pz ? "pp" : "p"; let i = Math.max(tw[k] || 0, twLocal(login)[k] || 0); return i >= L.length ? 0 : i; };
     const fundo = document.createElement("div"); fundo.className = "tw-bt-fundo"; document.body.appendChild(fundo);
     document.body.style.overflow = "hidden";
-    const sair = () => { fundo.remove(); document.body.style.overflow = ""; if (new URLSearchParams(location.search).get("p") === "torre") paginaTorre(login); };
+    const sair = () => { if (emSubida) { TWX.enviar("!torre parar"); emSubida = false; } fundo.remove(); document.body.style.overflow = ""; if (new URLSearchParams(location.search).get("p") === "torre") paginaTorre(login); };
 
     function preparar() {
       const i = proxDe(pesadelo), Lid = L[i], q = T.qtdLider(i, pesadelo), t = T.timeDoLider("alola", i, pesadelo);
@@ -1446,7 +1470,7 @@
           ${tw.v ? `<div class="tw-modo"><label><input type="radio" name="twm" value="0" ${pesadelo ? "" : "checked"}> Normal</label><label><input type="radio" name="twm" value="1" ${pesadelo ? "checked" : ""}> 😈 Pesadelo</label></div>` : ""}
           <p class="sub" style="color:#d7efe9">Sua party, na ordem em que entra. Contra ${esc(Lid.n)} lutam os <b>${Math.min(q, ordem.length)} primeiros</b>. Use ▲ para mudar a ordem.</p>
           <ol class="tw-ordem">${ordem.map(([n, s], k) => { const x = lutadorSite(u, n, s); return `<li class="${k >= q ? "fora" : ""}"><img src="${home(n, s)}" alt=""><span><b>${esc(x.a ? "“" + x.a + "”" : nome(n))}</b> <small>Nv. ${x.lv} · ${esc(x.mv.filter(Boolean).join(" · "))}</small></span>${k ? `<button type="button" class="r-btn" data-up="${k}" title="Subir">▲</button>` : ""}</li>`; }).join("")}</ol>
-          <div class="tw-botoes"><button type="button" class="r-btn" data-comecar>⚔️ Começar a luta</button><small class="sub" style="color:#d7efe9">Subidas hoje: ${usadas}/${T.CFG.porDia}. Perder encerra a subida; ganhar segue para o próximo líder.</small></div>
+          <div class="tw-botoes"><button type="button" class="r-btn" data-comecar>⚔️ Começar a luta</button><small class="sub" style="color:#d7efe9">Começar gasta 1 das ${T.CFG.porDia} chances da live. Ganhando, você segue lutando; perder encerra a subida.</small></div>
         </div></div>`;
       ligarSprites(fundo);
       fundo.querySelector("[data-x]").onclick = sair;
@@ -1456,9 +1480,12 @@
     }
 
     function lutar(i) {
+      const revanche = i !== proxDe(pesadelo);   // líder que já venceu: cada revanche gasta 1 chance
+      if (!emSubida) { emSubida = true; TWX.enviar(`!torre comecar ${pesadelo ? 1 : 0}`); twLocalMudar(login, (v) => { v.n = (v.n || 0) + 1; }); }
+      else if (revanche) twLocalMudar(login, (v) => { v.n = (v.n || 0) + 1; });   // líder que já venceu: luta de novo pelo XP (gasta 1 ida)
       const Lid = L[i], lid = T.timeDoLider("alola", i, pesadelo), meus = ordem.slice(0, lid.length).map(([n, s]) => lutadorSite(u, n, s)).filter(Boolean);
       const semente = (Math.random() * 4294967295) >>> 0, st = T.novaLuta(meus, lid, semente);
-      fundo.innerHTML = `<div class="tw-bt"><div class="tw-bt-topo"><h3>${icInsignia(Lid)} ${esc(Lid.tit)} ${esc(Lid.n)}${pesadelo ? " · 😈" : ""}</h3><button type="button" class="r-btn" data-x>✕ Desistir</button></div>
+      fundo.innerHTML = `<div class="tw-bt"><div class="tw-bt-topo"><h3>${icInsignia(Lid)} ${esc(Lid.tit)} ${esc(Lid.n)}${pesadelo ? " · 😈" : ""}${revanche ? " · revanche" : ""}</h3><button type="button" class="r-btn" data-x>✕ Desistir</button></div>
         <div class="tw-campo ${pesadelo ? "pz" : ""}">
           <img class="tw-lider-spr" alt="" data-sp="${esc(JSON.stringify(Lid.sp || []))}">
           <img class="tw-pk op sai" alt=""><img class="tw-pk eu sai" alt="">
@@ -1473,7 +1500,7 @@
       const vis = [0, 0], vhp = [st.a.map((x) => x.max), st.b.map((x) => x.max)], idx = (lado) => vis[lado];   // o que está na tela (o motor já calculou o turno inteiro)
       const nomeLado = (lado, k) => { const x = time(lado)[k]; return lado ? nome(x.num) : x.a ? `“${x.a}”` : nome(x.num); };
       let ocupado = false, acabou = false;
-      $("[data-x]").onclick = () => { if (acabou || confirm("Desistir conta como derrota e encerra a subida. Desistir?")) { if (!acabou) perdeu(); sair(); } };
+      $("[data-x]").onclick = () => { if (acabou || confirm("Desistir conta como derrota e encerra a subida (a chance já foi usada). Desistir?")) { if (!acabou) perdeu(); sair(); } };
       const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
       function falar(quem, txt, pk) {
         const q = fala.querySelector(".tw-quem");
@@ -1545,23 +1572,30 @@
         await esperar(850);
         if (fl & 16) { sd.classList.add("ko"); falar(null, `<b>${esc(lado ? nomeLado(0, al) : nome(df.num))}</b> desmaiou!`, [df.num, df.s, "Dizzy"]); desenhar(1 - lado); await esperar(1300); }
       }
-      function perdeu() { TWX.enviar(`!torre perdi ${i} ${pesadelo ? 1 : 0}`); twLocalMudar(login, (v) => { v.n = (v.n || 0) + 1; }); }
+      function perdeu() { TWX.enviar(`!torre perdi ${i} ${pesadelo ? 1 : 0}`); emSubida = false; }
       async function terminar() {
         acabou = true; acoes.innerHTML = ""; painel.hidden = true; $(".tw-lider-spr").classList.remove("fora");
         const venceu = st.fim === 1;
         for (const f of venceu ? Lid.perde : Lid.vence) { falar(Lid, esc(f)); await esperar(1900); }
         if (venceu) {
           TWX.enviar(`!torre luta ${i} ${pesadelo ? 1 : 0} ${semente} ${meus.map((x) => x.num + (x.s ? "s" : "") + "." + x.lv).join(",")} ${st.acoes}`);
-          twLocalMudar(login, (v) => { v[pesadelo ? "pp" : "p"] = i + 1; if (i === L.length - 1) v.n = (v.n || 0) + 1; });
-          const ultimo = i === L.length - 1;
-          falar(null, ultimo ? `🏆 <b>Você venceu a Torre de Alola!</b> A live vai confirmar e entregar a bolha e a borda.` : `🏅 Você ganhou a insígnia de <b>${esc(Lid.n)}</b>! ${icInsignia(Lid)} A live confirma e dá o XP da party em instantes.`, [st.a[st.ia].num, st.a[st.ia].s, "Joyous"]);
-          acoes.innerHTML = ultimo ? `<button type="button" class="r-btn" data-fim>Fechar</button>` : `<button type="button" class="r-btn" data-prox>⚔️ Próximo: ${esc(L[i + 1].tit)} ${esc(L[i + 1].n)}</button><button type="button" class="r-btn" data-fim>Parar por aqui</button>`;
+          if (!revanche) twLocalMudar(login, (v) => { v[pesadelo ? "pp" : "p"] = i + 1; });
+          vencidos.add(i);
+          const ultimo = !revanche && i === L.length - 1, prox = proxDe(pesadelo);
+          falar(null, ultimo ? `🏆 <b>Você venceu a Torre de Alola!</b> A live vai confirmar e entregar a bolha e a borda.`
+            : revanche ? `⚔️ Revanche vencida contra <b>${esc(Lid.n)}</b>! A live confirma e dá o XP da party em instantes.`
+            : `🏅 Você ganhou a insígnia de <b>${esc(Lid.n)}</b>! ${icInsignia(Lid)} A live confirma e dá o XP da party em instantes.`, [st.a[st.ia].num, st.a[st.ia].s, "Joyous"]);
+          const anteriores = [...vencidos].filter((k) => k !== prox).sort((a, b) => a - b);
+          const sobram = login === D.canal ? 99 : T.CFG.porDia - Math.max(tw.d === hojeStr() ? tw.n || 0 : 0, twLocal(login).n || 0);
+          acoes.innerHTML = `<div class="tw-escolha">${!ultimo && L[prox] && !vencidos.has(prox) ? `<button type="button" class="r-btn" data-ir="${prox}">⚔️ Próximo: ${esc(L[prox].tit)} ${esc(L[prox].n)}</button>` : ""}
+            ${anteriores.length ? `<span class="sub" style="color:#fff">ou lutar de novo (gasta 1 chance${login === D.canal ? "" : `, sobram ${Math.max(0, sobram)}`}):</span>${anteriores.map((k) => `<button type="button" data-ir="${k}" ${sobram > 0 ? "" : "disabled"}>${icInsignia(L[k])} ${esc(L[k].n)}</button>`).join("")}` : ""}
+            <button type="button" class="r-btn" data-fim>Encerrar a subida</button></div>`;
+          acoes.querySelectorAll("[data-ir]").forEach((b) => (b.onclick = () => lutar(+b.dataset.ir)));
         } else {
           perdeu();
           falar(null, `A subida terminou em <b>${esc(Lid.n)}</b>. Seu progresso fica salvo: da próxima vez você começa daqui.`, [st.a[0].num, st.a[0].s, "Sad"]);
           acoes.innerHTML = `<button type="button" class="r-btn" data-fim>Fechar</button>`;
         }
-        const p = acoes.querySelector("[data-prox]"); if (p) p.onclick = () => lutar(i + 1);
         acoes.querySelector("[data-fim]").onclick = sair;
       }
       // abertura: o líder fala, depois cada um manda o primeiro Pokémon
@@ -1575,20 +1609,39 @@
         falar(null, `O que ${esc(nomeLado(0, 0))} vai fazer?`, [st.a[0].num, st.a[0].s, "Normal"]); botoes();
       })();
     }
-    if (direto) lutar(proxDe(false)); else preparar();
+    if (direto) lutar(alvoI == null ? proxDe(false) : alvoI); else preparar();
   }
 
-  function fichaLider(i) {
+  /* bits só saem pelo chat da Twitch: o botão copia a mensagem certa e abre o chat da live */
+  function pagarBits(tipo) {
+    const T = USUM.torre, auto = tipo === "auto", qtd = auto ? T.CFG.bitsAuto : T.CFG.bitsReset;
+    const msg = `Cheer${qtd} !torre ${auto ? "auto" : "reset"}`, url = `https://www.twitch.tv/popout/${encodeURIComponent(D.canal || "canaldocamaleao")}/chat`;
+    try { navigator.clipboard.writeText(msg); } catch (e) {}
+    const fundo = document.createElement("div"); fundo.className = "ficha-fundo";
+    fundo.innerHTML = `<div class="ficha tw-pagar"><button class="fechar-ficha" title="Fechar">✕</button>
+      <h3>${auto ? "🤖 Batalha automática" : `🔄 Mais ${T.CFG.porDia} chances`}</h3>
+      <p>${auto ? "Sua party sobe a Torre de Alola sozinha, líder por líder, até perder. Não gasta suas chances. A batalha aparece aqui na página depois." : `Suas chances desta live voltam para ${T.CFG.porDia}.`}</p>
+      <p class="sub">Bits só podem ser enviados pelo chat da Twitch. Copiamos a mensagem para você: é só colar no chat da live e enviar.</p>
+      <div class="tw-msg"><code>${esc(msg)}</code><button type="button" class="r-btn" data-copiar>📋 Copiar</button></div>
+      <div class="tw-botoes" style="margin-top:12px"><a class="r-btn" href="${url}" target="_blank" rel="noopener">💬 Abrir o chat da Twitch</a><small class="sub">Custa ${qtd} bits. O chat da live avisa quando der certo.</small></div></div>`;
+    document.body.appendChild(fundo);
+    const fechar = () => fundo.remove();
+    fundo.onclick = (e) => { if (e.target === fundo) fechar(); }; fundo.querySelector(".fechar-ficha").onclick = fechar;
+    fundo.querySelector("[data-copiar]").onclick = (e) => { try { navigator.clipboard.writeText(msg); e.target.textContent = "✓ Copiado"; } catch (er) { TWX.aviso("Copie a mensagem: " + msg); } };
+  }
+  function fichaLider(i, rev) {   // rev = { u, login } quando a pessoa já venceu esse líder e ainda tem idas hoje
     const T = USUM.torre, Lid = T.ALOLA[i], q = T.qtdLider(i, false), tn = T.timeDoLider("alola", i, false), tp = T.timeDoLider("alola", i, true);
     const fundo = document.createElement("div"); fundo.className = "ficha-fundo";
     fundo.innerHTML = `<div class="ficha tw-ficha"><button class="fechar-ficha" title="Fechar">✕</button>
       <div class="ficha-topo">${spriteTreinador(Lid)}<div><small>${esc(Lid.tit)} · ${esc(Lid.lugar || "")}</small><h3>${esc(Lid.n)}</h3><span>${Lid.campeao ? "Campeão da torre" : "Especialista em " + esc(NOME_TIPO[Lid.tipo] || Lid.tipo)} · ${q === 6 ? "6 Pokémon" : q + " Pokémon no normal, 6 no pesadelo"}</span></div></div>
       <p class="sub">“${esc(Lid.ola[Lid.ola.length - 1])}”</p>
       <div class="tw-ftime">${Lid.time.map(([n, m1, m2], k) => `<div class="tw-fpk ${k >= q ? "pz" : ""}"><img data-ret="${n}:0" alt=""><div><b>${esc(nome(n))}</b><small>${k < q ? "Nv. " + tn[k].lv + " · " : ""}pesadelo Nv. ${tp[k].lv}</small><small>⚔️ ${esc(m1)} · ${esc(m2)}</small></div></div>`).join("")}</div>
-      ${q < 6 ? `<p class="sub">Os apagados só entram no modo pesadelo.</p>` : ""}</div>`;
+      ${q < 6 ? `<p class="sub">Os apagados só entram no modo pesadelo.</p>` : ""}
+      ${rev ? `<div class="tw-botoes" style="margin-top:12px"><button type="button" class="r-btn" data-rev>⚔️ Lutar de novo</button><small class="sub">Você já tem essa insígnia. A revanche gasta 1 chance e dá XP para a party; ganhando, você continua lutando.</small></div>` : ""}</div>`;
     document.body.appendChild(fundo); ligarSprites(fundo);
     const fechar = () => fundo.remove();
     fundo.onclick = (e) => { if (e.target === fundo) fechar(); }; fundo.querySelector(".fechar-ficha").onclick = fechar;
+    const br = fundo.querySelector("[data-rev]"); if (br) br.onclick = () => { fechar(); batalharTorre(rev.u, rev.login, true, i); };
   }
 
   /* replay da última subida: monta a lista de passos (falas, envios, golpes) e toca um por um */
