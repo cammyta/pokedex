@@ -395,7 +395,7 @@
         }
         if (qual === "trade") { desenharTroca(); return; }
         if (qual === "bolha") {
-          const BO = { "": ["☀️🌙", "Equipe", "a da sua equipe Sol ou Lua"], rancho: ["🌱", "Rancho", "amizade perfeita no rancho"], cinefilo: ["🎬", "Cinéfilo", "ficar num filme até o fim"], neon: ["✨", "Neon", "capturar 50 shiny"], raid: ["⚔️", "Raid", "lutar em 10 Raids"], dojo: ["🥋", "Dojo", "completar 10 treinos no dojo"], sub: ["💜", "Sub", "ser sub do canal"], bits: ["💎", "Bits", "mandar 200 bits no canal"] };
+          const BO = { "": ["☀️🌙", "Equipe", "a da sua equipe Sol ou Lua"], rancho: ["🌱", "Rancho", "amizade perfeita no rancho"], cinefilo: ["🎬", "Cinéfilo", "ficar num filme até o fim"], neon: ["✨", "Neon", "capturar 50 shiny"], raid: ["⚔️", "Raid", "lutar em 10 Raids"], dojo: ["🥋", "Dojo", "completar 10 treinos no dojo"], sub: ["💜", "Sub", "ser sub do canal"], bits: ["💎", "Bits", "mandar 200 bits no canal"], torre: ["🗼", "Torre de Alola", "vencer a Torre dos Líderes de Alola"] };
           const bh = u.bh || [[], ""], tem = new Set([""].concat(bh[0] || [])), usa = bh[1] || "";
           painel.innerHTML = `<h4>Bolha do chat <small>como as suas mensagens aparecem na live</small></h4><div class="grade">` +
             Object.keys(BO).map((id) => { const [ic, n, como] = BO[id], ok = tem.has(id);
