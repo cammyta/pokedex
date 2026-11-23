@@ -7,7 +7,7 @@
 (function () {
   window.USUM = window.USUM || {};
   const S = () => USUM.selvagens;
-  const CFG = Object.assign({ chanceDrop: 0.25, dropsRaid: 3, minutosEstagio: 15, pescaMinutos: 3, canteiros: 3, ovoMinutos: 20, chocarMinutos: 30, maxOvos: 6,
+  const CFG = Object.assign({ dojoMinutos: 60, dojoEV: 24, chanceDrop: 0.25, dropsRaid: 3, minutosEstagio: 15, pescaMinutos: 3, canteiros: 3, ovoMinutos: 20, chocarMinutos: 30, maxOvos: 6,
     bonusForca: 0.4, amizadeBorda: 60, pedreiraMinutos: 8, apiarioMinutos: 30, chanceHiperMel: 0.04, chanceMelFalha: 0.35 }, (window.USUM_CONFIG || {}).rancho);
   const ler = (k, p) => { try { return JSON.parse(localStorage.getItem(k) || "null") || p; } catch (e) { return p; } };
   const gravar = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -560,6 +560,35 @@
     });
     avisos.forEach((a, i) => setTimeout(() => publicar("hiper-mel", `🍯 ${nomeP(a.n)} fez um <b>Hiper Mel</b> no apiário de <b>${esc(a.nome)}</b>! Use com <b>!hipermel</b>`, a.l), i * 700));
   }
+  /* ---------- Dojo: até 2 Pokémon treinam no saco de pancadas. A cada hora de live (com a pessoa no chat)
+     ganham XP (sobem mais rápido) e EVs no atributo escolhido (!dojo ev ataque). EV ajuda na Raid. ---------- */
+  const EV_ALIAS = { hp: "hp", vida: "hp", ataque: "at", atk: "at", at: "at", forca: "at", defesa: "df", def: "df", df: "df",
+    "ataque especial": "sa", "ataque esp": "sa", especial: "sa", spa: "sa", sa: "sa", "atk esp": "sa", "defesa especial": "sd", "defesa esp": "sd", spd: "sd", sd: "sd",
+    velocidade: "ve", speed: "ve", vel: "ve", ve: "ve", spe: "ve" };
+  function dojoDe(login) {
+    const dj = rancho(login).dj || {}, tem = new Set(donos(login));
+    const a = seguir(login, dj.a, null, tem), b = seguir(login, dj.b, null, tem);
+    return { a, b: b !== a ? b : 0, ev: dj.ev || "at", ult: dj.ult || 0 };
+  }
+  function rodadaDojo() {
+    const avisos = [];
+    treinadores().forEach((l) => {
+      const d = dojoDe(l); if (!d.a && !d.b) return;
+      const agora = Date.now(), passo = CFG.dojoMinutos * 60e3, dj = rancho(l).dj || {};
+      if (!dj.ult) { mudarR(l, (r) => { r.dj = Object.assign(r.dj || {}, { ult: agora }); }); return; }
+      if (agora - dj.ult < passo) return;
+      mudarR(l, (r) => { r.dj.ult = agora; if (d.a !== dj.a) r.dj.a = d.a; if (d.b !== dj.b) r.dj.b = d.b; });
+      const res = [];
+      [d.a, d.b].filter(Boolean).forEach((n) => {
+        const ind = melhorInd(l, n) || {}, lv = S().nivelDe(ind, n);
+        const custo = (L) => (S().custoNivel ? S().custoNivel(L) : L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);
+        const x = S().ganharXP(l, n, !!ind.s, 2 * custo(lv) + 10), e = S().treinarEV(l, n, !!ind.s, d.ev, CFG.dojoEV);
+        res.push(`${nomeP(n)}${x ? ` nv ${x.lv}${x.lv > x.antes ? " ⬆️" : ""}` : ""}${e && e.add ? ` +${e.add} ${S().EV_NOMES[d.ev]}` : e && e.cheio ? " (EV no máximo)" : ""}`);
+      });
+      if (res.length) avisos.push({ l, n: d.a || d.b, txt: res.join(" · ") });
+    });
+    avisos.forEach((a, i) => setTimeout(() => publicar("num:" + a.n, `🥋 Treino no dojo de <b>${esc(nomeTreinador(a.l))}</b>: ${a.txt}`, a.l), i * 700));
+  }
   // pede ao encontro.html (a tela do selvagem) para chamar um Pokémon
   function pedirSelvagem(opc) {
     const f = ler("usum_chamar", []); f.push(Object.assign({ id: Date.now() + "-" + Math.random().toString(36).slice(2, 7) }, opc)); gravar("usum_chamar", f.slice(-10));
@@ -744,7 +773,7 @@
   const listaCusto = (c) => Object.entries(c).map(([id, n]) => `${n} ${esc(ITENS[id].n)}`).join(" + ");
 
   /* ---------- comandos ---------- */
-  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário|tm|slot)\b/;
+  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário|tm|slot|dojo|treinar)\b/;
   let lider = false;
   const site = /github\.io$/.test(location.hostname);
   if (USUM.aoMensagem && !site && navigator.locks && navigator.locks.request) navigator.locks.request("usum_rancho", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
@@ -880,6 +909,28 @@
       if (r.erro) return publicar(r.id, `🍯 <b>${esc(N)}</b>, você não tem ${hiper ? "Hiper Mel" : "Mel"}. Ele vem do apiário do rancho (precisa de Cutiefly, Ribombee, Combee ou Vespiquen)`, L);
       return publicar(r.id, `🍯 <b>${esc(N)}</b> passou ${hiper ? "<b>Hiper Mel</b>" : "Mel"} numa árvore… um Pokémon selvagem vem chegando!${hiper ? " <small>(10% de chance de última forma, 0,1% de lendário)</small>" : ""}`, L);
     }
+    if (cmd === "dojo" || cmd === "treinar") {
+      mudarR(L, (r) => { r.nm = N; });
+      const a0 = limpa(arg || "");
+      if (a0 && NINGUEM.test(a0)) { mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: 0, b: 0 }); }); return publicar("ic:casa", `🥋 <b>${esc(N)}</b> deixou o dojo vazio`, L); }
+      const mev = a0.match(/^ev\s+(.+)$/);
+      if (mev) {
+        const st = EV_ALIAS[mev[1].trim()];
+        if (!st) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, escolha o EV: <b>!dojo ev ataque</b>, defesa, ataque especial, defesa especial, velocidade ou hp`, L);
+        mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { ev: st }); });
+        return publicar("ic:casa", `🥋 O dojo de <b>${esc(N)}</b> agora treina <b>${S().EV_NOMES[st]}</b>`, L);
+      }
+      if (a0) {
+        const tem = new Set(donos(L)), nums = [];
+        palavrasPoke(arg).forEach((w) => { const p = USUM.lerPokemon(w), n = p && (USUM.formaPadraoAlola ? USUM.formaPadraoAlola(p) : p).num; if (n && tem.has(n) && !nums.includes(n) && nums.length < 2) nums.push(n); });
+        if (!nums.length) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, coloque até 2 Pokémon da sua caixa: <b>!dojo pikachu eevee</b>`, L);
+        mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: nums[0], b: nums[1] || 0, ult: Date.now() }); });
+      }
+      const d = dojoDe(L);
+      if (!d.a && !d.b) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, o dojo está vazio. Coloque até 2 Pokémon: <b>!dojo pikachu eevee</b>. A cada hora de live eles ganham XP e EVs (escolha com <b>!dojo ev ataque</b>)`, L);
+      const ev = (n) => { const i = melhorInd(L, n) || {}, e = i.ev || {}; return Object.keys(S().EV_NOMES).filter((k) => e[k]).map((k) => `${S().EV_NOMES[k]} ${e[k]}`).join(", ") || "sem EV"; };
+      return publicar("num:" + (d.a || d.b), `🥋 Dojo de <b>${esc(N)}</b>: ${[d.a, d.b].filter(Boolean).map((n) => `${nomeP(n)} (${ev(n)})`).join(" e ")} · treinando <b>${S().EV_NOMES[d.ev]}</b> · próximo treino em ${Math.max(1, Math.ceil(((d.ult || Date.now()) + CFG.dojoMinutos * 60e3 - Date.now()) / 60e3))} min de live`, L);
+    }
     if (cmd === "apiario" || cmd === "apiário") {
       if (arg && NINGUEM.test(limpa(arg))) { mudarR(L, (r) => { r.nm = N; r.ap = Object.assign(r.ap || {}, { n: -1 }); }); return publicar("mel", `🐝 <b>${esc(N)}</b> deixou o apiário vazio (ninguém fazendo mel)`, L); }
       if (arg) {
@@ -950,7 +1001,7 @@
     }
   }
   if (USUM.aoMensagem && !site && S() && S().carregarGolpes) S().carregarGolpes();   // lista de golpes que cada Pokémon aprende
-  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { treinadores().forEach((l) => { fixarTrabalhadores(l); checarBolhas(l); }); rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); if (S().garantirGolpes) treinadores().forEach((l) => S().garantirGolpes(l)); } catch (e) { console.error("[rancho]", e); } }, 60e3);
+  if (USUM.aoMensagem && !site) setInterval(() => { if (!lider) return; try { treinadores().forEach((l) => { fixarTrabalhadores(l); checarBolhas(l); }); rodadaOvos(); rodadaAmizade(); rodadaPedreira(); rodadaHorta(); rodadaApiario(); rodadaDojo(); if (S().garantirGolpes) treinadores().forEach((l) => S().garantirGolpes(l)); } catch (e) { console.error("[rancho]", e); } }, 60e3);
   // roda numa tela só: a líder na hora; se a líder estiver com o chat caído, outra tela assume depois de ~1,5 s
   function umaVezR(m, fn) {
     const k = (m.id || m.login + ":" + m.texto) + "", ler_ = () => ler("usum_rancho_feitos", []);
@@ -986,6 +1037,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
