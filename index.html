@@ -333,6 +333,7 @@
   .nota li b { font: 600 15px "Fredoka"; } .nota li p { color: var(--txt2); font-size: 14px; margin: 2px 0 0; }
   .tag.bolha-tag.rancho { background: rgba(143,211,106,.18); border-color: rgba(143,211,106,.5); }
   .tag.bolha-tag.neon { background: rgba(40,6,60,.6); border-color: #ff4fd8; color: #9ff8ff; box-shadow: 0 0 8px rgba(255,79,216,.5); }
+  .tag.bolha-tag.dojo { background: rgba(196,140,72,.25); border-color: #e8c27a; } .tag.bolha-tag.sub { background: rgba(145,70,255,.3); border-color: #c9a8ff; }
   .tag.bolha-tag.raid { background: rgba(200,24,48,.25); border-color: #ffd166; }
   .tag.bolha-tag.cinefilo { background: rgba(200,40,70,.2); border-color: rgba(232,200,121,.55); }
 
@@ -378,11 +379,15 @@
   .cena .obj { position: absolute; display: block; transition: transform .15s; }
   /* cena nova (o terreno já traz casa, pedreira, forja, horta, dojo, apiário e lago desenhados): áreas clicáveis por cima */
   .ind-ev { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11.5px; margin: -2px 0 6px; } .ind-ev span { background: rgba(255,179,71,.18); border-radius: 6px; padding: 0 6px; }
-  .evs { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; margin: 4px 0 8px; }
-  .ev-l { display: grid; grid-template-columns: 86px 1fr 30px; align-items: center; gap: 6px; font-size: 12px; }
-  .ev-l i { display: block; height: 7px; border-radius: 4px; background: linear-gradient(90deg, #ffb347 var(--p), rgba(255,255,255,.16) var(--p)); }
+  .ficha-rancho { margin: 8px 0 4px; padding: 8px 12px; border-radius: 12px; background: rgba(255,179,71,.12); box-shadow: inset 0 0 0 1.5px rgba(255,179,71,.35); font-size: 13.5px; display: grid; gap: 3px; }
+  .cena .pmd-spr.clicavel, .vaga .pmd-spr.clicavel { cursor: pointer; } .cena .pmd-spr.clicavel:hover { filter: drop-shadow(0 0 6px #fff6b0) drop-shadow(0 3px 2px rgba(0,0,0,.3)); }
+  .evs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2px 12px; margin: 4px 0 8px; }
+  .ev-l { display: grid; grid-template-columns: 74px minmax(20px, 1fr) 28px; align-items: center; gap: 6px; font-size: 12px; }
+  .ev-l i { display: block !important; width: 100% !important; min-width: 20px; height: 7px !important; border-radius: 4px; background: linear-gradient(90deg, #ffb347 var(--p), rgba(255,255,255,.16) var(--p)); }
   .ev-l b { font: 600 12px "Fredoka"; text-align: right; }
-  .ev-caixa { margin-top: 8px; } .ev-caixa > b { font: 600 14px "Fredoka"; }
+  .ev-caixa { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,.15); }
+  .dj-cab { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .dj-nv { font: 600 12px "Fredoka"; background: #2b6b3f; color: #fff; border-radius: 6px; padding: 0 6px; }
+  .dj-cab .xp-barra { display: inline-block; width: 70px; } .dj-ev { font-size: 12.5px; opacity: .85; } .ev-caixa > b { font: 600 14px "Fredoka"; }
   .cena.nova .zona { border-radius: 18px; background: none; border: 0; padding: 0; cursor: pointer; }
   .cena.nova .zona:hover, .cena.nova .zona:focus-visible { background: rgba(255,240,180,.16); box-shadow: inset 0 0 0 2px rgba(255,236,170,.7); transform: none; outline: none; }
   .cena.nova .rot { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); white-space: nowrap; font: 600 clamp(9px, 1.05vw, 13px) "Fredoka"; color: #fff; background: rgba(58,38,20,.72);
@@ -776,6 +781,11 @@
       ["🥋", "Dojo", "Deixe até 2 Pokémon no dojo (<code>!dojo pikachu eevee</code> ou pelo site). A cada hora de live com você no chat, eles ganham XP (uns 2 níveis) e +24 EV no atributo que você escolher (<code>!dojo ev ataque</code>)."],
       ["📊", "EVs", "Como nos jogos: até 252 por atributo e 510 no total. Na Raid, Ataque/Ataque Esp. dão mais dano, HP dá mais vida, Defesa segura os golpes do chefe e Velocidade dá mais críticos. Aparecem na ficha do Pokémon."],
       ["⚔️", "Raids mais duras", "O chefe agora tem nível: lendário (nível 75) e última forma (55) têm bem mais HP, e parceiro de nível baixo bate pouco neles. Upe e treine no dojo para dar mais dano."],
+      ["🫧", "Bolhas Dojo e Sub", "Duas bolhas novas: <b>Dojo</b> 🥋 (tatame com o saco de pancadas do rancho), para quem completar 10 treinos no dojo, e <b>Sub</b> 💜 (roxo com brilhos e a Fita Real Deslumbrante), para quem é sub do canal. A bolha Rancho ganhou uma Apricorn nova."],
+      ["🥋", "Borda Dojo", "O Pokémon que chegar no treino máximo do dojo (510 EVs) libera a <b>borda Dojo</b>, preta com listra vermelha como a faixa do karatê. Escolha com <code>!borda dojo</code>."],
+      ["⭐", "O time todo ganha XP", "Cada mensagem no chat dá XP para o parceiro <b>e</b> para os outros Pokémon do seu time salvo (⭐ Time no chat do site, ou <code>!meutime</code>), até 6. Monte o time para upar todo mundo junto."],
+      ["👆", "Clique nos Pokémon do rancho", "Clicar num Pokémon do rancho abre a ficha dele, mostrando o que está fazendo (dojo, pedreira, forja...) e, no dojo, o EV que treina e quando é o próximo treino."],
+      ["🎯", "EV de cada um no dojo", "Cada um dos 2 Pokémon do dojo treina o seu próprio EV: <code>!dojo ev1 ataque</code>, <code>!dojo ev2 velocidade</code> (ou os dois com <code>!dojo ev ataque</code>). No site, cada um tem o seu botão, nível, XP e barras de EV."],
       ["🔧", "Site mais estável", "O site lê os dados por outro caminho e não some mais quando muita gente abre ao mesmo tempo."] ] },
     { v: "Equipes", d: "23/11/2026", t: "Mega Raio, Raid por equipe, reforço e Day Care do jogo", itens: [
       ["⚡", "Mega Raio", "Na Raid, cada ataque enche a barra do Mega Raio. Com 100 ataques do chat, todos os parceiros atacam juntos e o chefe perde 10% do HP."],
@@ -960,7 +970,8 @@
         ${linha("!pescar", "Joga a linha no rio do rancho (1 vez a cada 3 min). Vem Magikarp, outros peixes que entram na sua caixa, ou itens. Com Vara Boa e Super Vara aparecem peixes mais raros (Feebas, Dratini, Gyarados…)")}
         ${linha("!daycare pikachu eevee", "Igual ao jogo: precisa de dois Pokémon diferentes, do mesmo grupo de ovo, um macho ♂ e uma fêmea ♀ (ou um Ditto com quase qualquer um). Lendários e bebês não botam ovo, e o ovo é da espécie da mãe. Deixa dois Pokémon da sua caixa no <b>Day Care</b> (clique no ninho de ovos no seu rancho para ver). A cada 20 min aparece um ovo, até 6. 30 min depois ele pode ser chocado com <code>!chocar</code>, e nasce a forma mais básica (Pichu, Togepi, Riolu…), com força herdada dos pais. É o <b>único jeito</b> de conseguir Pokémon bebê. <code>!daycare</code> mostra como está, <code>!daycare tirar</code> busca os pais")}
         ${linha("!rancho pikachu", "Deixa um Pokémon morando no <b>Cantinho da Amizade</b> do rancho: ele ganha 2 de amizade por minuto de live (quem trabalha na forja, na horta ou no Day Care ganha 1). Com 60 de amizade, a espécie libera a <b>borda Rancho 🌱</b> da fotinha (escolha com <code>!borda</code>). <code>!rancho tirar</code> tira")}
-        ${linha("!bolha", "Bolhas de chat conquistadas, além da sua equipe: <b>Neon</b> ✨ (capture 50 shiny), <b>Raid</b> ⚔️ (lute em 10 Raids), <b>Rancho</b> 🌱 (faça uma amizade perfeita no rancho) e <b>Cinéfilo</b> 🎬 (fique numa live de filme até o fim, conversando no começo e nos últimos 20 minutos). A nova já entra em uso. <code>!bolha cinefilo</code>, <code>!bolha rancho</code> ou <code>!bolha equipe</code> para trocar")}
+        ${linha("!dojo pikachu eevee", "Deixa até 2 Pokémon treinando no dojo do rancho (XP e EV a cada hora de live). <b>!dojo ev1 ataque</b> / <b>!dojo ev2 velocidade</b> escolhe o EV de cada um; <b>!dojo nenhum</b> esvazia")}
+        ${linha("!bolha", "Bolhas de chat conquistadas, além da sua equipe: <b>Neon</b> ✨ (capture 50 shiny), <b>Raid</b> ⚔️ (lute em 10 Raids), <b>Dojo</b> 🥋 (complete 10 treinos no dojo), <b>Sub</b> 💜 (seja sub do canal), <b>Rancho</b> 🌱 (faça uma amizade perfeita no rancho) e <b>Cinéfilo</b> 🎬 (fique numa live de filme até o fim, conversando no começo e nos últimos 20 minutos). A nova já entra em uso. <code>!bolha cinefilo</code>, <code>!bolha rancho</code> ou <code>!bolha equipe</code> para trocar")}
         ${linha("Força dos ajudantes", "Quanto mais forte o Pokémon (a % de força), melhor ele trabalha: a horta cresce até 40% mais rápido, o Day Care bota ovo até 40% mais rápido e a forja tem chance de fazer uma bola a mais")}
         ${linha("Entrar com a Twitch", "No seu perfil, clique em <b>Entrar com a Twitch</b> para fazer tudo isso clicando (forjar, plantar, colher, pescar, Day Care, móveis, escolher parceiro, soltar). Os botões mandam o comando no chat da live por você, então só funcionam com a live ligada")}
         ${linha("!fazer sofá", "A bancada faz móveis para a casinha (cama, sofá, TV, pelúcias…). Com 8 móveis a casinha vira um chalé")}
@@ -977,7 +988,7 @@
       </table>
       <table class="tabela">
         ${linha("!borda", "Mostra as bordas que você já liberou com o seu parceiro atual")}
-        ${linha("!borda prata", "Usa essa borda (bronze, prata, ouro, esmeralda, shiny, arcoiris, rancho ou raid). Cada espécie guarda a sua escolha")}
+        ${linha("!borda prata", "Usa essa borda (bronze, prata, ouro, esmeralda, shiny, arcoiris, rancho, raid ou dojo). Cada espécie guarda a sua escolha")}
         ${linha("!borda nenhuma", "Fica sem borda. <code>!borda auto</code> volta a usar a mais rara")}
       </table>
       <p class="sub secao">Conta o total de capturas na grama (soltar e capturar de novo também conta); trocas, evoluções e o inicial não contam. Parceiro <b>shiny</b> ganha estrelinhas piscando em volta da foto, com qualquer borda.</p>
@@ -1194,7 +1205,7 @@
             ${u.jf && JOGO(u.jf) ? `<span class="tag">${capa(JOGO(u.jf), "mini-capa")} Jogo favorito: <b>${esc(JOGO(u.jf).nome)}</b></span>` : ""}
             ${u.g && GEN[u.g] ? `<span class="tag">${u.g === "nb" ? "" : GEN[u.g][0] + " "}${GEN[u.g][1]}</span>` : ""}
             ${u.fc ? `<span class="tag fc" id="fc" title="Clique para copiar">🎮 Friend code: <b>${esc(u.fc)}</b></span>` : ""}
-            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${({ rancho: "🌱 Bolha Rancho", cinefilo: "🎬 Bolha Cinéfilo", neon: "✨ Bolha Neon", raid: "⚔️ Bolha Raid" })[id] || id}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
+            ${(u.bh ? u.bh[0] : []).map((id) => `<span class="tag bolha-tag ${id}" title="Bolha de chat conquistada">${({ rancho: "🌱 Bolha Rancho", cinefilo: "🎬 Bolha Cinéfilo", neon: "✨ Bolha Neon", raid: "⚔️ Bolha Raid", dojo: "🥋 Bolha Dojo", sub: "💜 Bolha Sub" })[id] || id}${u.bh[1] === id ? " · em uso" : ""}</span>`).join("")}
           </div>
           <div class="acoes"><button id="compartilhar">Compartilhar perfil</button></div>
           <div class="nums">
@@ -1556,10 +1567,11 @@
       const evAt = dj.ev || "at", prox = dj.u ? Math.max(0, Math.ceil((dj.u * 1000 + (dj.m || 60) * 60e3 - agora) / 60e3)) : 0;
       h += `<section class="painel" id="r-dojo"><h3>🥋 Dojo</h3>
         <div class="dupla">${[dj.a, dj.b].map((n, i) => `<div class="vaga ${n ? "ok" : ""}">${n ? pmdSpr(n, false, "vaga-spr") : `<span>?</span>`}<small>Treinando ${i + 1}</small><b>${n ? esc(nome(n)) : "vazio"}</b></div>`).join("")}</div>
-        ${[dj.a, dj.b].filter(Boolean).map((n) => `<div class="ev-caixa"><b>${esc(nome(n))}</b> ${barrasEV(n)}</div>`).join("")}
-        ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon 1">${opts(cx, dj.a, !dj.a && !dj.b && rn.dj)}</select><select aria-label="Pokémon 2">${opts(cx, dj.b)}</select><button type="button" class="r-btn" data-cmd="!dojo {0} {1}">Trocar</button></div>
-          <div class="r-form" data-form><select aria-label="EV">${EVK.map((k) => `<option value="${k}" ${k === evAt ? "selected" : ""}>${EVN[k]}</option>`).join("")}</select><button type="button" class="r-btn" data-cmd="!dojo ev {0}">Treinar esse EV</button></div>` : ""}
-        <p class="sub">A cada <b>${dj.m || R.CFG.dojoMinutos} min</b> de live (com você no chat), os Pokémon do dojo ganham <b>XP</b> (sobem de nível mais rápido) e <b>+${R.CFG.dojoEV} EV</b> de <b>${EVN[evAt]}</b>${dj.a || dj.b ? (prox ? ` · próximo treino em ~${prox} min de live` : " · próximo treino na próxima rodada da live") : ""}. EV vai até 252 por atributo (510 no total) e ajuda na Raid: Ataque/Ataque Esp. dão mais dano, HP dá mais vida, Defesa segura os golpes do chefe e Velocidade dá mais críticos.</p></section>`;
+        ${[[dj.a, dj.ea || evAt, 1], [dj.b, dj.eb || evAt, 2]].filter(([n]) => n).map(([n, evN, q]) => { const ind = individuos((u.c || {})[n] || [0, 0, []])[0] || {}, cn = ind.lv >= 100 ? 0 : custoNivel(ind.lv || 1);
+          return `<div class="ev-caixa"><div class="dj-cab"><b>${esc(nome(n))}</b>${ind.lv ? ` <span class="dj-nv">Nv. ${ind.lv}</span>${cn ? `<span class="xp-barra" title="${ind.xp || 0}/${cn} XP"><i style="width:${Math.min(100, ((ind.xp || 0) / cn) * 100)}%"></i></span>` : ""}` : ""} <span class="dj-ev">treina <b>${EVN[evN]}</b></span></div>${barrasEV(n)}
+            ${ctl ? `<div class="r-form" data-form><select aria-label="EV de ${esc(nome(n))}">${EVK.map((k) => `<option value="${k}" ${k === evN ? "selected" : ""}>${EVN[k]}</option>`).join("")}</select><button type="button" class="r-btn" data-cmd="!dojo ev${q} {0}">Treinar esse EV</button></div>` : ""}</div>`; }).join("")}
+        ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon 1">${opts(cx, dj.a, !dj.a && !dj.b && rn.dj)}</select><select aria-label="Pokémon 2">${opts(cx, dj.b)}</select><button type="button" class="r-btn" data-cmd="!dojo {0} {1}">Trocar</button></div>` : ""}
+        <p class="sub">A cada <b>${dj.m || R.CFG.dojoMinutos} min</b> de live (com você no chat), os Pokémon do dojo ganham <b>XP</b> (sobem de nível mais rápido) e <b>+${R.CFG.dojoEV} EV</b> no atributo que cada um treina${dj.a || dj.b ? (prox ? ` · próximo treino em ~${prox} min de live` : " · próximo treino na próxima rodada da live") : ""}. EV vai até 252 por atributo (510 no total) e ajuda na Raid: Ataque/Ataque Esp. dão mais dano, HP dá mais vida, Defesa segura os golpes do chefe e Velocidade dá mais críticos.</p></section>`;
     }
     // ---- cantinho da amizade ----
     const trab = [...new Set([rn.ap && rn.ap.n > 0 ? [rn.ap.n] : [], rn.pd && rn.pd.n > 0 ? [rn.pd.n] : [], aco && fogo ? [aco, fogo] : [], agua && grama && hz.some(Boolean) ? [agua, grama] : [], dc.a && dc.b ? [dc.a[0], dc.b[0]] : []].flat())];
@@ -1629,6 +1641,12 @@
     animarPMD(el);
     const b = el.querySelector(".daycare-ic"); if (b) b.onclick = abrirDaycare;
     const pq = el.querySelector(".pedreira-ic"); if (pq) pq.onclick = abrirPedreira;
+    // clicar num Pokémon do rancho (na cena ou nas vagas) abre a ficha dele
+    el.querySelectorAll(".cena .pmd-spr.ajud, .rancho .vaga .pmd-spr").forEach((sp) => {
+      sp.classList.add("clicavel"); sp.setAttribute("role", "button"); sp.tabIndex = 0;
+      const abrir = () => { const login = new URLSearchParams(location.search).get("u"), u = D && D.t && D.t[login]; if (u) fichaPokemon(comPendente(login, u).u, +sp.dataset.n); };
+      sp.onclick = abrir; sp.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(); } };
+    });
     const rb = el.querySelector(".r-busca"); if (rb) rb.oninput = (e) => { ranchoBusca = e.target.value; const login = new URLSearchParams(location.search).get("u"); desenhar(Object.keys(D.t).find((k) => k === login) || login); const n = document.querySelector(".r-busca"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } };
     el.querySelectorAll('.rancho a[href^="#r-"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); const t = el.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
@@ -1758,6 +1776,22 @@
     }
     return h;
   }
+  // o que esse Pokémon está fazendo no rancho (aparece na ficha; clique no Pokémon do rancho abre a ficha dele)
+  function trabalhoNoRancho(u, n) {
+    const rn = u.rn || {}, l = [], EVN = { hp: "HP", at: "Ataque", df: "Defesa", sa: "Ataque Esp.", sd: "Defesa Esp.", ve: "Velocidade" };
+    const dj = rn.dj || {};
+    if (dj.a === n || dj.b === n) {
+      const evN = EVN[(dj.a === n ? dj.ea : dj.eb) || dj.ev || "at"], prox = dj.u ? Math.max(0, Math.ceil((dj.u * 1000 + (dj.m || 60) * 60e3 - Date.now()) / 60e3)) : 0;
+      l.push(`🥋 Treinando no <b>Dojo</b>: <b>${evN}</b> · ${prox ? `próximo treino em ~${prox} min de live` : "próximo treino na próxima rodada da live"} (+XP e +EV)`);
+    }
+    if (rn.pd && rn.pd.n === n) l.push(`⛏️ Quebrando pedra na <b>Pedreira</b>`);
+    if (rn.ap && rn.ap.n === n) l.push(`🐝 Fazendo mel no <b>Apiário</b>`);
+    if (Array.isArray(rn.fj) && rn.fj.includes(n)) l.push(`🔨 Ajudando na <b>Forja</b>`);
+    if (Array.isArray(rn.hf) && rn.hf.includes(n)) l.push(`🌱 Cuidando da <b>Horta</b>`);
+    if (rn.ami === n) l.push(`🏡 Morando no <b>Rancho</b>`);
+    if (rn.dc && ((rn.dc.a && rn.dc.a[0] === n) || (rn.dc.b && rn.dc.b[0] === n))) l.push(`🥚 No <b>Day Care</b>`);
+    return l.length ? `<div class="ficha-rancho">${l.map((t) => `<div>${t}</div>`).join("")}</div>` : "";
+  }
   function fichaPokemon(u, n) {
     const e = (u.c || {})[n]; if (!e) return;
     const lista = individuos(e), login = Object.keys(D.t).find((k) => D.t[k] === u) || "";
@@ -1766,6 +1800,7 @@
       <button class="fechar-ficha" title="Fechar">✕</button>
       <div class="ficha-topo"><img src="${home(n, e[1] > 0)}" alt=""><div><small>#${String(n).padStart(3, "0")}</small><h3>${esc(nome(n))}</h3>
         <span>${e[0]} ${e[0] === 1 ? "capturado" : "capturados"}${e[1] ? ` · ${e[1]} shiny ✦` : ""}</span></div></div>
+      ${trabalhoNoRancho(u, n)}
       ${lista.length > 1 ? `<div class="filtros ficha-filtros"><input type="search" class="fi-b" placeholder="Procurar apelido"><select class="fi-o"><option value="forca">Mais forte</option><option value="recente">Mais recente</option><option value="antiga">Mais antigo</option></select>
         <select class="fi-f"><option value="0">qualquer força</option><option value="50">50%+</option><option value="70">70%+</option><option value="90">90%+</option></select></div>` : ""}
       <div class="fi-lista">${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}" data-i="${i}" data-f="${x.f}" data-t="${x.t || 0}" data-a="${esc((x.a || "").toLowerCase())}">
