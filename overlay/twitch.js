@@ -53,7 +53,10 @@
       login: (t.login || "").toLowerCase(), nome: t["display-name"] || t.login || "",
       meses: parseInt(t["msg-param-cumulative-months"] || "0", 10),
       presentesTotal: parseInt(t["msg-param-sender-count"] || "0", 10),
-      presentesAgora: parseInt(t["msg-param-mass-gift-count"] || "0", 10)
+      presentesAgora: parseInt(t["msg-param-mass-gift-count"] || "0", 10),
+      para: t["msg-param-recipient-display-name"] || "", paraLogin: (t["msg-param-recipient-user-name"] || "").toLowerCase(),
+      plano: t["msg-param-sub-plan"] || "", raidQtd: parseInt(t["msg-param-viewerCount"] || "0", 10),
+      texto: (linha.match(/USERNOTICE #\S+ :(.*)$/) || [])[1] || ""
     };
   }
 
