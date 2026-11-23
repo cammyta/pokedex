@@ -266,13 +266,17 @@
       el.querySelector(".pl").textContent = p.lua;
       el.classList.toggle("lider-sol", p.sol > p.lua);
       el.classList.toggle("lider-lua", p.lua > p.sol);
+      // dica: chama reforço para o time com menos gente nesta live
+      const d = el.querySelector(".dica"), SVt = USUM.selvagens, menor = !cine && SVt && SVt.timeMenor ? SVt.timeMenor() : null;
+      if (d && !cine) d.innerHTML = menor ? `🛡️ <b>Equipe ${menor === "sol" ? "Sol" : "Lua"}</b> precisa de reforço: entre com <b>!${menor}</b> e ganhe bônus (capturas valem em dobro)`
+        : `<b>!sol</b> ou <b>!lua</b> pra escolher o lado · <b>!pokemon</b> nome pro seu parceiro`;
     }
     function pulsar(time) {
       const e = el.querySelector(".lado." + time);
       e.classList.remove("ponto"); void e.offsetWidth; e.classList.add("ponto");
     }
     atualizarPlacar();
-    window.addEventListener("storage", (e) => { if (e.key === "usum_placar" || e.key === "usum_cinema") atualizarPlacar(); });
+    window.addEventListener("storage", (e) => { if (e.key === "usum_placar" || e.key === "usum_cinema" || e.key === "usum_times_dia") atualizarPlacar(); });
     if (cine) setInterval(atualizarPlacar, 2000);
 
     // avisos de fitas e amizade (vindos de fitas.js)
@@ -310,7 +314,7 @@
       } else if (ev.tipo === "selvagem") {
         d.className = "aviso selvagem" + (ev.lendario ? " lendario" : "") + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Surprised"); im.className = "ret"; d.appendChild(im);
-        d.insertAdjacentHTML("beforeend", `<span class="t">Um <b>${esc(ev.nome)}</b>${ev.shiny ? " ✦ shiny" : ""} ${ev.lendario ? "lendário" : "selvagem"} apareceu!${ev.forca != null ? ` <small class="forca">força ${ev.forca}% · ${esc(ev.natureza || "")}</small>` : ""} Digite <b>!capturar</b></span>`);
+        d.insertAdjacentHTML("beforeend", `<span class="t">${ev.tag ? `<small class="forca">${esc(ev.tag)}</small> ` : ""}Um <b>${esc(ev.nome)}</b>${ev.shiny ? " ✦ shiny" : ""} ${ev.lendario ? "lendário" : "selvagem"} apareceu!${ev.forca != null ? ` <small class="forca">força ${ev.forca}% · ${esc(ev.natureza || "")}</small>` : ""} Digite <b>!capturar</b></span>`);
       } else if (ev.tipo === "captura") {
         d.className = "aviso captura" + (ev.shiny ? " shiny" : "");
         const im = USUM.imgPokemon({ num: ev.num, forma: USUM.formaRegional(ev.num), shiny: ev.shiny }, "Joyous"); im.className = "ret"; d.appendChild(im);
@@ -500,9 +504,23 @@
           return;
         }
         if (t[m.login] !== time) {
-          t[m.login] = time; mudar(m, "usum_times", (x) => (x[m.login] = time)); pontuar(time, 3, m.id); pulsar(time);
+          // reforço: entrar no time que está com menos gente nesta live dá bônus (pontos em dobro, essência e Great Balls)
+          const SVt = USUM.selvagens, menor = SVt && SVt.timeMenor ? SVt.timeMenor() : null, reforco = menor === time && travas[m.login] !== hoje;
+          t[m.login] = time; mudar(m, "usum_times", (x) => (x[m.login] = time)); pontuar(time, reforco ? 6 : 3, m.id); pulsar(time);
           mudar(m, "usum_times_dia", (x) => (x[m.login] = hoje));
-          aviso(time, `<b>${esc(m.nome)}</b> entrou para a Equipe ${time === "sol" ? "Sol" : "Lua"}!`);
+          if (reforco) {
+            umaVez({ id: m.id + ":reforco", login: m.login, texto: "" }, () => {
+              if (SVt.darBola) SVt.darBola(m.login, "great", 3);
+              if (USUM.rancho && USUM.rancho.ganharEssencia) USUM.rancho.ganharEssencia(m.login, m.nome, 5);
+            });
+            aviso(time, `🛡️ <b>${esc(m.nome)}</b> chegou de <b>reforço</b> na Equipe ${time === "sol" ? "Sol" : "Lua"}! Ganhou 3 Great Balls, 5 Essência e +6 pontos pro time`);
+          } else aviso(time, `<b>${esc(m.nome)}</b> entrou para a Equipe ${time === "sol" ? "Sol" : "Lua"}!`);
+          // avisa quando um lado fica bem menor (no máximo a cada 10 min)
+          const falta = SVt && SVt.timeMenor ? SVt.timeMenor() : null;
+          if (falta && Date.now() - (ler("usum_reforco_aviso", 0) || 0) > 10 * 60e3) {
+            gravar("usum_reforco_aviso", Date.now());
+            setTimeout(() => aviso(falta, `🛡️ A Equipe ${falta === "sol" ? "Sol ☀️" : "Lua 🌙"} precisa de reforço! Quem entrar com <b>!${falta}</b> ganha bônus, e as capturas do time menor valem <b>pontos em dobro</b>`), 1800);
+          }
         }
         atualizarPlacar(); return;
       }
