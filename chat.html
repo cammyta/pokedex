@@ -44,6 +44,13 @@
   .compor .pe { display: flex; justify-content: space-between; margin: 5px 6px 0; font: 11px "Poppins", sans-serif; color: rgba(255,255,255,.5); }
   .compor .pe a { color: rgba(255,255,255,.6); }
   .compor .erro { color: #ffb3b3; }
+  .compor .rapidos { display: flex; gap: 6px; margin: 0 0 6px; overflow-x: auto; scrollbar-width: none; }
+  .compor .rapidos button { flex: none; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 999px; font: 600 13px "Fredoka", "Poppins", sans-serif; color: #fff;
+    background: rgba(20,12,40,.75); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
+  .compor .rapidos button.raid-b { background: linear-gradient(90deg, #ff3b6b, #ff8a3d); }
+  .compor .rapidos button:disabled { opacity: .5; cursor: wait; }
+  .compor .rapidos button.ok { animation: ok-b .4s ease-out; }
+  @keyframes ok-b { 40% { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(143,211,106,.7); } }
 </style>
 </head>
 <body class="solo">
@@ -92,6 +99,7 @@
 <script src="overlay/poke.js"></script>
 <script src="overlay/twitch.js"></script>
 <script src="overlay/chat.js"></script>
+<script src="overlay/rancho.js"></script>
 <script>
 (function () {
   const INICIAIS = new Set([722, 725, 728, 25, 133, 35]);
@@ -109,12 +117,14 @@
       if (!ev || jaVi.has(ev.k) || ev.t < abriu - 3 * 60e3) return;
       jaVi.add(ev.k); setTimeout(() => USUM.__avisar(ev), 50);
     });
-    const parc = {}, times = {}, bolas = {};
+    const parc = {}, times = {}, bolas = {}, bolhas = {};
     Object.entries(D.t).forEach(([l, u]) => {
       if (u.p && u.p[0]) parc[l] = { num: u.p[0], shiny: !!u.p[1], forma: u.p[2] && u.p[2] !== "k" ? u.p[2] : "", kanto: u.p[2] === "k" || undefined };
       if (u.t) times[l] = u.t;
       if (u.eq) bolas[l] = u.eq;
+      if (u.bh) bolhas[l] = { tem: u.bh[0] || [], usa: u.bh[1] || "" };   // bolhas conquistadas (Rancho, Cinéfilo)
     });
+    gravar("usum_bolhas", bolhas);
     // quem trocou de parceiro aqui há pouco: vale a escolha nova até os dados da live alcançarem (no máximo 20 min)
     const novos = ler("usum_parc_local", {}), agora = Date.now();
     Object.entries(novos).forEach(([l, x]) => {
@@ -247,13 +257,21 @@
         el.innerHTML = `<button class="entrar">🔑 Entrar com a Twitch para conversar aqui</button>`;
         el.querySelector(".entrar").onclick = entrar; return;
       }
-      el.innerHTML = `<form class="caixa"><div class="mini-av"></div><div class="meio"><span class="rot"></span>
+      el.innerHTML = `<div class="rapidos"><button type="button" data-t="!capturar">🎯 Capturar</button><button type="button" data-t="!atacar" class="raid-b">⚔️ Atacar na Raid</button><button type="button" data-t="!mel">🍯 Usar Mel</button><button type="button" data-t="!itens">🎒 Itens</button></div>
+        <form class="caixa"><div class="mini-av"></div><div class="meio"><span class="rot"></span>
           <input maxlength="500" placeholder="Mandar mensagem como ${eu}…" autocomplete="off"></div><button class="enviar" title="Enviar">➤</button></form>
         <div class="pe"><span>conversando como <b>${eu}</b> · <a href="#" class="sair">sair</a></span><span class="erro"></span></div>`;
       emoAtual = ""; carinha("");
       const inp = el.querySelector("input");
       inp.oninput = () => carinha(inp.value);
       el.querySelector(".sair").onclick = (e) => { e.preventDefault(); sair(); };
+      // botões rápidos: mandam o comando no chat como você (o Atacar pode ser apertado várias vezes na Raid)
+      el.querySelectorAll(".rapidos button").forEach((b) => b.onclick = () => {
+        const t = b.dataset.t; erro("");
+        if (ws && ws.readyState === 1) ws.send(`PRIVMSG #${canal} :${t}`); else { fila.push(t); conectar(); }
+        b.classList.remove("ok"); void b.offsetWidth; b.classList.add("ok");
+        if (t === "!atacar") { b.disabled = true; setTimeout(() => (b.disabled = false), 2600); }   // a Raid aceita 1 ataque a cada 2,5 s
+      });
       el.querySelector("form").onsubmit = (e) => {
         e.preventDefault();
         const t = inp.value.replace(/[\r\n]+/g, " ").trim(); if (!t) return;
