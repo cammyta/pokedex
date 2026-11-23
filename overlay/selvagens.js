@@ -222,6 +222,13 @@
     ev[stat] = (ev[stat] || 0) + add; gravar("usum_caixa", todos);
     return { add, ev: Object.assign({}, ev) };
   }
+  // item de segurar (ind.hi): troca o item que o Pokémon segura. Devolve o item que ele segurava antes (ou "")
+  function segurarItem(login, num, ind, item) {
+    const todos = ler("usum_caixa", {}), e = todos[login] && todos[login].p[num]; if (!e) return null;
+    const alvo = (e.l || []).find((i) => i.t === ind.t && String(i.iv) === String(ind.iv)); if (!alvo) return null;
+    const antes = alvo.hi || ""; if (item) alvo.hi = item; else delete alvo.hi;
+    gravar("usum_caixa", todos); return { antes };
+  }
   function nivelParaEvoluir(alvo) { const v = (window.USUM_NIVEL_EVO || {})[alvo]; return v == null ? 20 : v; }
 
   /* ---- golpes: cada Pokémon tem 1 golpe de dano, sorteado entre os que ele aprende no USUM (learnsets do Pokémon Showdown).
@@ -430,6 +437,7 @@
     const l = BORDAS.slice().reverse().filter(([min]) => n >= min).map(([, id, nome]) => ({ id, nome }));
     if (USUM.rancho && USUM.rancho.temBordaRancho(login, num)) l.push({ id: "rancho", nome: "Rancho" });   // amizade cheia no rancho
     if (USUM.rancho && USUM.rancho.bordaRaid && USUM.rancho.bordaRaid(login) === +num) l.push({ id: "raid", nome: "Raid" });   // o Pokémon que ela mais usou em Raids
+    if (USUM.rancho && USUM.rancho.bitsDe && USUM.rancho.bitsDe(login) >= 100) l.push({ id: "bits", nome: "Bits" });   // mandou 100 bits (vale para todos)
     if (individuos(login, num).some((x) => evTotal(x.ev) >= 510 && (shiny == null || !!x.s === !!shiny))) l.push({ id: "dojo", nome: "Dojo" });   // treino máximo no dojo (510 EVs)
     const confere = shiny === undefined || shiny === null;
     if (e.sh && (confere || shiny)) l.push({ id: "shiny", nome: "Shiny" });
@@ -535,7 +543,7 @@
   }
 
   USUM.selvagens = { C, registrar, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
-    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, EV_NOMES, evTotal, treinarEV, estagio, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
+    forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, segurarItem, EV_NOMES, evTotal, treinarEV, estagio, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
       const id = USUM.homeId && USUM.formaRegional ? USUM.homeId(num, USUM.formaRegional(num)) : num;
