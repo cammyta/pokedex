@@ -330,6 +330,13 @@
   .sexo { font-weight: 700; margin-left: 4px; } .sexo.m { color: #6fb6ff; } .sexo.f { color: #ff8fc0; }
   .hab { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--txt2); margin-left: 6px; } .hab.oculta { background: rgba(255,210,90,.18); color: #ffe7a8; }
   .bx .bx-hab { display: block; margin-top: 4px; } .bx .bx-hab .hab { margin-left: 0; }
+  .bx-estrela { position: absolute; top: 4px; left: 6px; z-index: 2; background: none; border: 0; padding: 2px 4px; font-size: 20px; line-height: 1; color: rgba(255,255,255,.45); cursor: pointer; box-shadow: none; }
+  .bx-estrela.on { color: #ffd25a; text-shadow: 0 0 8px rgba(255,210,90,.6); } .bx .sh { left: auto; right: 34px; }
+  .bx.fav { border-color: rgba(255,210,90,.55); }
+  .bx-evo { display: block; margin: 6px auto 0; font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(140,120,255,.22); color: #fff; border: 1px solid rgba(160,140,255,.5); }
+  .bx-evo.pronto { background: linear-gradient(90deg, #6a3fd0, #1aa38f); border-color: #ffe7a8; box-shadow: 0 0 10px rgba(160,140,255,.5); }
+  .ev-modal .ev-req { display: inline-flex; gap: 8px; flex-wrap: wrap; font-size: 13px; } .ev-modal .ev-req img { width: 20px; height: 20px; vertical-align: middle; }
+  .ev-modal .pronto { margin-left: auto; color: #9dffbf; } .ev-modal .ev-passos li { margin-bottom: 6px; }
   .bx .renomear { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 6px; cursor: default; }
   .renomear button { font-size: 12px; padding: 4px 10px; }
   .ren-form { display: inline-flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
@@ -829,7 +836,7 @@
       return x ? `<div class="slot ${x[1] ? "shiny" : ""}"><img src="${home(x[0], x[1])}" alt="" loading="lazy"><b>${esc(x[2] || nome(x[0]))}</b>${x[2] ? `<small class="sub">${esc(nome(x[0]))}</small>` : ""}</div>`
                : `<div class="slot vago"><span></span></div>`; }).join("")}</div>`;
   }
-  let D = null, aba = "dex", bxBusca = "", bxOrdem = "forca", bxForca = 0, bxPeriodo = 0, bxShiny = false, bxMax = 120, filtro = "cap", busca = "", ordem = "num", forcaMin = 0, periodo = 0, buscaMochila = "", ordemMochila = "nome";
+  let D = null, aba = "dex", bxBusca = "", bxOrdem = "forca", bxForca = 0, bxPeriodo = 0, bxShiny = false, bxFav = false, bxMax = 120, filtro = "cap", busca = "", ordem = "num", forcaMin = 0, periodo = 0, buscaMochila = "", ordemMochila = "nome";
 
   async function carregar() {
     D = await baixarGist(GIST);
@@ -2380,15 +2387,17 @@
       el.innerHTML = `<div class="filtros">
           <input type="search" id="bb" placeholder="Procurar por nome, apelido ou número" value="${esc(bxBusca)}">
           <label><input type="checkbox" id="bs" ${bxShiny ? "checked" : ""}> Só shiny</label>
+          <label><input type="checkbox" id="bfv" ${bxFav ? "checked" : ""}> ⭐ Só favoritos</label>
         </div>
         <div class="filtros filtros2">
-          <label>Ordem <select id="bo">${[["forca", "Mais forte"], ["nivel", "Maior nível"], ["recente", "Captura mais recente"], ["antiga", "Captura mais antiga"], ["num", "Número da Pokédex"], ["nome", "Nome (A-Z)"]].map(([v, t]) => `<option value="${v}" ${bxOrdem === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+          <label>Ordem <select id="bo">${[["forca", "Mais forte"], ["fav", "Favoritos primeiro"], ["nivel", "Maior nível"], ["recente", "Captura mais recente"], ["antiga", "Captura mais antiga"], ["num", "Número da Pokédex"], ["nome", "Nome (A-Z)"]].map(([v, t]) => `<option value="${v}" ${bxOrdem === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
           <label>Força <select id="bf">${[[0, "qualquer"], [50, "50% ou mais"], [70, "70% ou mais"], [90, "90% ou mais"], [100, "só 100%"]].map(([v, t]) => `<option value="${v}" ${bxForca === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
           <label>Capturado <select id="bp">${[[0, "em qualquer data"], [1, "hoje"], [7, "nos últimos 7 dias"], [30, "nos últimos 30 dias"]].map(([v, t]) => `<option value="${v}" ${bxPeriodo === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
         </div><p class="sub bx-conta" id="bxc"></p><div class="box-grade" id="box"></div>`;
       const re = () => { bxMax = 120; caixaBox(u, login); };
       el.querySelector("#bb").oninput = (e) => { bxBusca = e.target.value; re(); };
       el.querySelector("#bs").onchange = (e) => { bxShiny = e.target.checked; re(); };
+      el.querySelector("#bfv").onchange = (e) => { bxFav = e.target.checked; re(); };
       el.querySelector("#bo").onchange = (e) => { bxOrdem = e.target.value; re(); };
       el.querySelector("#bf").onchange = (e) => { bxForca = +e.target.value; re(); };
       el.querySelector("#bp").onchange = (e) => { bxPeriodo = +e.target.value; re(); };
@@ -2476,8 +2485,8 @@
   const sexoHTML = (x) => (x.sx ? `<span class="sexo ${x.sx === "♂" ? "m" : "f"}" title="${x.sx === "♂" ? "Macho" : "Fêmea"}">${x.sx}</span>` : "");
   const habHTML = (x) => (x.hb ? `<span class="hab ${x.hbO ? "oculta" : ""}" title="${x.hbO ? "Habilidade oculta (rara)" : "Habilidade"}">${x.hbO ? "✨ " : ""}${esc(x.hb)}</span>` : "");
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2, ev, hi, sx, hb]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "", ev: ev || null, hi: hi || "",
-      sx: sx === "m" ? "♂" : sx === "f" ? "♀" : "", hb: hb ? String(hb).replace(/\*$/, "") : "", hbO: /\*$/.test(hb || "") }; })
+    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2, ev, hi, sx, hb, fv]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "", ev: ev || null, hi: hi || "",
+      sx: sx === "m" ? "♂" : sx === "f" ? "♀" : "", hb: hb ? String(hb).replace(/\*$/, "") : "", hbO: /\*$/.test(hb || ""), fv: !!fv }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
   }
   const custoNivel = (L) => (L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);   // igual ao overlay
@@ -2550,26 +2559,73 @@
     const total = todos.length;
     if (q) todos = todos.filter(({ n, x }) => nome(n).toLowerCase().includes(q) || (x.a || "").toLowerCase().includes(q) || String(n) === q);
     if (bxShiny) todos = todos.filter(({ x }) => x.s);
+    if (bxFav) todos = todos.filter(({ x }) => x.fv);
     if (bxForca) todos = todos.filter(({ x }) => x.f >= bxForca);
     if (bxPeriodo) { const desde = bxPeriodo === 1 ? new Date().setHours(0, 0, 0, 0) : Date.now() - bxPeriodo * 864e5; todos = todos.filter(({ x }) => x.t >= desde); }
-    const ord = { forca: (a, b) => b.x.f - a.x.f || a.n - b.n, nivel: (a, b) => b.x.lv - a.x.lv || b.x.f - a.x.f, recente: (a, b) => b.x.t - a.x.t, antiga: (a, b) => (a.x.t || Infinity) - (b.x.t || Infinity),
+    const ord = { fav: (a, b) => (b.x.fv - a.x.fv) || b.x.f - a.x.f, forca: (a, b) => b.x.f - a.x.f || a.n - b.n, nivel: (a, b) => b.x.lv - a.x.lv || b.x.f - a.x.f, recente: (a, b) => b.x.t - a.x.t, antiga: (a, b) => (a.x.t || Infinity) - (b.x.t || Infinity),
       num: (a, b) => a.n - b.n || a.i - b.i, nome: (a, b) => nome(a.n).localeCompare(nome(b.n)) || a.i - b.i }[bxOrdem];
     if (ord) todos.sort(ord);
     cnt.textContent = !total ? "" : todos.length === total ? `${total} ${total === 1 ? "Pokémon guardado" : "Pokémon guardados"}` : `${todos.length} de ${total} Pokémon`;
     if (!todos.length) { box.innerHTML = `<p class="vazio">${total ? "Nada com esses filtros." : "A Box está vazia. Fique de olho na grama durante a live e digite !capturar!"}</p>`; return; }
     const R = USUM.rancho;
-    box.innerHTML = todos.slice(0, bxMax).map(({ n, x, i }) => `<div class="bx ${classeForca(x.f)} ${x.s ? "shiny" : ""}" data-n="${n}" tabindex="0">
+    const listas = {}; const listaDe = (n) => listas[n] || (listas[n] = individuos(c[n]));
+    box.innerHTML = todos.slice(0, bxMax).map(({ n, x, i }) => { const l = listaDe(n), ehMelhor = l.findIndex((y) => !!y.s === !!x.s) === i, evo = meu && filhosDe(n).length && ehMelhor, pronto = evo && requisitosEvo(u, n, x).some((r) => r.pronto);
+      return `<div class="bx ${classeForca(x.f)} ${x.s ? "shiny" : ""} ${x.fv ? "fav" : ""}" data-n="${n}" data-i="${i}" tabindex="0">
+        ${meu ? `<button type="button" class="bx-estrela ${x.fv ? "on" : ""}" data-cmd="!favorito ${esc(nome(n).toLowerCase())} ${i + 1}" title="${x.fv ? "Tirar dos favoritos" : "Favoritar"}">${x.fv ? "★" : "☆"}</button>` : x.fv ? `<span class="bx-estrela on">★</span>` : ""}
         ${x.s ? '<span class="sh">✦</span>' : ""}${x.hi && R && R.ITENS[x.hi] ? `<img class="bx-hi" src="${R.urlItem(x.hi)}" alt="" title="Segura ${esc(R.ITENS[x.hi].n)}">` : ""}
         <img class="bx-img" src="${home(n, x.s)}" alt="" loading="lazy">
         <b class="bx-nome">${x.a ? `“${esc(x.a)}”` : esc(nome(n))} ${sexoHTML(x)}</b>
         <small class="bx-esp">${x.a ? esc(nome(n)) + " · " : ""}nº ${i + 1}${x.lv ? ` · Nv. ${x.lv}` : ""}</small>
         <span class="fz ${classeForca(x.f)}">${x.f === 100 ? "✦ " : ""}${x.f}%</span>${x.hb ? `<small class="bx-hab">${habHTML(x)}</small>` : ""}
-        ${meu ? renomearHTML(n, x, i) : ""}</div>`).join("")
+        ${evo ? `<button type="button" class="bx-evo ${pronto ? "pronto" : ""}" data-evo="${n}:${i}">🧬 ${pronto ? "Pronto para evoluir" : "Evoluir"}</button>` : ""}
+        ${meu ? renomearHTML(n, x, i) : ""}</div>`; }).join("")
       + (todos.length > bxMax ? `<button type="button" class="r-btn bx-mais">Mostrar mais (${todos.length - bxMax})</button>` : "");
     box.querySelectorAll(".bx").forEach((d) => { const abrir = () => fichaPokemon(u, +d.dataset.n);
-      d.onclick = (e) => { if (e.target.closest(".renomear")) return; abrir(); };
+      d.onclick = (e) => { if (e.target.closest(".renomear, .bx-estrela, .bx-evo")) return; abrir(); };
       d.onkeydown = (e) => { if (e.key === "Enter" && e.target === d) abrir(); }; });
     const mais = box.querySelector(".bx-mais"); if (mais) mais.onclick = () => { bxMax += 240; caixaBox(u, login); };
+    box.querySelectorAll(".bx-evo").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const [n, i] = b.dataset.evo.split(":").map(Number), l = listaDe(n); abrirEvoluir(u, login, n, l[i], i, l); }));
+    // ⭐ marca na hora (a live confirma em seguida)
+    box.querySelectorAll(".bx-estrela[data-cmd]").forEach((b) => b.addEventListener("click", () => { if (!TWX.eu) return; const on = !b.classList.contains("on"); b.classList.toggle("on", on); b.textContent = on ? "★" : "☆"; b.closest(".bx").classList.toggle("fav", on); }));
+  }
+
+  /* ---------- 🧬 evoluir pela Box (a evolução em si é o resgate "Evoluir meu Pokémon" na Twitch) ---------- */
+  if (USUM && !USUM.formaRegional) USUM.formaRegional = (n) => (ALOLA_CAIXA.has(n) ? "0001" : "");
+  const filhosDe = (n) => ((USUM.rancho && USUM.rancho.EVO_FILHOS) || {})[n] || [];
+  const nivelEvo = (f) => { const v = (window.USUM_NIVEL_EVO || {})[f]; return v == null ? 20 : v; };
+  function requisitosEvo(u, n, x) {   // [{ f, nv, okNv, item, okIt, pronto }]
+    const R = USUM.rancho, bolsa = (u.rn && u.rn.it) || {};
+    return filhosDe(n).map((f) => { const nv = nivelEvo(f), item = R.itemParaEvoluir ? R.itemParaEvoluir(f) : "", okNv = !nv || (x.lv || 0) >= nv, okIt = !item || (bolsa[item] || 0) > 0;
+      return { f, nv, okNv, item, okIt, pronto: okNv && okIt }; });
+  }
+  document.addEventListener("click", (e) => {   // botão 🧬 da ficha do Pokémon
+    const b = e.target.closest("[data-evo-f]"); if (!b || !TWX.eu || !D.t[TWX.eu]) return;
+    const u = D.t[TWX.eu], [n, i] = b.dataset.evoF.split(":").map(Number), l = individuos((u.c || {})[n] || [0, 0, []]); if (l[i]) abrirEvoluir(u, TWX.eu, n, l[i], i, l);
+  });
+  function abrirEvoluir(u, login, n, x, i, lista) {
+    const R = USUM.rancho, reqs = requisitosEvo(u, n, x), dono = login === D.canal, parc = u.p && u.p[0] === n && !!u.p[1] === !!x.s;
+    const melhor = lista.findIndex((y) => !!y.s === !!x.s) === i;
+    const prontos = reqs.filter((r) => r.pronto), alvo = (prontos[0] || reqs[0]);
+    const nomeEvo = (f) => nome(f).toLowerCase();
+    const fundo = document.createElement("div"); fundo.className = "ficha-fundo";
+    fundo.innerHTML = `<div class="ficha tw-pagar ev-modal"><button class="fechar-ficha" title="Fechar">✕</button>
+      <h3>🧬 Evoluir ${esc(x.a ? "“" + x.a + "”" : nome(n))} <small class="sub">Nv. ${x.lv || "?"}</small></h3>
+      <div class="ev-lista">${reqs.map((r) => `<div class="ev-linha"><span class="ev-pk"><img src="${home(r.f, x.s)}" alt=""><b>${esc(nome(r.f))}</b></span>
+        <span class="ev-req">${r.nv ? `<span class="${r.okNv ? "ok" : "nao"}">${r.okNv ? "✅" : "❌"} nível ${r.nv}</span>` : ""}${r.item ? `<span class="${r.okIt ? "ok" : "nao"}"><img src="${R.urlItem(r.item)}" alt="">${r.okIt ? "✅" : "❌"} ${esc(R.ITENS[r.item].n)}</span>` : ""}${!r.nv && !r.item ? "sem requisito" : ""}</span>
+        ${r.pronto ? `<b class="pronto">pronto!</b>` : r.item && !r.okIt ? `<small class="sub">${esc(R.ondeAchar(r.item, true))}</small>` : ""}</div>`).join("")}</div>
+      ${!melhor ? `<p class="tw-atencao">Quem evolui é o seu ${esc(nome(n))} mais forte${x.s ? " shiny" : ""} (o nº ${lista.findIndex((y) => !!y.s === !!x.s) + 1} da lista). Este aqui não evolui agora.</p>` : !prontos.length ? `<p class="sub">Ainda falta o que está com ❌. Suba o nível (chat, dojo, torre) ou ache o item.</p>` : `
+        <ol class="ev-passos">
+          <li>${parc ? `✅ ${esc(nome(n))} já é seu parceiro.` : `Deixe ${esc(nome(n))} como parceiro: <button type="button" class="r-btn" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>`}</li>
+          ${dono ? `<li>${prontos.map((r) => `<button type="button" class="r-btn" data-cmd="!evoluir ${esc(nomeEvo(r.f))}">🧬 Evoluir para ${esc(nome(r.f))}</button>`).join(" ")}</li>`
+            : `<li>Na Twitch, resgate <b>Evoluir meu Pokémon</b> nos pontos do canal e escreva <b>só o nome da evolução</b>:
+              <div class="tw-msg"><code>${esc(nomeEvo(alvo.f))}</code><button type="button" class="r-btn" data-copiar>📋 Copiar</button></div>
+              ${prontos.length > 1 ? `<small class="sub">Pode escolher: ${prontos.map((r) => esc(nomeEvo(r.f))).join(", ")}</small>` : ""}
+              <div class="tw-botoes" style="margin-top:8px"><a class="r-btn" href="https://www.twitch.tv/${encodeURIComponent(D.canal || "canaldocamaleao")}" target="_blank" rel="noopener">💜 Abrir a live na Twitch</a></div></li>`}
+        </ol>`}</div>`;
+    document.body.appendChild(fundo);
+    const fechar = () => fundo.remove();
+    fundo.onclick = (e) => { if (e.target === fundo) fechar(); }; fundo.querySelector(".fechar-ficha").onclick = fechar;
+    const cp = fundo.querySelector("[data-copiar]"); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(nomeEvo(alvo.f)); cp.textContent = "✓ Copiado"; } catch (e) {} };
   }
 
   function fichaPokemon(u, n) {
@@ -2588,7 +2644,7 @@
         ${nivelHTML(x)}${itemSegurarHTML(u, n, x, i, souEu(login))}${x.ev && x.ev.some(Boolean) ? `<div class="ind-ev">EV: ${["HP", "Atq", "Def", "AtqE", "DefE", "Vel"].map((t, k) => x.ev[k] ? `<span>${t} ${x.ev[k]}</span>` : "").join("")}</div>` : ""}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
-        ${souEu(login) ? `<div class="acoes-ind">${renomearHTML(n, x, i)}<button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button></div>` : ""}
+        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!favorito ${esc(nome(n).toLowerCase())} ${i + 1}">${x.fv ? "★ Tirar dos favoritos" : "☆ Favoritar"}</button>${filhosDe(n).length && lista.findIndex((y) => !!y.s === !!x.s) === i ? `<button type="button" data-evo-f="${n}:${i}">🧬 Evoluir</button>` : ""}${renomearHTML(n, x, i)}<button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}${x.fv ? `<small class="sub" title="Tire dos favoritos para poder soltar">⭐ favorito (não dá para soltar)</small>` : `<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button>`}</div>` : ""}
       </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}</div>
       <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code> Para dar um nome: <code>!apelido ${esc(nome(n).toLowerCase())} 1 Nome</code> (até 12 letras).</p>
     </div>`;
