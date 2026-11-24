@@ -1011,7 +1011,7 @@
     if (cmd === "dojo" || cmd === "treinar") {
       mudarR(L, (r) => { r.nm = N; });
       const a0 = limpa(arg || "");
-      if (a0 && NINGUEM.test(a0)) { mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: 0, b: 0 }); }); return publicar("ic:casa", `🥋 <b>${esc(N)}</b> deixou o dojo vazio`, L); }
+      if (a0 && a0.split(" ").every((w) => NINGUEM.test(w))) { mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: 0, b: 0 }); }); return publicar("ic:casa", `🥋 <b>${esc(N)}</b> deixou o dojo vazio`, L); }
       // !dojo ev ataque (os dois) · !dojo ev1 ataque (só o 1º) · !dojo ev2 velocidade (só o 2º)
       const mev = a0.match(/^ev\s*([12])?\s+(.+)$/);
       if (mev) {
@@ -1024,7 +1024,7 @@
       }
       if (a0) {
         const tem = new Set(donos(L)), nums = [];
-        palavrasPoke(arg).forEach((w) => { const p = USUM.lerPokemon(w), n = p && (USUM.formaPadraoAlola ? USUM.formaPadraoAlola(p) : p).num; if (n && tem.has(n) && !nums.includes(n) && nums.length < 2) nums.push(n); });
+        palavrasPoke(arg).filter((w) => !NINGUEM.test(w)).forEach((w) => { const p = USUM.lerPokemon(w), n = p && (USUM.formaPadraoAlola ? USUM.formaPadraoAlola(p) : p).num; if (n && tem.has(n) && !nums.includes(n) && nums.length < 2) nums.push(n); });
         if (!nums.length) return publicar("ic:casa", `🥋 <b>${esc(N)}</b>, coloque até 2 Pokémon da sua caixa: <b>!dojo pikachu eevee</b>`, L);
         mudarR(L, (r) => { r.dj = Object.assign(r.dj || {}, { a: nums[0], b: nums[1] || 0 }); });
       }
