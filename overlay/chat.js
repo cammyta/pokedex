@@ -749,6 +749,21 @@
           : `<b>${esc(m.nome)}</b> deu o nome <b>“${esc(novo)}”</b> ao seu ${esc(p.nome)}${qualTxt}${ind.s ? " ✦" : ""} 🏷️`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!ind.s });
         return;
       }
+      // ⭐ !favorito pikachu 2 (o nº 2 da lista do site) · !favorito pikachu (o mais forte) · de novo para tirar
+      if ((cmd === "!favorito" || cmd === "!fav" || cmd === "!favoritar") && USUM.selvagens) {
+        const SV = USUM.selvagens, t = times()[m.login], tk = txt.split(/\s+/).slice(1);
+        let p = null, usou = 0;
+        for (let k = Math.min(3, tk.length); k >= 1 && !p; k--) { const x = USUM.lerPokemon(tk.slice(0, k).join(" ")); if (x && SV.individuos(m.login, x.num).length) { p = x; usou = k; } }
+        if (!p) { aviso(t, `<b>${esc(m.nome)}</b>, use <b>!favorito pikachu</b> (ou <b>!favorito pikachu 2</b> para o nº 2 da lista do site)`); return; }
+        const r = tk.slice(usou); let pos = /^#?\d{1,2}$/.test(r[0] || "") ? parseInt(r[0].replace("#", ""), 10) : 1;
+        const lista = SV.individuos(m.login, p.num);
+        if (!lista[pos - 1]) { aviso(t, `<b>${esc(m.nome)}</b>, você só tem ${lista.length} ${esc(p.nome)}`); return; }
+        const quer = /^(tirar|nao|não|off|remover)$/i.test(r[r.length - 1] || "") ? false : null;
+        umaVez(m, () => SV.favoritar(m.login, p.num, pos, quer));
+        const vai = quer === false ? false : !lista[pos - 1].fv;
+        aviso(t, `${vai ? "⭐" : "☆"} <b>${esc(m.nome)}</b> ${vai ? "favoritou" : "tirou dos favoritos"} o seu ${esc(p.nome)}${lista.length > 1 ? " nº " + pos : ""}`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!lista[pos - 1].s });
+        return;
+      }
       if ((cmd === "!release" || cmd === "!soltar") && USUM.selvagens) {
         const SV = USUM.selvagens, arg = txt.slice(cmd.length).trim(), t = times()[m.login];
         const pend = ler("usum_release", {});
@@ -914,7 +929,8 @@
       }
       if (/^!capturar\b/.test(low)) return;
       if (USUM.rancho && USUM.rancho.ehComando(low)) return;
-      if (/^!(torre|insignias|insígnias)\b/.test(low)) return;   // Torre dos Líderes: respondida pelo core/torre.js
+      if (/^!(torre|insignias|insígnias)\b/.test(low)) return;
+      if (/^!(recarregar|reload)\b/.test(low) && (m.dono || m.mod || m.ajudante)) return;   // recarrega as telas (core/backup.js)   // Torre dos Líderes: respondida pelo core/torre.js
       if (/^!(atacar|atk|ataque|a|raid)(\s|$)/.test(low)) return;   // Raid: o ataque aparece na tela da Raid, não no chat   // comandos do rancho: respondidos pelo core/rancho.js
       if (/^!(subs|meta)\b/.test(low) && (m.dono || m.ajudante || m.mod)) return;                       // conta no encontro.html
       if ((m.dono || m.ajudante) && /^!registrar\b/.test(low)) return;
