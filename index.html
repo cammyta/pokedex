@@ -327,6 +327,9 @@
   .bx .bx-nome { display: block; font: 600 14px/1.2 "Fredoka", sans-serif; overflow-wrap: anywhere; }
   .bx .bx-esp { display: block; font-size: 11px; color: var(--txt2); margin: 2px 0 4px; }
   .bx .fz { display: inline-block; font: 600 11.5px "Fredoka", "Poppins", sans-serif; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--fc); }
+  .sexo { font-weight: 700; margin-left: 4px; } .sexo.m { color: #6fb6ff; } .sexo.f { color: #ff8fc0; }
+  .hab { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--txt2); margin-left: 6px; } .hab.oculta { background: rgba(255,210,90,.18); color: #ffe7a8; }
+  .bx .bx-hab { display: block; margin-top: 4px; } .bx .bx-hab .hab { margin-left: 0; }
   .bx .renomear { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 6px; cursor: default; }
   .renomear button { font-size: 12px; padding: 4px 10px; }
   .ren-form { display: inline-flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
@@ -354,7 +357,7 @@
   .ind { background: var(--card); border: 1px solid var(--borda); border-left: 4px solid var(--fc); border-radius: 14px; padding: 10px 12px; margin-top: 8px; }
   .ind.f-perf { box-shadow: 0 0 16px rgba(255,122,217,.35); }
   .ind-cab { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-  .ind-cab .nota { color: var(--fc); font-weight: 600; } .ind-cab .pct { margin-left: auto; font: 700 18px "Fredoka", "Poppins", sans-serif; color: var(--fc); }
+  .ind-cab .nota { color: var(--fc); font-weight: 600; background: none; border: 0; padding: 0; border-radius: 0; box-shadow: none; } .ind-cab .pct { margin-left: auto; font: 700 18px "Fredoka", "Poppins", sans-serif; color: var(--fc); }
   .ind-cab .sh { color: #ffe27a; font-size: 12px; }
   .ivs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
   .ivs > div { display: grid; grid-template-columns: 74px 1fr 22px; gap: 6px; align-items: center; font-size: 12px; }
@@ -2470,8 +2473,11 @@
   const classeForca = (f) => (f >= 100 ? "f-perf" : f >= 90 ? "f-inc" : f >= 75 ? "f-oti" : f >= 50 ? "f-bom" : f >= 25 ? "f-raz" : "f-fra");
   const NATUREZAS = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty",
     "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
+  const sexoHTML = (x) => (x.sx ? `<span class="sexo ${x.sx === "♂" ? "m" : "f"}" title="${x.sx === "♂" ? "Macho" : "Fêmea"}">${x.sx}</span>` : "");
+  const habHTML = (x) => (x.hb ? `<span class="hab ${x.hbO ? "oculta" : ""}" title="${x.hbO ? "Habilidade oculta (rara)" : "Habilidade"}">${x.hbO ? "✨ " : ""}${esc(x.hb)}</span>` : "");
   function individuos(e) {   // [qtd, shiny, [[ivs, shiny, data]]] → lista em ordem (1 = mais forte), igual ao chat
-    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2, ev, hi]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "", ev: ev || null, hi: hi || "" }; })
+    return (e[2] || []).map(([cod, sh, t, a, n, lv, m, xp, m2, ev, hi, sx, hb]) => { const iv = String(cod).split("").map((x) => parseInt(x, 32)); return { iv, s: !!sh, t: t * 1000, f: forcaDe(iv), a: a || "", n: n != null ? NATUREZAS[n] : "", lv: lv || 0, m: m || "", xp: xp || 0, m2: m2 || "", ev: ev || null, hi: hi || "",
+      sx: sx === "m" ? "♂" : sx === "f" ? "♀" : "", hb: hb ? String(hb).replace(/\*$/, "") : "", hbO: /\*$/.test(hb || "") }; })
       .sort((a, b) => b.f - a.f || a.t - b.t);
   }
   const custoNivel = (L) => (L < 63 ? 6 + Math.floor(L / 4) : 40 + (L - 63) * 4);   // igual ao overlay
@@ -2555,9 +2561,9 @@
     box.innerHTML = todos.slice(0, bxMax).map(({ n, x, i }) => `<div class="bx ${classeForca(x.f)} ${x.s ? "shiny" : ""}" data-n="${n}" tabindex="0">
         ${x.s ? '<span class="sh">✦</span>' : ""}${x.hi && R && R.ITENS[x.hi] ? `<img class="bx-hi" src="${R.urlItem(x.hi)}" alt="" title="Segura ${esc(R.ITENS[x.hi].n)}">` : ""}
         <img class="bx-img" src="${home(n, x.s)}" alt="" loading="lazy">
-        <b class="bx-nome">${x.a ? `“${esc(x.a)}”` : esc(nome(n))}</b>
+        <b class="bx-nome">${x.a ? `“${esc(x.a)}”` : esc(nome(n))} ${sexoHTML(x)}</b>
         <small class="bx-esp">${x.a ? esc(nome(n)) + " · " : ""}nº ${i + 1}${x.lv ? ` · Nv. ${x.lv}` : ""}</small>
-        <span class="fz ${classeForca(x.f)}">${x.f === 100 ? "✦ " : ""}${x.f}%</span>
+        <span class="fz ${classeForca(x.f)}">${x.f === 100 ? "✦ " : ""}${x.f}%</span>${x.hb ? `<small class="bx-hab">${habHTML(x)}</small>` : ""}
         ${meu ? renomearHTML(n, x, i) : ""}</div>`).join("")
       + (todos.length > bxMax ? `<button type="button" class="r-btn bx-mais">Mostrar mais (${todos.length - bxMax})</button>` : "");
     box.querySelectorAll(".bx").forEach((d) => { const abrir = () => fichaPokemon(u, +d.dataset.n);
@@ -2578,7 +2584,7 @@
       ${lista.length > 1 ? `<div class="filtros ficha-filtros"><input type="search" class="fi-b" placeholder="Procurar apelido"><select class="fi-o"><option value="forca">Mais forte</option><option value="recente">Mais recente</option><option value="antiga">Mais antigo</option></select>
         <select class="fi-f"><option value="0">qualquer força</option><option value="50">50%+</option><option value="70">70%+</option><option value="90">90%+</option></select></div>` : ""}
       <div class="fi-lista">${lista.length ? lista.map((x, i) => `<div class="ind ${classeForca(x.f)}" data-i="${i}" data-f="${x.f}" data-t="${x.t || 0}" data-a="${esc((x.a || "").toLowerCase())}">
-        <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${x.n || notaDe(x.f)}</span><span class="pct">${x.f}%</span></div>
+        <div class="ind-cab"><b>#${i + 1}</b>${x.a ? `<span class="apelido">“${esc(x.a)}”</span>` : ""}${sexoHTML(x)}${x.s ? '<span class="sh">✦ shiny</span>' : ""}<span class="nota">${x.n || notaDe(x.f)}</span>${habHTML(x)}<span class="pct">${x.f}%</span></div>
         ${nivelHTML(x)}${itemSegurarHTML(u, n, x, i, souEu(login))}${x.ev && x.ev.some(Boolean) ? `<div class="ind-ev">EV: ${["HP", "Atq", "Def", "AtqE", "DefE", "Vel"].map((t, k) => x.ev[k] ? `<span>${t} ${x.ev[k]}</span>` : "").join("")}</div>` : ""}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
