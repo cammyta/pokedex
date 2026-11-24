@@ -103,10 +103,23 @@
   pede("fire-stone", [59, 136]); pede("water-stone", [62, 91, 121, 134, 272]); pede("thunder-stone", [26, 135, 604]);
   pede("leaf-stone", [45, 71, 103, 275, 470]); pede("moon-stone", [31, 34, 36, 40, 301, 518]); pede("sun-stone", [182, 192, 547, 549]);
   pede("shiny-stone", [407, 468, 573, 671]); pede("dusk-stone", [429, 430, 609]); pede("dawn-stone", [475, 478]); pede("ice-stone", [471]);
-  pede("metal-coat", [208, 212, 462]);   // Magnezone: Revestimento Metálico + 30 min de convívio pede("kings-rock", [186, 199]); pede("dragon-scale", [230]); pede("up-grade", [233]); pede("dubious-disc", [474]);
+  pede("metal-coat", [208, 212, 462]);   // Magnezone: Revestimento Metálico
+  pede("kings-rock", [186, 199]); pede("dragon-scale", [230]); pede("up-grade", [233]); pede("dubious-disc", [474]);
   pede("electirizer", [466]); pede("magmarizer", [467]); pede("protector", [464]); pede("reaper-cloth", [477]); pede("prism-scale", [350]);
   pede("deep-sea-tooth", [367]); pede("deep-sea-scale", [368]); pede("razor-claw", [461]); pede("razor-fang", [472]); pede("oval-stone", [113]);
   pede("sachet", [683]); pede("whipped-dream", [685]); pede("linking-cord", [65, 68, 76, 94, 526, 534, 589, 617, 709, 711]);
+  // quem evolui com item: [de, para, item] (para o guia do site e o !evostatus)
+  const EVO_ITENS = [[281, 475, "dawn-stone"], [361, 478, "dawn-stone"], [366, 368, "deep-sea-scale"], [366, 367, "deep-sea-tooth"], [117, 230, "dragon-scale"], [233, 474, "dubious-disc"], [200, 429, "dusk-stone"], [198, 430, "dusk-stone"], [608, 609, "dusk-stone"], [125, 466, "electirizer"], [58, 59, "fire-stone"], [133, 136, "fire-stone"], [27, 28, "ice-stone"], [37, 38, "ice-stone"], [133, 471, "ice-stone"], [61, 186, "kings-rock"], [79, 199, "kings-rock"], [44, 45, "leaf-stone"], [70, 71, "leaf-stone"], [102, 103, "leaf-stone"], [274, 275, "leaf-stone"], [133, 470, "leaf-stone"], [64, 65, "linking-cord"], [67, 68, "linking-cord"], [75, 76, "linking-cord"], [93, 94, "linking-cord"], [525, 526, "linking-cord"], [533, 534, "linking-cord"], [588, 589, "linking-cord"], [616, 617, "linking-cord"], [708, 709, "linking-cord"], [710, 711, "linking-cord"], [126, 467, "magmarizer"], [95, 208, "metal-coat"], [123, 212, "metal-coat"], [82, 462, "metal-coat"], [30, 31, "moon-stone"], [33, 34, "moon-stone"], [35, 36, "moon-stone"], [39, 40, "moon-stone"], [300, 301, "moon-stone"], [517, 518, "moon-stone"], [440, 113, "oval-stone"], [349, 350, "prism-scale"], [112, 464, "protector"], [215, 461, "razor-claw"], [207, 472, "razor-fang"], [356, 477, "reaper-cloth"], [682, 683, "sachet"], [315, 407, "shiny-stone"], [176, 468, "shiny-stone"], [572, 573, "shiny-stone"], [670, 671, "shiny-stone"], [44, 182, "sun-stone"], [191, 192, "sun-stone"], [546, 547, "sun-stone"], [548, 549, "sun-stone"], [25, 26, "thunder-stone"], [133, 135, "thunder-stone"], [603, 604, "thunder-stone"], [137, 233, "up-grade"], [61, 62, "water-stone"], [90, 91, "water-stone"], [120, 121, "water-stone"], [133, 134, "water-stone"], [271, 272, "water-stone"], [684, 685, "whipped-dream"]];
+  const NOME_TIPO_PT = { normal: "Normal", fire: "Fogo", water: "Água", grass: "Planta", electric: "Elétrico", ice: "Gelo", fighting: "Lutador", poison: "Venenoso", ground: "Terra", flying: "Voador", psychic: "Psíquico", bug: "Inseto", rock: "Pedra", ghost: "Fantasma", dragon: "Dragão", dark: "Sombrio", steel: "Aço", fairy: "Fada" };
+  // onde achar um item de evolução
+  function ondeAchar(id, curto) {
+    const it = ITENS[id]; if (!it) return "";
+    const tipos = (it.t || []).map((t) => NOME_TIPO_PT[t] || t).join(" ou ");
+    if (curto) return id === "metal-coat" ? "pedreira" : `capture tipo ${tipos}${it.c === "pedra" ? " ou pedreira" : ""}`;
+    if (id === "metal-coat") return "só na pedreira (deixe um Pokémon minerando no rancho)";
+    if (it.c === "pedra") return `capturando Pokémon do tipo ${tipos} (mais chance) ou na pedreira do rancho`;
+    return `capturando Pokémon do tipo ${tipos}`;
+  }
   function itemParaEvoluir(alvo) {
     const alola = USUM.formaRegional && USUM.formaRegional(alvo);
     if (alvo === 38) return alola ? "ice-stone" : "fire-stone";     // Ninetales de Alola: Pedra do Gelo
@@ -847,7 +860,7 @@
   const listaCusto = (c) => Object.entries(c).map(([id, n]) => `${n} ${esc(ITENS[id].n)}`).join(" + ");
 
   /* ---------- comandos ---------- */
-  const CMD = /^!(itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário|tm|slot|dojo|treinar|segurar|equipar)\b/;
+  const CMD = /^!(evostatus|evolucao|evolução|comoevoluir|itens|item|usar|forja|forjar|horta|plantar|colher|pescar|pesca|fazer|rancho|casa|receitas|daycare|creche|chocar|bolha|bolhas|pedreira|minerar|mel|hipermel|apiario|apiário|tm|slot|dojo|treinar|segurar|equipar)\b/;
   let lider = false;
   const site = /github\.io$/.test(location.hostname);
   if (USUM.aoMensagem && !site && navigator.locks && navigator.locks.request) navigator.locks.request("usum_rancho", () => { lider = true; return new Promise(() => {}); }).catch(() => {});
@@ -877,6 +890,26 @@
       return publicar("ic:casa", `🏡 Rancho de <b>${esc(N)}</b>: forja ${a && f ? `🔥 ${nomeP(a)} + ${nomeP(f)}` : "apagada (precisa de um Pokémon de Aço, Terra ou Pedra e um de Fogo)"} · horta ${ag && gr ? `💧 ${nomeP(ag)} + ${nomeP(gr)}` : "parada (precisa de Água e Grama)"} · ${(r.mv || []).length} móveis · vara ${["velha", "boa", "super"][r.vr || 0]}` + url, L);
     }
     if (cmd === "usar" && /^(hiper\s*)?mel\b/.test(limpa(arg))) { m = Object.assign({}, m, { texto: "!" + (/^hiper/.test(limpa(arg)) ? "hipermel" : "mel") }); return comando(m); }
+    // !evostatus [pokémon]: o que falta para evoluir (nível e item). Sem nome = o parceiro
+    if (cmd === "evostatus" || cmd === "evolucao" || cmd === "evolução" || cmd === "comoevoluir") {
+      const SV = S(), parc = ler("usum_parceiros", {})[L];
+      let num = 0, sh = false;
+      if (arg) { const pk = USUM.lerPokemon(arg); num = pk && (USUM.formaPadraoAlola ? USUM.formaPadraoAlola(pk) : pk).num; sh = !!(pk && pk.shiny); }
+      else if (parc) { num = parc.num; sh = !!parc.shiny; }
+      if (!num) return publicar("ic:mochila", `🧬 <b>${esc(N)}</b>, escolha um parceiro com <b>!pokemon</b> ou escreva o nome: <b>!evostatus eevee</b>`, L);
+      const filhos = SV.evolucoes(num);
+      if (!filhos.length) return publicar("num:" + num, `🧬 ${nomeP(num)} já está na forma final, não evolui mais`, L);
+      const lista = SV.individuos(L, num), ind = lista.find((x) => !!x.s === sh) || lista[0], tem = !!ind, nivel = tem ? SV.nivelDe(ind, num) : 0;
+      const partes = filhos.map((f) => {
+        const nv = SV.nivelParaEvoluir(f), item = itemParaEvoluir(f), q = item ? qtd(L, item) : 0;
+        const pedNv = nv > 0 ? (tem ? (nivel >= nv ? `nível ${nv} ✅` : `nível ${nv} ❌ (está no ${nivel})`) : `nível ${nv}`) : "";
+        const pedIt = item ? (tem ? (q > 0 ? `${ITENS[item].n} ✅` : `${ITENS[item].n} ❌ (${ondeAchar(item, true)})`) : `${ITENS[item].n} (${ondeAchar(item, true)})`) : "";
+        const pronto = tem && (!nv || nivel >= nv) && (!item || q > 0);
+        return `<b>${nomeP(f)}</b>: ${[pedNv, pedIt].filter(Boolean).join(" + ") || "sem requisito"}${pronto ? " · <b>pronto!</b>" : ""}`;
+      });
+      const algum = tem && filhos.some((f) => { const nv = SV.nivelParaEvoluir(f), it = itemParaEvoluir(f); return (!nv || nivel >= nv) && (!it || qtd(L, it) > 0); });
+      return publicar("num:" + num + (sh ? ":s" : ""), `🧬 ${tem ? "" : "Para evoluir, "}${nomeP(num)}${tem ? ` de <b>${esc(N)}</b> (Nv. ${nivel})` : ""} → ${partes.join(" · ")}${algum ? ` · resgate <b>Evoluir meu Pokémon</b> e escreva o nome da evolução` : tem ? "" : ` · você ainda não tem ${nomeP(num)}`}${USUM.pokedexUrl ? ` · guia: <b>${esc(USUM.pokedexUrl.replace(/^https?:\/\//, "").replace(/\/?$/, "/"))}?p=evolucao</b>` : ""}`, L);
+    }
     if (cmd === "usar") {
       const id = acharItem(arg, (k) => ITENS[k].c !== "mat" && ITENS[k].c !== "mel");
       if (!id) return publicar("ic:mochila", `<b>${esc(N)}</b>, não achei esse item 🤔 (ex: <b>!usar pedra do fogo</b>, <b>!usar néctar rosa</b>)`, L);
@@ -1143,6 +1176,6 @@
   // soltar Pokémon dá essência: 2 por Pokémon (5 se shiny)
   function essenciaPorSoltar(inds) { return (inds || []).reduce((a, x) => a + (x && x.s ? 5 : 2), 0); }
   function ganharEssencia(login, nome, n) { if (n > 0) mudarR(login, (r) => { if (nome) r.nm = nome; r.it.essencia = (r.it.essencia || 0) + n; }); return qtd(login, "essencia"); }
-  USUM.rancho = { darBolha, BOLHAS, bitsDe, itemSegurar, rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
+  USUM.rancho = { EVO_ITENS, ondeAchar, itemParaEvoluir, darBolha, BOLHAS, bitsDe, itemSegurar, rodadaDojo, dojoDe, EV_ALIAS, bordaRaid, contarRaid, checarBolhas, shinyTotal, fixarTrabalhadores, seguir, maeDe, motivoDaycare, conferirCasal, vistosR, checkin, ABELHAS, abelha, rodadaApiario, usarMel, pedirSelvagem, rodadaHorta, corDoPlantador, PARES, TIPOS_PEDREIRA, mineiro, rodadaPedreira, BOLHAS, bolhasDe, bolhaDe, darBolha, fimDoFilme, anotarCinema, forcaDe, fatorTempo, quemTrabalha, rodadaAmizade, temBordaRancho, minEstagio, porOvos, deixarNoDaycare, chocar, ovosVer, rodadaOvos, raiz, essenciaPorSoltar, ganharEssencia, ITENS, RECEITAS, MOVEIS, JOHTO, PEIXES, ESTAGIOS, CFG, urlItem, itemParaEvoluir, tiposDe, rancho, qtd, dar, aoCapturar, sortearItem,
     evoluir, ajudantes, forjar, plantar, colher, pescar, fazerMovel, estagioDe, acharItem, comando, ehComando: (low) => CMD.test(low) };
 })();
