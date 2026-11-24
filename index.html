@@ -993,8 +993,9 @@
   const PATCH = [
     { v: "Raid", d: "24/11/2026", t: "Raid automática, habilidades e favoritos", itens: [
       ["🤖", "Raid automática", "Digite <code>!atacar</code> uma vez e o seu parceiro luta sozinho até a Raid acabar. Quem continua digitando <code>!atacar</code> bate mais forte. O automático enche o Mega Raio e carrega o SUPER, mas só quem digita <code>!atacar</code> solta o SUPER."],
+      ["📝", "!report", "Achou um bug ou tem uma ideia? Digite <code>!report</code> e conte o que está rolando. Fica salvo para a gente analisar e arrumar."],
       ["🧠", "Habilidades na Raid", "O chefe e os parceiros usam a habilidade deles na Raid (Blaze, Levitate, Huge Power...). Dá um pouco mais de dano ou protege de alguns golpes, sem exagero."],
-      ["⭐", "Favoritos e Evoluir na Box", "Na Box, toque na ⭐ para favoritar (ou <code>!favorito pikachu 2</code>). O botão 🧬 Evoluir mostra o que falta e como evoluir."]] },
+      ["⭐", "Favoritos e Evoluir na Box", "Na Box, toque na ⭐ para favoritar (ou <code>!favoritar pikachu 2</code>). O botão 🧬 Evoluir mostra o que falta e como evoluir."]] },
     { v: "Evolução", d: "23/11/2026", t: "Guia de evolução", itens: [
       ["🧬", "!evostatus", "Digite <code>!evostatus</code> no chat e veja o que falta para o seu parceiro evoluir: nível e pedra/item, com ✅ e ❌."],
       ["📖", "Página Evolução", "A página 🧬 Evolução lista todos os Pokémon que evoluem com pedra ou item, e onde achar cada um."]] },
@@ -1325,6 +1326,8 @@
         ${linha("!genero menino", "Gênero: menino, menina ou naobinario")}
         ${linha("!regiao alola", "Região: " + esc((window.USUM_REGIOES || []).join(", ")))}
         ${linha("!favorito pikachu", "Pokémon favorito (qualquer um, não precisa ter capturado)")}
+        ${linha("!favoritar pikachu 2", "Põe uma ⭐ no Pikachu nº 2 da sua Box (favorito não pode ser solto pelo site). De novo para tirar")}
+        ${linha("!report texto", "Achou um bug ou tem uma sugestão? Ex: <code>!report minha Happiny não sai da caixa</code>. Fica salvo para o streamer analisar depois")}
         ${linha("!meujogo ultra sun", "Jogo que você está jogando agora nos seus jogos. Cada jogo guarda o próprio time")}
         ${linha("!meutime rowlet pikachu eevee", "Time do seu jogo atual (até 6, pode ser qualquer Pokémon). Se você não escolheu jogo, ou usou <code>!meujogo live</code>, vale só Pokémon capturado na live")}
         ${linha("!jogofav emerald", "Jogo favorito (aparece com a capa)")}
@@ -2575,7 +2578,7 @@
     const listas = {}; const listaDe = (n) => listas[n] || (listas[n] = individuos(c[n]));
     box.innerHTML = todos.slice(0, bxMax).map(({ n, x, i }) => { const l = listaDe(n), ehMelhor = l.findIndex((y) => !!y.s === !!x.s) === i, evo = meu && filhosDe(n).length && ehMelhor, pronto = evo && requisitosEvo(u, n, x).some((r) => r.pronto);
       return `<div class="bx ${classeForca(x.f)} ${x.s ? "shiny" : ""} ${x.fv ? "fav" : ""}" data-n="${n}" data-i="${i}" tabindex="0">
-        ${meu ? `<button type="button" class="bx-estrela ${x.fv ? "on" : ""}" data-cmd="!favorito ${esc(nome(n).toLowerCase())} ${i + 1}" title="${x.fv ? "Tirar dos favoritos" : "Favoritar"}">${x.fv ? "★" : "☆"}</button>` : x.fv ? `<span class="bx-estrela on">★</span>` : ""}
+        ${meu ? `<button type="button" class="bx-estrela ${x.fv ? "on" : ""}" data-cmd="!favoritar ${esc(nome(n).toLowerCase())} ${i + 1}" title="${x.fv ? "Tirar dos favoritos" : "Favoritar"}">${x.fv ? "★" : "☆"}</button>` : x.fv ? `<span class="bx-estrela on">★</span>` : ""}
         ${x.s ? '<span class="sh">✦</span>' : ""}${x.hi && R && R.ITENS[x.hi] ? `<img class="bx-hi" src="${R.urlItem(x.hi)}" alt="" title="Segura ${esc(R.ITENS[x.hi].n)}">` : ""}
         <img class="bx-img" src="${home(n, x.s)}" alt="" loading="lazy">
         <b class="bx-nome">${x.a ? `“${esc(x.a)}”` : esc(nome(n))} ${sexoHTML(x)}</b>
@@ -2648,7 +2651,7 @@
         ${nivelHTML(x)}${itemSegurarHTML(u, n, x, i, souEu(login))}${x.ev && x.ev.some(Boolean) ? `<div class="ind-ev">EV: ${["HP", "Atq", "Def", "AtqE", "DefE", "Vel"].map((t, k) => x.ev[k] ? `<span>${t} ${x.ev[k]}</span>` : "").join("")}</div>` : ""}
         <div class="ivs">${x.iv.map((v, k) => `<div><span>${ROT_IV[k]}</span><div class="iv-barra"><i style="width:${(v / 31) * 100}%" class="${v === 31 ? "max" : ""}"></i></div><em>${v}</em></div>`).join("")}</div>
         ${x.t ? `<small class="quando">capturado em ${new Date(x.t).toLocaleDateString("pt-BR")}</small>` : ""}
-        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!favorito ${esc(nome(n).toLowerCase())} ${i + 1}">${x.fv ? "★ Tirar dos favoritos" : "☆ Favoritar"}</button>${filhosDe(n).length && lista.findIndex((y) => !!y.s === !!x.s) === i ? `<button type="button" data-evo-f="${n}:${i}">🧬 Evoluir</button>` : ""}${renomearHTML(n, x, i)}<button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}${x.fv ? `<small class="sub" title="Tire dos favoritos para poder soltar">⭐ favorito (não dá para soltar)</small>` : `<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button>`}</div>` : ""}
+        ${souEu(login) ? `<div class="acoes-ind"><button type="button" data-cmd="!favoritar ${esc(nome(n).toLowerCase())} ${i + 1}">${x.fv ? "★ Tirar dos favoritos" : "☆ Favoritar"}</button>${filhosDe(n).length && lista.findIndex((y) => !!y.s === !!x.s) === i ? `<button type="button" data-evo-f="${n}:${i}">🧬 Evoluir</button>` : ""}${renomearHTML(n, x, i)}<button type="button" data-cmd="!pokemon ${n}${x.s ? " shiny" : ""}">⭐ Escolher como parceiro</button>${tmBotoes(u, n, x, i)}${x.fv ? `<small class="sub" title="Tire dos favoritos para poder soltar">⭐ favorito (não dá para soltar)</small>` : `<button type="button" data-cmd="!release ${n} ${i + 1}${x.s || lista.length === 1 ? "" : " já"}" ${x.s || lista.length === 1 ? 'data-depois="!release sim"' : ""} data-confirma="Soltar ${esc(nome(n))} #${i + 1} (força ${x.f}%)? Dá essência para a forja, mas não tem volta.">Soltar</button>`}</div>` : ""}
       </div>`).join("") : `<p class="sub">Os status aparecem depois da próxima atualização da live.</p>`}</div>
       <p class="sub ficha-dica">Cada Pokémon tem 6 status de 0 a 31; a <b>força</b> é a soma deles (100% = perfeito). Para soltar um: <code>!release ${esc(nome(n).toLowerCase())} 2</code> (o número da lista) ou só <code>!release ${esc(nome(n).toLowerCase())}</code> para soltar o mais fraco. Na troca: <code>!trade @pessoa ${esc(nome(n).toLowerCase())} 1 por ...</code> Para dar um nome: <code>!apelido ${esc(nome(n).toLowerCase())} 1 Nome</code> (até 12 letras).</p>
     </div>`;
