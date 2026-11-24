@@ -141,6 +141,18 @@
 
   .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
   .pk.reg img { opacity: .55; filter: saturate(.6); }
+  /* guia de evolução */
+  .ev-passos { margin: 14px 0 18px; padding-left: 22px; display: grid; gap: 8px; max-width: 78ch; } .ev-passos li { line-height: 1.5; }
+  .ev-meus { background: var(--card); border: 1px solid var(--borda); border-radius: 18px; padding: 14px; margin-bottom: 16px; } .ev-meus h3 { margin: 0 0 8px; }
+  .ev-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .ev-card { background: var(--card); border: 1px solid var(--borda); border-radius: 18px; padding: 14px; } .ev-card[hidden] { display: none; }
+  .ev-cab { display: flex; gap: 10px; align-items: center; } .ev-cab img { width: 44px; height: 44px; image-rendering: pixelated; } .ev-cab h3 { margin: 0; font: 600 18px "Fredoka", sans-serif; } .ev-cab small { color: var(--txt2); }
+  .ev-onde { margin: 8px 0; font-size: 13.5px; color: var(--txt2); }
+  .ev-lista { display: grid; gap: 6px; }
+  .ev-linha { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; background: rgba(255,255,255,.04); border-radius: 12px; padding: 4px 8px; }
+  .ev-pk { display: inline-flex; align-items: center; gap: 4px; font-size: 13.5px; } .ev-pk img { width: 36px; height: 36px; object-fit: contain; } .ev-pk.tem b { color: #9dffbf; }
+  .ev-linha .seta { opacity: .6; }
+  .ev-it { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 2px 8px; border-radius: 999px; background: rgba(255,120,120,.12); } .ev-it.ok { background: rgba(120,255,160,.14); } .ev-it img { width: 22px; height: 22px; }
   /* ---------- 🗼 Torre dos Líderes ---------- */
   .tw-cena { position: relative; margin: 14px 0 10px; border-radius: 20px; overflow: hidden; border: 1px solid var(--borda); aspect-ratio: 2752 / 1536; background: #1c1630 url(assets/rancho/torre-cena.jpg) center/cover no-repeat; image-rendering: pixelated; }
   .tw-cena::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: #fff; opacity: 0; animation: tw-raio 11s infinite; }
@@ -724,6 +736,7 @@
     <a href="?p=bolas" data-p="bolas">⚪ Pokébolas</a>
     <a href="?p=fotos" data-p="fotos">🧢 Fotos de treinador</a>
     <a href="?p=torre" data-p="torre">🗼 Torre</a>
+    <a href="?p=evolucao" data-p="evolucao">🧬 Evolução</a>
     <a href="?p=novidades" data-p="novidades">📰 Patch Notes</a>
     <a href="?p=perfil" data-p="perfil" id="nav-perfil">⭐ Meu perfil</a>
   </nav>
@@ -947,6 +960,7 @@
     if (pag === "creditos") { marcar(""); return paginaCreditos(); }
     if (pag === "fotos") { marcar("fotos"); return paginaFotos(); }
     if (pag === "bolas") { marcar("bolas"); return paginaBolas(); }
+    if (pag === "evolucao") { marcar("evolucao"); return paginaEvolucao(); }
     if (pag === "torre") { marcar("torre"); return paginaTorre(login || (TWX.eu && D.t[TWX.eu] ? TWX.eu : achar(lembrado())) || ""); }
     if (login) { marcar("perfil"); return perfil(login); }
     if (pag === "perfil") { marcar("perfil"); app.innerHTML = `<p class="vazio">Digite seu nome da Twitch acima para abrir seu perfil.${u ? ` Não achei “${esc(u)}” ainda: os dados sobem a cada minuto durante a live.` : ""}</p>`; document.getElementById("q").focus(); return; }
@@ -967,6 +981,9 @@
 
   /* ---------- Patch Notes: o que mudou no site e na live (mais novo em cima) ---------- */
   const PATCH = [
+    { v: "Evolução", d: "23/11/2026", t: "Guia de evolução", itens: [
+      ["🧬", "!evostatus", "Digite <code>!evostatus</code> no chat e veja o que falta para o seu parceiro evoluir: nível e pedra/item, com ✅ e ❌."],
+      ["📖", "Página Evolução", "A página 🧬 Evolução lista todos os Pokémon que evoluem com pedra ou item, e onde achar cada um."]] },
     { v: "Torre 3", d: "23/11/2026", t: "Chances na torre", itens: [
       ["🎟️", "3 chances por live", "Cada subida na torre gasta 1 chance. Ganhando, você escolhe: seguir para o próximo líder ou lutar de novo com um que já venceu."],
       ["💎", "Mais chances", "Acabaram? Na página da torre, o botão <b>🔄 Mais 3 chances</b> (30 bits) recarrega."],
@@ -1178,6 +1195,7 @@
         ${linha("!forjar great", "A forja faz Pokébolas com Essência, Apricorn e Minério. Precisa ter na caixa um Pokémon de <b>Aço, Terra ou Pedra</b> e um de <b>Fogo</b> (os mais fortes trabalham sozinhos; para escolher: <code>!forja geodude litten</code>). <code>!forjar great 5</code> faz 5 vezes. Também forja as bolas de Johto e as varas de pesca (<code>!forjar vara boa</code>)")}
         ${linha("!mel / !hipermel", "Uma abelha da sua caixa (<b>Cutiefly, Ribombee, Combee ou Vespiquen</b>) faz Mel no apiário do rancho durante a live, devagar: mais ou menos 1 a cada 30 minutos, e às vezes a abelha volta sem nada (<code>!apiario cutiefly</code> escolhe qual). <code>!mel</code> chama um Pokémon selvagem na live. <code>!hipermel</code> tem 10% de chance de vir um Pokémon na última forma e 0,1% de um lendário")}
         ${linha("Check-in", "Na sua primeira mensagem de cada live você faz check-in e ganha 2 Great Balls, 1 Mel, 3 Essências e 1 Apricorn. A cada 5 dias seguidos ganha também 1 Ultra Ball e 1 Hiper Mel")}
+        ${linha("!evostatus", "Mostra o que falta para o seu parceiro evoluir: o nível e a pedra/item de cada evolução, com ✅ e ❌. <code>!evostatus eevee</code> mostra de qualquer Pokémon. Tem o guia completo de pedras na página <a href='?p=evolucao'>🧬 Evolução</a>")}
         ${linha("!torre", "A <b>Torre dos Líderes de Alola</b> se joga no site, na página 🗼 Torre: você batalha com a sua party (parceiro + time salvo) escolhendo os golpes. Capitães usam 3 Pokémon, os 4 Kahunas e o Kukui usam 6. A batalha automática (20 bits) e as chances extras (30 bits) ficam em botões na página da torre. Cada vitória dá insígnia e XP para todos da party. <b>2 subidas por dia</b>; o progresso fica salvo. <code>!torre pesadelo</code> abre depois de vencer tudo, e <code>!insignias</code> mostra seu estojo. Veja a batalha na página <a href='?p=torre'>🗼 Torre</a>")}
         ${linha("!atacar (Raid)", "Quando o streamer abre uma <b>Raid</b>, aparece um Pokémon chefe 80% mais forte, com HP enorme, por 3 minutos. Digite <code>!atacar</code> (ou use o botão ⚔️ no chat do site) para atacar com o seu parceiro: a força dele, o estágio e o tipo contam. O chefe revida e deixa alguns parceiros fora de combate por um tempinho. Se ele cair, todo mundo que lutou ganha Essência e só quem lutou pode tentar capturar")}
         ${linha("!pedreira geodude", "Um Pokémon de <b>Pedra</b> ou <b>Terra</b> da sua caixa quebra pedra na pedreira do rancho durante a live (se você não escolher, o mais forte vai sozinho). A cada 8 minutos mais ou menos ele acha algo: quase sempre <b>Minério</b> para a forja, às vezes Pó Estelar e, com sorte, <b>pedras de evolução</b> e <b>Revestimento Metálico</b> (só vem daqui; Magneton precisa dele e do nível 30 para virar Magnezone). Mais forte, mais rápido. Vai direto para a mochila")}
@@ -1755,6 +1773,34 @@
     $("[data-a=pula]").onclick = () => { const k = inicios.findIndex((x) => x >= ptr); irPara(k < 0 ? inicios.length - 1 : k); };
     box.querySelectorAll(".tw-lutas button").forEach((b) => (b.onclick = () => irPara(+b.dataset.k)));
     const L0 = L[log.l[0].i]; falar(L0, esc(L0.ola[0]));
+  }
+
+  /* ---------- 🧬 Guia de evolução por pedra e item ---------- */
+  function paginaEvolucao() {
+    if (!paginaEvolucao._q) { paginaEvolucao._q = 1; TWX.quem().then(() => { if (TWX.eu && D.t[TWX.eu] && new URLSearchParams(location.search).get("p") === "evolucao") paginaEvolucao(); }); }
+    const R = USUM.rancho; if (!R || !R.EVO_ITENS) { app.innerHTML = `<p class="vazio">Carregando…</p>`; return; }
+    const eu = TWX.eu && D.t[TWX.eu] ? TWX.eu : achar(lembrado()), u = eu ? D.t[eu] : null, bolsa = (u && u.rn && u.rn.it) || {}, caixa = (u && u.c) || {};
+    const porItem = {}; R.EVO_ITENS.forEach(([de, para, item]) => (porItem[item] = porItem[item] || []).push([de, para]));
+    const ordem = ["fire-stone", "water-stone", "thunder-stone", "leaf-stone", "ice-stone", "moon-stone", "sun-stone", "shiny-stone", "dusk-stone", "dawn-stone"];
+    const itens = Object.keys(porItem).sort((a, b) => (ordem.indexOf(a) + 1 || 99) - (ordem.indexOf(b) + 1 || 99) || R.ITENS[a].n.localeCompare(R.ITENS[b].n));
+    const pk = (n) => `<span class="ev-pk ${u && caixa[n] ? "tem" : ""}" title="${u && caixa[n] ? "Você tem" : ""}"><img src="${home(n, false)}" alt="" loading="lazy"><b>${esc(nome(n))}</b></span>`;
+    const meus = u ? R.EVO_ITENS.filter(([de]) => caixa[de]) : [];
+    app.innerHTML = `<h2>🧬 Como evoluir com pedra e item</h2>
+      <p class="sub">A maioria dos Pokémon evolui só por nível. Alguns precisam de uma <b>pedra</b> ou de um <b>item</b> na mochila (alguns precisam dos dois). Aqui estão todos eles e onde achar cada item.</p>
+      <ol class="ev-passos">
+        <li><b>Confira o que falta</b> digitando <code>!evostatus</code> no chat (ou <code>!evostatus eevee</code>). Ele mostra o nível e o item de cada evolução, com ✅ e ❌.</li>
+        <li><b>Consiga o item</b>: ele cai quando você captura Pokémon na live, e o tipo do Pokémon capturado conta (capturar tipo Água dá mais Pedra da Água). Na Raid caem mais itens, e a <b>pedreira</b> do rancho também acha pedras.</li>
+        <li><b>Suba o nível</b> se precisar: conversando no chat, no dojo do rancho e vencendo líderes na Torre.</li>
+        <li><b>Evolua</b>: com o Pokémon como parceiro, resgate <b>Evoluir meu Pokémon</b> nos pontos do canal e escreva o nome da evolução (ex: <i>jolteon</i>). A pedra sai sozinha da mochila.</li>
+      </ol>
+      ${meus.length ? `<section class="ev-meus"><h3>Seus Pokémon que evoluem com item</h3><div class="ev-lista">${meus.map(([de, para, item]) => `<div class="ev-linha">${pk(de)}<span class="seta">→</span>${pk(para)}<span class="ev-it ${bolsa[item] > 0 ? "ok" : ""}"><img src="${R.urlItem(item)}" alt="">${esc(R.ITENS[item].n)} ${bolsa[item] > 0 ? `✅ ${bolsa[item]}` : "❌"}</span></div>`).join("")}</div></section>` : ""}
+      <div class="filtros"><input type="search" id="evb" placeholder="Procurar um Pokémon ou item (ex: eevee, trovão)"></div>
+      <div class="ev-grade" id="evg">${itens.map((id) => `<section class="ev-card" data-busca="${esc((R.ITENS[id].n + " " + porItem[id].map(([a, b]) => nome(a) + " " + nome(b)).join(" ")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""))}">
+          <div class="ev-cab"><img src="${R.urlItem(id)}" alt=""><div><h3>${esc(R.ITENS[id].n)}</h3><small>${R.ITENS[id].c === "pedra" ? "Pedra de evolução" : "Item de evolução"}${u ? ` · você tem <b>${bolsa[id] || 0}</b>` : ""}</small></div></div>
+          <p class="ev-onde">📍 Onde achar: ${esc(R.ondeAchar(id))}.</p>
+          <div class="ev-lista">${porItem[id].map(([de, para]) => `<div class="ev-linha">${pk(de)}<span class="seta">→</span>${pk(para)}</div>`).join("")}</div></section>`).join("")}</div>`;
+    const busca = app.querySelector("#evb");
+    busca.oninput = () => { const q = busca.value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim(); app.querySelectorAll(".ev-card").forEach((c) => (c.hidden = q && !c.dataset.busca.includes(q))); };
   }
 
   function paginaBolas() {
