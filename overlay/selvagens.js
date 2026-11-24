@@ -237,9 +237,17 @@
   const paraID = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/♀/g, "f").replace(/♂/g, "m").toLowerCase().replace(/[^a-z0-9]/g, "");
   /* ---------- Day Care como no jogo: grupo de ovo e sexo (dados do Showdown, baixados na hora) ---------- */
   let DEXI = null;   // { num: { g: ["Field", ...], r: chance de ser macho (0..1) ou -1 sem sexo } }
+  /* dados do Showdown (Pokédex e golpes): baixa UMA vez, guarda já resumido no navegador do OBS por 7 dias e todas as telas usam.
+     Antes cada tela do OBS baixava e lia 3,7 MB toda vez que abria (o OBS "fritava" ao trocar de cena). */
+  function lerCache(k) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); if (v && v.ver === 2 && Date.now() - v.t < 7 * 864e5) return v; } catch (e) {} return null; }
+  function gravarCache(k, v) { try { localStorage.setItem(k, JSON.stringify(Object.assign({ ver: 2, t: Date.now() }, v))); } catch (e) {} }
+  // só uma tela baixa por vez; as outras esperam e leem o que ela guardou
+  function comTrava(nome, fn) { return navigator.locks && navigator.locks.request ? navigator.locks.request(nome, fn) : fn(); }
   function carregarDex() {
     if (carregarDex.p) return carregarDex.p;
-    carregarDex.p = fetch("https://play.pokemonshowdown.com/data/pokedex.json").then((r) => r.json()).then((j) => {
+    const c0 = lerCache("usum_cache_dex"); if (c0 && c0.D) { DEXI = c0.D; return (carregarDex.p = Promise.resolve(DEXI)); }
+    carregarDex.p = comTrava("usum_baixar_dex", () => { const c = lerCache("usum_cache_dex"); if (c && c.D) return c.D;
+      return fetch("https://play.pokemonshowdown.com/data/pokedex.json").then((r) => r.json()).then((j) => {
       const D = {}, ALO = {};
       Object.values(j).forEach((e) => {
         if (e && e.num >= 1 && e.num <= 807 && e.forme === "Alola" && e.abilities) ALO[e.num] = e.abilities;   // habilidades da forma de Alola
@@ -248,8 +256,8 @@
         D[e.num] = { g: e.eggGroups || [], r, hb: e.abilities || {} };
       });
       Object.entries(ALO).forEach(([n, a]) => { if (D[n]) D[n].hba = a; });
-      DEXI = D; return D;
-    }).catch(() => { carregarDex.p = null; return null; });
+      gravarCache("usum_cache_dex", { D }); return D;
+    }); }).then((D) => { DEXI = D; return D; }).catch(() => { carregarDex.p = null; return null; });
     return carregarDex.p;
   }
   const gruposOvo = (n) => (DEXI && DEXI[n] ? DEXI[n].g : null);
@@ -310,15 +318,19 @@
   function carregarGolpes() {
     carregarDex();
     if (carregarGolpes.p) return carregarGolpes.p;
-    carregarGolpes.p = fetch("https://play.pokemonshowdown.com/data/learnsets.json").then((r) => r.json()).then((j) => {
-      const G = window.USUM_GOLPES || {}, porId = {}; Object.keys(G).forEach((n) => (porId[paraID(n)] = n));
-      const L = {};
-      for (let n = 1; n <= 807; n++) {
-        const ls = ((j[paraID(USUM.nomeDe ? USUM.nomeDe(n) : "")] || {}).learnset) || {};
-        L[n] = Object.keys(ls).filter((k) => porId[k] && (ls[k] || []).some((s) => /^7/.test(s))).map((k) => porId[k]);
-      }
-      LEARN = L; return L;
-    }).catch(() => null);
+    const abrir = (c) => { const L = {}; Object.entries(c.L).forEach(([n, l]) => (L[n] = l.map((i) => c.M[i]))); return L; };
+    const c0 = lerCache("usum_cache_golpes"); if (c0 && c0.L) { LEARN = abrir(c0); return (carregarGolpes.p = Promise.resolve(LEARN)); }
+    carregarGolpes.p = comTrava("usum_baixar_golpes", () => { const c = lerCache("usum_cache_golpes"); if (c && c.L) return abrir(c);
+      return fetch("https://play.pokemonshowdown.com/data/learnsets.json").then((r) => r.json()).then((j) => {
+        const G = window.USUM_GOLPES || {}, porId = {}; Object.keys(G).forEach((n) => (porId[paraID(n)] = n));
+        const L = {}, M = [], idx = {};
+        for (let n = 1; n <= 807; n++) {
+          const ls = ((j[paraID(USUM.nomeDe ? USUM.nomeDe(n) : "")] || {}).learnset) || {};
+          L[n] = Object.keys(ls).filter((k) => porId[k] && (ls[k] || []).some((s) => /^7/.test(s))).map((k) => porId[k]);
+        }
+        const C = {}; Object.entries(L).forEach(([n, l]) => (C[n] = l.map((g) => (idx[g] != null ? idx[g] : (idx[g] = M.push(g) - 1)))));
+        gravarCache("usum_cache_golpes", { M, L: C }); return L;
+      }); }).then((L) => { LEARN = L; return L; }).catch(() => { carregarGolpes.p = null; return null; });
     return carregarGolpes.p;
   }
   function sortearGolpe(num) {
@@ -384,13 +396,15 @@
     const u = todos[login] || (todos[login] = { nome, p: {} });
     u.nome = nome || u.nome;
     const e = completar(u.p[num] || (u.p[num] = { q: 0, s: 0, t: Date.now(), l: [] }));
-    const ind = { iv: iv ? iv.slice() : novoIV(), s: shiny ? 1 : 0, t: Date.now(), n: natureza != null ? natureza : novaNatureza() };
+    // extra.t: quem evolui mantém a data de captura (e com ela o sexo e a habilidade)
+    const ind = { iv: iv ? iv.slice() : novoIV(), s: shiny ? 1 : 0, t: (extra && extra.t) || Date.now(), n: natureza != null ? natureza : novaNatureza() };
     if (apelido) ind.a = String(apelido).slice(0, 12);
     if (forma && USUM.urlFormaHome && USUM.urlFormaHome(num, forma, false)) ind.f = forma;   // forma não regional (Oricorio Pom-Pom...)
     // nível e golpe: quem evolui leva os do Pokémon de antes; selvagem novo ganha nível conforme o estágio e um golpe que ele aprende
     ind.lv = (extra && extra.lv) || nivelInicial(num);
     if (extra && extra.xp) ind.xp = extra.xp;
     const g = (extra && extra.m) || (LEARN ? sortearGolpe(num) : ""); if (g) ind.m = g;
+    if (extra) { if (extra.m2) ind.m2 = extra.m2; if (extra.ev && Object.keys(extra.ev).length) ind.ev = Object.assign({}, extra.ev); if (extra.hi) ind.hi = extra.hi; if (extra.fv) ind.fv = 1; }   // evolução leva 2º golpe, EVs, item e favorito
     e.q++; if (shiny) e.s++; e.l.push(ind);
     u.ultimo = num;
     gravar("usum_caixa", todos);
@@ -429,6 +443,17 @@
     return { acabou, ind };
   }
   // apelido de um Pokémon capturado: pos = número na lista (1 = mais forte); apelido vazio apaga
+  // ⭐ favoritar / desfavoritar um Pokémon da caixa (pos = número na lista, 1 = mais forte)
+  function favoritar(login, num, pos, quer) {
+    const todos = ler("usum_caixa", {}), u = todos[login], e = u && u.p[num];
+    if (!e) return null;
+    const ind = ordenar(completar(e).l)[pos - 1];
+    if (!ind) return null;
+    const novo = quer == null ? !ind.fv : !!quer;
+    if (novo) ind.fv = 1; else delete ind.fv;
+    gravar("usum_caixa", todos);
+    return ind;
+  }
   function apelidar(login, num, pos, apelido) {
     const todos = ler("usum_caixa", {}), u = todos[login], e = u && u.p[num];
     if (!e) return null;
@@ -562,7 +587,20 @@
     return evolucoes(alvo).length ? (r.minutosEvoluir ?? 10) : (r.minutosEvoluirFinal ?? 15);
   }
 
-  USUM.selvagens = { habilidadeDe, C, registrar, verPokemon, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
+  // time salvo com um Pokémon que evoluiu (Riolu → Lucario): troca pela evolução que está na caixa, senão ele some do time e para de ganhar XP
+  function consertarTimes(login) {
+    const pf = ler("usum_perfil", {}), e = pf[login]; if (!e) return false;
+    const cx = ((ler("usum_caixa", {})[login] || {}).p) || {};
+    const tem = (n, sh) => { const x = cx[n]; return x && x.q > 0 && (sh == null || (x.l || []).some((i) => !!i.s === !!sh)); };
+    const evolucaoNaCaixa = (n, sh) => { const fila = [...evolucoes(n)], viu = new Set(); while (fila.length) { const f = fila.shift(); if (viu.has(f)) continue; viu.add(f); if (tem(f, sh)) return f; fila.push(...evolucoes(f)); } return 0; };
+    let mudou = false;
+    const arrumar = (lista) => (lista || []).map((x) => { if (!x || !x[0] || tem(x[0], x[1] ? true : null)) return x; const f = evolucaoNaCaixa(x[0], !!x[1]) || evolucaoNaCaixa(x[0], null); if (f) { mudou = true; return [f, x[1]]; } return x; });
+    if (e.times) Object.keys(e.times).forEach((k) => { if (Array.isArray(e.times[k])) e.times[k] = arrumar(e.times[k]); });
+    if (Array.isArray(e.time)) e.time = arrumar(e.time);
+    if (mudou) gravar("usum_perfil", pf);
+    return mudou;
+  }
+  USUM.selvagens = { favoritar, consertarTimes, habilidadeDe, C, registrar, verPokemon, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
     forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, segurarItem, EV_NOMES, evTotal, treinarEV, estagio, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
