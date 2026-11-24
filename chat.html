@@ -274,7 +274,7 @@
   semear(dadosPai());
   if (!D) buscarGist();
   setInterval(() => semear(dadosPai()), 20000);
-  if (!pai) setInterval(buscarGist, 2 * 60000);
+  if (!pai) setInterval(buscarGist, 20000);
   USUM.chat(document.getElementById("chat"), { espelho: true, aoComando });
 
   /* ---- escrever no chat sem sair do overlay (login da Twitch feito pela página principal) ---- */
@@ -541,7 +541,7 @@
         if (t === "!atacar") { b._n = ((b._n || 0) % 9) + 1; t = "!atacar " + b._n; }
         if (ws && ws.readyState === 1) ws.send(`PRIVMSG #${canal} :${t}`); else { fila.push(t); conectar(); }
         b.classList.remove("ok"); void b.offsetWidth; b.classList.add("ok");
-        const espera = { "!atacar": 5000, "!capturar": 4000 }[b.dataset.t];   // Atacar: 1 a cada 5 s na Raid (ataque forte). Capturar: 4 s
+        const espera = { "!atacar": 2500, "!capturar": 4000 }[b.dataset.t];   // Atacar: 1 a cada 2,5 s na Raid. Capturar: 4 s
         if (espera) { b.disabled = true; const t0 = Date.now(), txt = b.textContent;
           const tk = setInterval(() => { const f = Math.ceil((espera - (Date.now() - t0)) / 1000); if (f <= 0) { clearInterval(tk); b.disabled = false; b.textContent = txt; } else b.textContent = txt + " (" + f + ")"; }, 200); }
       });
