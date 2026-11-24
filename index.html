@@ -920,7 +920,7 @@
     ir("?p=" + a.dataset.p);
   };
   window.addEventListener("popstate", () => D && rota());
-  // dados novos da live a cada 2 minutos: redesenha a página (sem atrapalhar quem está com uma ficha aberta ou digitando)
+  // dados novos da live a cada 15 s: redesenha a página (sem atrapalhar quem está com uma ficha aberta ou digitando)
   setInterval(async () => {
     if (!D || document.hidden || document.body.classList.contains("com-chat")) return;   // com o chat aberto, ele já atualiza
     try {
@@ -931,7 +931,7 @@
       const rodape = document.getElementById("rodape"); if (rodape) rodape.textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       if (!ocupado) { const y = scrollY; rota(); scrollTo(0, y); }
     } catch (e) {}
-  }, 60e3);
+  }, 15e3);
 
   function rota() {
     const p = new URLSearchParams(location.search);
@@ -1960,7 +1960,9 @@
     const form = b.closest("[data-form]");
     if (form) { const radios = [...new Set([...form.querySelectorAll("input[type=radio]")].map((x) => x.name))];
       const vals = [...form.querySelectorAll("select, input[type=text]")].map((x) => x.tagName === "INPUT" ? x.value.replace(/[^\p{L}\p{N} '.\-✦♥]/gu, "").replace(/\s+/g, " ").trim() : x.value).concat(radios.map((nm) => (form.querySelector(`input[name="${nm}"]:checked`) || {}).value || ""));
-      if (vals.includes("nenhum")) vals.length = 0, cmd = cmd.split(" ")[0] + " nenhum";   // deixar o lugar vazio
+      const ehDojo = /^!dojo \{0\} \{1\}$/.test(cmd);
+      if (ehDojo) vals.forEach((v, k) => { if (!v) vals[k] = "nenhum"; });   // dojo: cada vaga pode ficar vazia sozinha
+      if (vals.includes("nenhum") && (!ehDojo || vals.every((v) => v === "nenhum"))) vals.length = 0, cmd = cmd.split(" ")[0] + " nenhum";   // deixar o lugar vazio
       if (vals.some((v) => !v)) { TWX.aviso(form.querySelector("input[type=text]") ? "Escreva um nome primeiro 🙂" : "Escolha uma opção primeiro 🙂", true); return; }
       if (form.querySelector("input[type=text]") && vals.some((v) => [...v].length > 12)) { TWX.aviso("O nome pode ter no máximo 12 letras", true); return; } cmd = cmd.replace(/\{(\d)\}/g, (_, i) => vals[+i]); }
     if (!TWX.eu) { if (confirm("Para fazer isso clicando, entre com a sua conta da Twitch. Entrar agora?")) TWX.entrar(); return; }
@@ -1990,6 +1992,7 @@
     else if ((m = cmd.match(/^!rancho (\d+)$/))) { k = "ami"; v = +m[1]; }
     else if ((m = cmd.match(/^!pedreira (\d+)$/))) { k = "pd"; v = +m[1]; }
     else if ((m = cmd.match(/^!apiario (\d+)$/))) { k = "ap"; v = +m[1]; }
+    else if ((m = cmd.match(/^!dojo (\d+|nenhum) (\d+|nenhum)$/)) || (m = cmd.match(/^!dojo (nenhum)$/))) { k = "dj"; v = [m[1] === "nenhum" ? 0 : +m[1], !m[2] || m[2] === "nenhum" ? 0 : +m[2]]; if (!v[0] && v[1]) v = [v[1], 0]; }
     else if ((m = cmd.match(/^!(forja|horta|pedreira|apiario) nenhum$/))) { k = { forja: "fj", horta: "hf", pedreira: "pd", apiario: "ap" }[m[1]]; v = k === "fj" || k === "hf" ? "off" : -1; }
     else if (cmd === "!rancho tirar") { k = "ami"; v = 0; }
     else if (cmd === "!daycare tirar") { k = "dc"; v = 0; }
@@ -2006,7 +2009,7 @@
     const em = D && D.em ? Date.parse(D.em) : 0, rn = Object.assign({}, u.rn || {}), out = Object.assign({}, u, { rn }), pend = {};
     const igual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     Object.entries(eu).forEach(([k, x]) => {
-      const atual = k === "dc" ? (rn.dc && rn.dc.a ? [rn.dc.a[0], rn.dc.b && rn.dc.b[0]] : 0) : k === "p" ? (u.p ? [u.p[0], u.p[1] ? 1 : 0] : null) : k === "ami" ? (rn.ami || 0) : k === "pd" ? ((rn.pd || {}).n || 0) : k === "ap" ? ((rn.ap || {}).n || 0) : rn[k];
+      const atual = k === "dc" ? (rn.dc && rn.dc.a ? [rn.dc.a[0], rn.dc.b && rn.dc.b[0]] : 0) : k === "p" ? (u.p ? [u.p[0], u.p[1] ? 1 : 0] : null) : k === "ami" ? (rn.ami || 0) : k === "pd" ? ((rn.pd || {}).n || 0) : k === "ap" ? ((rn.ap || {}).n || 0) : k === "dj" ? [(rn.dj || {}).a || 0, (rn.dj || {}).b || 0] : rn[k];
       const chegou = igual(atual, x.v) || ((k === "fj" || k === "hf") && Array.isArray(atual) && Array.isArray(x.v) ? atual.slice().sort().join() === x.v.slice().sort().join() : false);
       if (chegou || Date.now() - x.t > 10 * 60e3 || em > x.t + 4 * 60e3) { delete eu[k]; return; }   // confirmou, ou a live já respondeu sem mudar
       pend[k] = 1;
@@ -2014,6 +2017,7 @@
       else if (k === "ami") { if (x.v) rn.ami = x.v; else delete rn.ami; }
       else if (k === "pd") rn.pd = Object.assign({}, rn.pd || {}, { n: x.v });
       else if (k === "ap") rn.ap = Object.assign({}, rn.ap || {}, { n: x.v });
+      else if (k === "dj") rn.dj = Object.assign({}, rn.dj || {}, { a: x.v[0], b: x.v[1] });
       else if (k === "dc") rn.dc = x.v ? Object.assign({}, rn.dc || {}, { a: [x.v[0], 0], b: [x.v[1], 0] }) : Object.assign({}, rn.dc || {}, { a: 0, b: 0 });
       else if (k === "p") out.p = x.v;
     });
@@ -2037,7 +2041,7 @@
         else if (l && D.t[l]) { desenhar(l); scrollTo(0, y); }
         document.getElementById("rodape").textContent = "Atualizado " + quando(D.em) + " · os dados sobem sozinhos durante a live";
       } catch (e) {}
-    }, 25e3);
+    }, 8e3);
   }
 
   /* ---------- sprites animados do PMD (o mesmo projeto das carinhas do chat): todos na mesma escala ----------
@@ -2212,12 +2216,12 @@
       const barrasEV = (n) => { const ev = evDe(n); if (!ev) return `<small class="sub">sem EV ainda</small>`;
         return `<div class="evs">${EVK.map((k, i) => `<div class="ev-l"><span>${EVN[k]}</span><i style="--p:${Math.min(100, (ev[i] || 0) / 252 * 100)}%"></i><b>${ev[i] || 0}</b></div>`).join("")}</div>`; };
       const evAt = dj.ev || "at", prox = Math.max(1, (dj.m || 60) - (dj.cr || 0));
-      h += `<section class="painel" id="r-dojo"><h3>🥋 Dojo</h3>
+      h += `<section class="painel" id="r-dojo"><h3>🥋 Dojo</h3>${pend.dj ? `<p class="pend">⏳ Mudança enviada. Esperando a live confirmar (menos de 1 min)…</p>` : ""}
         <div class="dupla">${[dj.a, dj.b].map((n, i) => `<div class="vaga ${n ? "ok" : ""}">${n ? pmdSpr(n, false, "vaga-spr") : `<span>?</span>`}<small>Treinando ${i + 1}</small><b>${n ? esc(nome(n)) : "vazio"}</b></div>`).join("")}</div>
         ${[[dj.a, dj.ea || evAt, 1], [dj.b, dj.eb || evAt, 2]].filter(([n]) => n).map(([n, evN, q]) => { const ind = individuos((u.c || {})[n] || [0, 0, []])[0] || {}, cn = ind.lv >= 100 ? 0 : custoNivel(ind.lv || 1);
           return `<div class="ev-caixa"><div class="dj-cab"><b>${esc(nome(n))}</b>${ind.lv ? ` <span class="dj-nv">Nv. ${ind.lv}</span>${cn ? `<span class="xp-barra" title="${ind.xp || 0}/${cn} XP"><i style="width:${Math.min(100, ((ind.xp || 0) / cn) * 100)}%"></i></span>` : ""}` : ""} <span class="dj-ev">treina <b>${EVN[evN]}</b></span></div>${barrasEV(n)}
             ${ctl ? `<div class="r-form" data-form><select aria-label="EV de ${esc(nome(n))}">${EVK.map((k) => `<option value="${k}" ${k === evN ? "selected" : ""}>${EVN[k]}</option>`).join("")}</select><button type="button" class="r-btn" data-cmd="!dojo ev${q} {0}">Treinar esse EV</button></div>` : ""}</div>`; }).join("")}
-        ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon 1">${opts(cx, dj.a, !dj.a && !dj.b && rn.dj)}</select><select aria-label="Pokémon 2">${opts(cx, dj.b)}</select><button type="button" class="r-btn" data-cmd="!dojo {0} {1}">Trocar</button></div>` : ""}
+        ${ctl ? `<div class="r-form" data-form><select aria-label="Pokémon 1">${opts(cx, dj.a, !dj.a && !dj.b && rn.dj)}</select><select aria-label="Pokémon 2">${opts(cx, dj.b, !dj.b)}</select><button type="button" class="r-btn" data-cmd="!dojo {0} {1}">Trocar</button></div>` : ""}
         <p class="sub">🌙 O dojo treina até com a live desligada, só que 50% mais devagar. A cada <b>${dj.m || R.CFG.dojoMinutos} min</b> de live, os Pokémon do dojo ganham <b>XP</b> (sobem de nível mais rápido) e <b>+${R.CFG.dojoEV} EV</b> no atributo que cada um treina${dj.a || dj.b ? ` · próximo treino em ~${prox} min de live (~${prox * 2} min com a live desligada)` : ""}. EV vai até 252 por atributo (510 no total) e ajuda na Raid: Ataque/Ataque Esp. dão mais dano, HP dá mais vida, Defesa segura os golpes do chefe e Velocidade dá mais críticos.</p></section>`;
     }
     // ---- cantinho da amizade ----
@@ -2576,7 +2580,7 @@
         p.querySelector(".f-twitch").src = `https://www.twitch.tv/embed/${encodeURIComponent(canal)}/chat?parent=${location.hostname}&darkpopout`;
       }
       p.classList.toggle("on", on); document.body.classList.toggle("com-chat", on); b.style.display = on ? "none" : "";
-      clearInterval(timer); if (on) timer = setInterval(atualizar, 40000);   // chat aberto: dados (e avisos) novos a cada 40 s
+      clearInterval(timer); if (on) timer = setInterval(atualizar, 15000);   // chat aberto: dados (e avisos) novos a cada 15 s
     };
     b.onclick = () => abrir(true); p.querySelector(".fechar").onclick = () => abrir(false);
     // desprender: abre o chat numa janelinha própria, para deixar a live numa tela e o chat em outra (ou do lado)
