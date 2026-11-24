@@ -749,12 +749,25 @@
           : `<b>${esc(m.nome)}</b> deu o nome <b>“${esc(novo)}”</b> ao seu ${esc(p.nome)}${qualTxt}${ind.s ? " ✦" : ""} 🏷️`, { num: p.num, forma: USUM.formaRegional(p.num), shiny: !!ind.s });
         return;
       }
-      // ⭐ !favorito pikachu 2 (o nº 2 da lista do site) · !favorito pikachu (o mais forte) · de novo para tirar
-      if ((cmd === "!favorito" || cmd === "!fav" || cmd === "!favoritar") && USUM.selvagens) {
+      // 📝 !report texto: a pessoa conta um bug ou sugestão e fica salvo (usum_reports, vai no backup) para analisar depois
+      if (["!report", "!reportar", "!bug", "!sugestao", "!sugestão"].includes(cmd)) {
+        const t = times()[m.login], msg = txt.slice(cmd.length).trim().replace(/\s+/g, " ").slice(0, 400);
+        if (msg.length < 5) { aviso(t, `📝 <b>${esc(m.nome)}</b>, conte o que está acontecendo depois do comando. Ex: <b>!report minha Happiny não sai da caixa</b>`); return; }
+        const todos = ler("usum_reports", []), meus = todos.filter((r) => r.l === m.login && Date.now() - r.t < 60e3);
+        if (meus.length) { aviso(t, `📝 <b>${esc(m.nome)}</b>, espere 1 minutinho para mandar outro report`); return; }
+        umaVez(m, () => { const r = ler("usum_reports", []); r.push({ l: m.login, nome: m.nome, t: Date.now(), x: msg }); gravar("usum_reports", r.slice(-500)); });
+        aviso(t, `📝 Valeu, <b>${esc(m.nome)}</b>! Seu report foi salvo e vai ser analisado 💚`);
+        return;
+      }
+      // dono: !reports mostra quantos reports tem guardados
+      if (cmd === "!reports" && (m.dono || m.mod)) { const r = ler("usum_reports", []); aviso(times()[m.login], `📝 ${r.length} report(s) guardado(s)${r.length ? `. Último: <b>${esc(r[r.length - 1].nome)}</b>: ${esc(r[r.length - 1].x.slice(0, 120))}` : ""}`); return; }
+      // ⭐ !favoritar pikachu 2 (o nº 2 da lista do site) · !favoritar pikachu (o mais forte) · de novo para tirar
+      // (o !favorito / !fav é outra coisa: o Pokémon favorito do perfil)
+      if ((cmd === "!favoritar" || cmd === "!estrela") && USUM.selvagens) {
         const SV = USUM.selvagens, t = times()[m.login], tk = txt.split(/\s+/).slice(1);
         let p = null, usou = 0;
         for (let k = Math.min(3, tk.length); k >= 1 && !p; k--) { const x = USUM.lerPokemon(tk.slice(0, k).join(" ")); if (x && SV.individuos(m.login, x.num).length) { p = x; usou = k; } }
-        if (!p) { aviso(t, `<b>${esc(m.nome)}</b>, use <b>!favorito pikachu</b> (ou <b>!favorito pikachu 2</b> para o nº 2 da lista do site)`); return; }
+        if (!p) { aviso(t, `<b>${esc(m.nome)}</b>, use <b>!favoritar pikachu</b> (ou <b>!favoritar pikachu 2</b> para o nº 2 da lista do site)`); return; }
         const r = tk.slice(usou); let pos = /^#?\d{1,2}$/.test(r[0] || "") ? parseInt(r[0].replace("#", ""), 10) : 1;
         const lista = SV.individuos(m.login, p.num);
         if (!lista[pos - 1]) { aviso(t, `<b>${esc(m.nome)}</b>, você só tem ${lista.length} ${esc(p.nome)}`); return; }
