@@ -556,7 +556,7 @@
           }
           if (ganhou) setTimeout(() => {
             const ind = SV.individuos(m.login, p.num)[0];
-            if (ind) aviso(times()[m.login], `📘 ${esc(p.nome)}${p.shiny ? " ✦" : ""} entrou na Pokédex de <b>${esc(m.nome)}</b> · força ${SV.forcaIV(ind.iv)}% · ${esc(SV.nomeNatureza(ind.n))}`, p);
+            if (ind) aviso(times()[m.login], `📘 ${esc(p.nome)}${p.shiny ? " ✦" : ""} entrou na Pokédex de <b>${esc(m.nome)}</b> · força ${SV.forcaIV(ind.iv)}% · ${esc(SV.nomeNatureza(ind.n))}${(() => { const sx = SV.temDex && SV.temDex() ? SV.sexoDe(ind, p.num) : "", hb = SV.habilidadeDe ? SV.habilidadeDe(ind, p.num) : null; return (sx ? " · " + sx : "") + (hb ? ` · ${hb.oculta ? "✨ " : ""}${esc(hb.n)}` : ""); })()}`, p);
           }, 900);
           aviso(times()[m.login], sorteado ? `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)} e ele veio ✨ <b>SHINY</b>! (só ${Math.round(chanceIni * 100)}% de chance)`
             : `<b>${esc(m.nome)}</b> escolheu ${esc(p.nome)}${p.shiny ? " ✦ shiny" : ""}!`, p);
