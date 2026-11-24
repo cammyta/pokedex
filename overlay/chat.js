@@ -408,7 +408,8 @@
     function adicionar(no) {
       lista.appendChild(no);
       while (lista.children.length > max) lista.firstElementChild.remove();
-      if (CFG.sumirDepoisDeSegundos > 0) setTimeout(() => { no.classList.add("sai"); setTimeout(() => no.remove(), 600); }, CFG.sumirDepoisDeSegundos * 1000);
+      const sumir = opcoes.sumir != null ? opcoes.sumir : CFG.sumirDepoisDeSegundos;   // cada tela pode ter o seu tempo (ex: jogos.html)
+      if (sumir > 0) setTimeout(() => { no.classList.add("sai"); setTimeout(() => no.remove(), 600); }, sumir * 1000);
     }
     function aviso(time, html, poke) {
       const d = document.createElement("div");
@@ -805,8 +806,9 @@
         }
         // rápido: "!release pikachu já" (ou "agora") solta na hora, sem pedir !release sim.
         // Só pede confirmação se for shiny, todos, ou o último dessa espécie (sai da Pokédex)
-        let rapido = false;
-        const argR = arg.replace(/\s+(ja|já|agora|rapido|rápido)$/i, () => { rapido = true; return ""; });
+        let rapido = false, confirmado = false;
+        // "!release happiny 1 sim" já vem confirmado numa mensagem só (o botão Soltar do site usa assim)
+        const argR = arg.replace(/\s+(sim|confirmo|confirmar)$/i, () => { confirmado = true; return ""; }).replace(/\s+(ja|já|agora|rapido|rápido)$/i, () => { rapido = true; return ""; });
         // "!release pikachu", "!release pikachu 3" (número da lista no site) ou "!release pikachu todos"
         const mm = argR.match(/^(.*?)(?:\s+(\d+|todos|tudo))?$/i);
         const p = USUM.lerPokemon(mm[1] || "");
@@ -820,6 +822,7 @@
         const ultimo = qual === "todos" || lista.length === 1;
         const pedido = { num: p.num, qual: qual === "todos" ? "todos" : lista.indexOf(alvo) + 1, forca: f, ate: Date.now() + 60000 };
         if (rapido && qual !== "todos" && !ultimo && !(alvo && alvo.s)) { executar(pedido); return; }
+        if (confirmado) { executar(pedido); return; }
         mudar(m, "usum_release", (x) => (x[m.login] = pedido));
         const parc = parceiroDe(m.login).num === p.num;
         const qualTxt = qual === "todos" ? `todos os ${lista.length} ${esc(p.nome)}${lista.some((x) => x.s) ? " (inclusive shiny)" : ""}`
