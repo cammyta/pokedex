@@ -240,12 +240,14 @@
   function carregarDex() {
     if (carregarDex.p) return carregarDex.p;
     carregarDex.p = fetch("https://play.pokemonshowdown.com/data/pokedex.json").then((r) => r.json()).then((j) => {
-      const D = {};
+      const D = {}, ALO = {};
       Object.values(j).forEach((e) => {
+        if (e && e.num >= 1 && e.num <= 807 && e.forme === "Alola" && e.abilities) ALO[e.num] = e.abilities;   // habilidades da forma de Alola
         if (!e || !e.num || e.num < 1 || e.num > 807 || e.forme || D[e.num]) return;
         const r = e.gender === "M" ? 1 : e.gender === "F" ? 0 : e.gender === "N" ? -1 : e.genderRatio ? e.genderRatio.M : 0.5;
-        D[e.num] = { g: e.eggGroups || [], r };
+        D[e.num] = { g: e.eggGroups || [], r, hb: e.abilities || {} };
       });
+      Object.entries(ALO).forEach(([n, a]) => { if (D[n]) D[n].hba = a; });
       DEXI = D; return D;
     }).catch(() => { carregarDex.p = null; return null; });
     return carregarDex.p;
@@ -258,6 +260,17 @@
     if (r < 0) return ""; if (r >= 1) return "♂"; if (r <= 0) return "♀";
     const h = (((ind && ind.iv) || []).reduce((a, b, i) => (a * 33 + b * 7 + i) >>> 0, 11) + Math.round(((ind && ind.t) || 0) / 1000)) % 1000;
     return h / 1000 < r ? "♂" : "♀";
+  }
+  // habilidade fixa de cada Pokémon (sai do "DNA" dele, como o sexo): uma das normais e, com 5% de chance, a oculta
+  // devolve { n: "Static", oculta: false } ou null (sem os dados da Pokédex ainda)
+  function habilidadeDe(ind, num) {
+    if (ind && ind.hb) return { n: String(ind.hb).replace(/\*$/, ""), oculta: /\*$/.test(ind.hb) };
+    const d = DEXI && DEXI[num]; if (!d) return null;
+    const a = (USUM.formaRegional && USUM.formaRegional(num) && d.hba) || d.hb || {};
+    const normais = ["0", "1"].filter((k) => a[k]); if (!normais.length) return null;
+    const h = (((ind && ind.iv) || []).reduce((x, b, i) => (x * 31 + b * 13 + i * 7) >>> 0, 97) + Math.round(((ind && ind.t) || 0) / 997)) >>> 0;
+    if (a.H && h % 100 < 5) return { n: a.H, oculta: true };
+    return { n: a[normais[h % normais.length]], oculta: false };
   }
   // escolhe o melhor casal possível entre as espécies A e B da caixa. Devolve { a, b } (indivíduos) ou { erro }
   function casalDaycare(login, A, B) {
@@ -549,7 +562,7 @@
     return evolucoes(alvo).length ? (r.minutosEvoluir ?? 10) : (r.minutosEvoluirFinal ?? 15);
   }
 
-  USUM.selvagens = { C, registrar, verPokemon, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
+  USUM.selvagens = { habilidadeDe, C, registrar, verPokemon, anotarConversa, minutosCom, minutosParaEvoluir, bordaDe, bordasLiberadas, bordaUsada, registrarCaptura, NATUREZAS, novoIV, novaNatureza, nomeNatureza, estagio, deAlola, surto, rota, anotarRota, acharRegiao, REGIOES, sortear, chance, caixa, guardar, apelidar, apelidoDe, soltar, tirarUm, individuos, escolher, forcaIV, nota, totalDe, cheio, pode, resumoCaixa, mochila, darBola, bolaDe, gastarBola, evolucoes,
     forca, EFEITO, COMPRAVEIS, JOHTO, BEBES, DEX_ALOLA, nivelInicial, nivelDe, custoNivel, ganharXP, nivelParaEvoluir, timesHoje, timeMenor, segurarItem, EV_NOMES, evTotal, treinarEV, estagio, mexerGolpe, carregarGolpes, carregarDex, temDex: () => !!DEXI, gruposOvo, sexoDe, casalDaycare, sortearGolpe, garantirGolpes, golpeDe, temGolpes: () => !!LEARN, pai: (n) => PAI[n] || 0, ler, gravar, ehLendario: (n) => ehLendario.has(n), iniciais: INICIAIS,
     // em Alola, quem tem forma de Alola aparece (e é guardado) na forma de Alola
     urlHome: (num, shiny) => {
